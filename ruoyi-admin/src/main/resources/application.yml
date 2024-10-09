@@ -56,7 +56,8 @@ spring:
     active: druid
   # 文件上传
   servlet:
-    # TODO：若需要修改文件上传大小限制，自行修改，并同时修改 /ruoyi-common/src/main/java/com/ruoyi/common/utils/file/FileUploadUtils.java中的【DEFAULT_MAX_SIZE】值
+    # TODO：若需要修改文件上传大小限制，自行修改；
+    ## 注意：并同时修改 /ruoyi-common/src/main/java/com/ruoyi/common/utils/file/FileUploadUtils.java中的【DEFAULT_MAX_SIZE】值
     multipart:
       # 单个文件大小
       max-file-size: 10MB
