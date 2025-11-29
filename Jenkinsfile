@@ -27,6 +27,12 @@ pipeline {
                     sh 'docker stop $APP_NAME || true'
                     sh 'docker rm $APP_NAME || true'
 
+                    // 移除旧版本镜像
+                    sh 'docker rmi $APP_NAME || true'
+                    
+                    // 清理所有悬空镜像（<none>:<none>）
+                    sh 'docker images -f "dangling=true" -q | xargs -r docker rmi'
+
                     sh 'docker build -t $APP_NAME .'
 
                     // 应用容器内部仍使用Redis的6379端口通信（容器间网络）
