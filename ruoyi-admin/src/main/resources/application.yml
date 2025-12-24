@@ -17,7 +17,7 @@ ruoyi:
 server:
   # 服务器的HTTP端口，默认为11000
   # TODO：请改为本组项目组号，如项目123组改为 11123
-  port: 11000
+  port: 11339
   servlet:
     # 应用的访问路径
     context-path: /

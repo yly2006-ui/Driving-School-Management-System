@@ -4,8 +4,8 @@ pipeline {
         jdk 'jdk8'
     }
     environment {
-        APP_NAME = 'server-000' // 修改APP名字
-        APP_PORT = 11000 // 修改端口号
+        APP_NAME = 'server-339' // 修改APP名字
+        APP_PORT = 11339 // 修改端口号
         REDIS_NAME = 'redis-server'  // Redis容器名称
         REDIS_HOST = 'redis-server'  // Docker网络中的Redis服务名
         REDIS_CONTAINER_PORT = 6379  // Redis容器内部端口
