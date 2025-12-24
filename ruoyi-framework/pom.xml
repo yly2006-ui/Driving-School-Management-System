@@ -16,6 +16,12 @@
     </description>
 
     <dependencies>
+        <!-- ruoyi-springboot2 / mybatis-plus 配置 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.5.1</version>
+        </dependency>
 
         <!-- SpringBoot Web容器 -->
          <dependency>
@@ -35,6 +41,11 @@
             <artifactId>druid-spring-boot-starter</artifactId>
         </dependency>
 
+        <!-- 系统模块-->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-common</artifactId>
+        </dependency>
         <!-- 验证码 -->
         <dependency>
             <groupId>pro.fessional</groupId>

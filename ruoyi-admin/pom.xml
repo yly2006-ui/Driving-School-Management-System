@@ -68,6 +68,11 @@
             <version>3.0.3</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.mashang</groupId>
+            <artifactId>mashang-driving</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
