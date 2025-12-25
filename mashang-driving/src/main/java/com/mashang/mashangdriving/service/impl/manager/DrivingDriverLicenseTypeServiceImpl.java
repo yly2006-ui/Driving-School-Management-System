@@ -1,4 +1,4 @@
-package com.mashang.mashangdriving.service.impl;
+package com.mashang.mashangdriving.service.impl.manager;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mashang.mashangdriving.domain.entity.DrivingDriverLicenseType;

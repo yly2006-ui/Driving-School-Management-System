@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mashang.mashangdriving.domain.entity.DrivingDriverLicenseType;
-import com.mashang.mashangdriving.domain.param.manager.query.DrivingDriverLicenseTypeCreate;
+import com.mashang.mashangdriving.domain.param.manager.create.DrivingDriverLicenseTypeCreate;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingDriverLicenseTypeQuery;
+import com.mashang.mashangdriving.domain.param.manager.update.DrivingDriverLicenseTypeUpdate;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingDriverLicenseTypeDtlVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingDriverLicenseTypeListVo;
 import com.mashang.mashangdriving.mapping.manager.DrivingDirverLicenseTypeMapping;
 import com.mashang.mashangdriving.service.manager.IDrivingDriverLicenseTypeService;
@@ -60,16 +62,65 @@ public class DrivingDriverLicenseTypeController extends BaseController {
     @ApiOperation("新增驾照类型")
     @PostMapping("/create")
     public R createType(@RequestBody DrivingDriverLicenseTypeCreate drivingDriverLicenseTypeCreate){
+
         DrivingDriverLicenseType create = DrivingDirverLicenseTypeMapping.INSTANCE.toCreate(drivingDriverLicenseTypeCreate);
+
+        LambdaQueryWrapper<DrivingDriverLicenseType>lqw=new LambdaQueryWrapper<>();
+
+        lqw.like(StringUtils.isNotEmpty(drivingDriverLicenseTypeCreate.getDriverLicenseName()),
+
+                DrivingDriverLicenseType::getDriverLicenseName,drivingDriverLicenseTypeCreate.getDriverLicenseName());
+
+        long count = drivingDriverLicenseTypeService.count(lqw);
+
+        if (count>0){
+            throw new RuntimeException("已存在此驾照类型，请勿重复添加");
+        }
+
         boolean save = drivingDriverLicenseTypeService.save(create);
+
         return toR(save);
     }
 
     @ApiOperation("删除驾照类型")
     @DeleteMapping("/delete/{driverLicenseId}")
     public R deleteType(@PathVariable Long driverLicenseId){
+
         boolean b = drivingDriverLicenseTypeService.removeById(driverLicenseId);
+
         return toR(b);
+    }
+
+    @ApiOperation("修改驾照类型")
+    @PutMapping("/update")
+    public R updateType(@RequestBody DrivingDriverLicenseTypeUpdate drivingDriverLicenseTypeUpdate){
+        DrivingDriverLicenseType updateType =
+                DrivingDirverLicenseTypeMapping.INSTANCE.toupdate(drivingDriverLicenseTypeUpdate);
+
+        LambdaQueryWrapper<DrivingDriverLicenseType>lqw=new LambdaQueryWrapper<>();
+
+        lqw.eq(DrivingDriverLicenseType::getDriverLicenseName,drivingDriverLicenseTypeUpdate.getDriverLicenseName());
+        lqw.ne(DrivingDriverLicenseType::getDriverLicenseId,drivingDriverLicenseTypeUpdate.getDriverLicenseId());
+
+        long count = drivingDriverLicenseTypeService.count(lqw);
+
+        if (count>0){
+            throw new RuntimeException("已存在此驾照类型，无法修改");
+        }
+        boolean update = drivingDriverLicenseTypeService.updateById(updateType);
+
+        return toR(update);
+    }
+
+    @ApiOperation("查询驾照类型详情")
+    @GetMapping("/dtl/{driverLicenseId}")
+    public R selectDtl(@PathVariable Long driverLicenseId){
+        DrivingDriverLicenseType byId = drivingDriverLicenseTypeService.getById(driverLicenseId);
+        DrivingDriverLicenseTypeDtlVo dtl = DrivingDirverLicenseTypeMapping.INSTANCE.toDtl(byId);
+        if (dtl!=null){
+           return R.ok(dtl);
+        }
+        return R.fail();
     }
 
 

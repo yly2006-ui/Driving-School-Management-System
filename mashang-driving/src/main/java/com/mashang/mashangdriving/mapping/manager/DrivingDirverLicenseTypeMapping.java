@@ -1,7 +1,9 @@
 package com.mashang.mashangdriving.mapping.manager;
 
 import com.mashang.mashangdriving.domain.entity.DrivingDriverLicenseType;
-import com.mashang.mashangdriving.domain.param.manager.query.DrivingDriverLicenseTypeCreate;
+import com.mashang.mashangdriving.domain.param.manager.create.DrivingDriverLicenseTypeCreate;
+import com.mashang.mashangdriving.domain.param.manager.update.DrivingDriverLicenseTypeUpdate;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingDriverLicenseTypeDtlVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingDriverLicenseTypeListVo;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -18,5 +20,11 @@ public interface DrivingDirverLicenseTypeMapping {
 
     //新增驾照类型
     DrivingDriverLicenseType toCreate (DrivingDriverLicenseTypeCreate drivingDriverLicenseTypeCreate);
+
+    //修改驾照类型
+    DrivingDriverLicenseType toupdate(DrivingDriverLicenseTypeUpdate drivingDriverLicenseTypeUpdate);
+
+    //查询驾照详情
+    DrivingDriverLicenseTypeDtlVo toDtl(DrivingDriverLicenseType drivingDriverLicenseType);
 
 }

@@ -1,13 +1,8 @@
-package com.mashang.mashangdriving.domain.param.manager.query;
+package com.mashang.mashangdriving.domain.param.manager.create;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.util.Date;
 
 
 @Data

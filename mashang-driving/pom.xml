@@ -65,6 +65,12 @@
             <artifactId>mapstruct-processor</artifactId>
             <version>1.4.2.Final</version>
         </dependency>
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-system</artifactId>
+            <version>3.8.8</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
