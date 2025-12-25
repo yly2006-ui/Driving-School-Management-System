@@ -6,21 +6,17 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import java.util.Date;
-
 @Data
-public class DrivingStudent {
+public class DrivingPay {
 
     @TableId(type = IdType.AUTO)
-  private Long studentId;
+  private Long payId;
   private Long userId;
-  private Long subjectId;
-  private Long driverLicenseId;
-  private String phone;
-  private String emergencyPhone;
-  private String status;
-  private String idNumber;
-  private String idNumberFront;
-  private String idNumberBack;
+  private Long chargeLtemId;
+  private String detailedExplanation;
+  private String payType;
   private String delFlag;
   private Date createTime;
+
+
 }
