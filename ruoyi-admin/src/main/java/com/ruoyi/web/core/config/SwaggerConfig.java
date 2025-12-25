@@ -113,9 +113,10 @@ public class SwaggerConfig
         // 用ApiInfoBuilder进行定制
         return new ApiInfoBuilder()
                 // 设置标题
-                .title("标题：若依管理系统_接口文档")
+                .title("驾校培训管理系统_接口文档")
                 // 描述
-                .description("描述：用于管理集团旗下公司的人员信息,具体包括XXX,XXX模块...")
+                .description("驾校培训管理系统旨在实现驾校业务全流程数字化管理，涵盖学员、教练、车辆、课程、预约、财务等多个核心模块。" +
+                        "系统支持多角色协同操作，包括管理员、教练、学员、财务人员，通过权限控制保障数据安全与操作合规。系统同时引入智能调度算法，提升资源利用效率与用户体验。")
                 // 作者信息
                 .contact(new Contact(ruoyiConfig.getName(), null, null))
                 // 版本
