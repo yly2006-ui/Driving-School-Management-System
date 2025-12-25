@@ -23,7 +23,20 @@ public class R<T> implements Serializable
     private String msg;
 
     private T data;
-
+    /**
+     * 响应返回结果
+     *
+     * @param result 结果
+     * @return 操作结果
+     */
+    protected R toResult(boolean result)
+    {
+        return result ? R.ok() : R.fail();
+    }
+    protected R toResult(int rows)
+    {
+        return rows > 0 ? R.ok() : R.fail();
+    }
     public static <T> R<T> ok()
     {
         return restResult(null, SUCCESS, "操作成功");
@@ -71,6 +84,21 @@ public class R<T> implements Serializable
         apiResult.setData(data);
         apiResult.setMsg(msg);
         return apiResult;
+    }
+    public static R<?> to(boolean b, String msg) {
+        if (b) {
+            return R.ok(msg+"成功");
+        }else {
+            return R.fail(msg+"失败");
+        }
+    }
+
+    public static <T> R<T> to(boolean b, String msg,T data) {
+        if (b) {
+            return R.ok(data,msg+"成功");
+        }else {
+            return R.fail(msg+"失败");
+        }
     }
 
     public int getCode()
