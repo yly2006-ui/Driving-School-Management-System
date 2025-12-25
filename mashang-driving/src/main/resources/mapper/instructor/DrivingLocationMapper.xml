@@ -15,7 +15,7 @@
         <result property="city" column="city"/>
         <result property="county" column="county"/>
         <result property="remark" column="remark"/>
-        <result property="capacity" column="capacity" />
+        <result property="capacity" column="capacity"/>
     </resultMap>
 
     <!-- 查询所有地点（用于分页） -->
@@ -36,7 +36,7 @@
             city.name AS city,
             county.name AS county
         FROM driving_location dl
-                 LEFT JOIN area county ON county.id = dl.id
+                 LEFT JOIN area county ON county.id = dl.area_id
                  LEFT JOIN area city ON city.id = county.parent_id
                  LEFT JOIN area province ON province.id = city.parent_id
     </select>

@@ -32,6 +32,9 @@ public class DrivingLocationListVo {
 
     @ApiModelProperty(value = "状态", example = "0", notes = "0:正常 1:停用")
     private String status;
+    @ApiModelProperty(value = "状态名称", example = "正常")
+    private String statusName;
+
 
 
     @ApiModelProperty(value = "负责人", example = "张主任")

@@ -30,6 +30,10 @@ public class DrivingLocationServiceImpl extends ServiceImpl<DrivingLocationMappe
                 String typeName = dictDataService.selectDictLabel("place_type", vo.getLocationTypeId());
                 vo.setLocationTypeName(typeName);
             }
+            if (vo.getStatus()!=null){
+                String s = dictDataService.selectDictLabel("place_status", vo.getStatus());
+                vo.setStatusName(s);
+            }
         }
         return query;
     }

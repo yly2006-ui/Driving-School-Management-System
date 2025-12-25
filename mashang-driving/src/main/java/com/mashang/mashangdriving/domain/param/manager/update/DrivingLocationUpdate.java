@@ -16,8 +16,8 @@ public class DrivingLocationUpdate {
     @ApiModelProperty(value = "地点名称", example = "主训练场A", required = true)
     private String locationName;
 
-    @ApiModelProperty(value = "ID", example = "110000", notes = "关联地区表")
-    private Long id;
+    @ApiModelProperty(value = "地区ID", example = "110000", notes = "关联地区表")
+    private Long areaId;
 
     @ApiModelProperty(value = "地点类型ID", example = "1", notes = "关联字典表")
     private String locationTypeId;
@@ -31,14 +31,9 @@ public class DrivingLocationUpdate {
     @ApiModelProperty(value = "状态", example = "0", notes = "0:正常 1:停用")
     private String status;
 
-    @ApiModelProperty(value = "删除标志", example = "0", notes = "0:正常 1:删除")
-    private String delFlag;
 
     @ApiModelProperty(value = "负责人", example = "张主任")
     private String master;
-
-    @ApiModelProperty(value = "父ID", example = "110105", notes = "关联地区表")
-    private Long parentId;
 
     @ApiModelProperty(value = "联系电话", example = "13800138000")
     private String phoneNum;

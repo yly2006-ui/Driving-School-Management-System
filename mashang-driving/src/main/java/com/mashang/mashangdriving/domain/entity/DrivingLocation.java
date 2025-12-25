@@ -39,10 +39,8 @@ public class DrivingLocation {
     @ApiModelProperty(value = "负责人", example = "张主任")
     private String master;
 
-    @ApiModelProperty(value = "父ID", example = "110105", notes = "关联地区表")
-    private Long parentId;
-    @ApiModelProperty(value = "ID", example = "110000", notes = "关联地区表")
-    private Long id;
+    @ApiModelProperty(value = "地区ID", example = "110000", notes = "关联地区表")
+    private Long areaId;
 
     @ApiModelProperty(value = "联系电话", example = "13800138000")
     private Long phoneNum;

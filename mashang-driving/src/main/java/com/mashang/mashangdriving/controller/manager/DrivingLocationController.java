@@ -15,6 +15,7 @@ import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.page.PageQuery;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.system.service.ISysDictDataService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
@@ -30,6 +31,9 @@ public class DrivingLocationController extends BaseController {
 
     @Autowired
     private IDrivingLocationService drivingLocationService;
+
+    @Autowired
+    private ISysDictDataService dictDataService;
 
 
 
@@ -93,7 +97,12 @@ public class DrivingLocationController extends BaseController {
     public  R dtl(@PathVariable Long locationId){
         DrivingLocation byId = drivingLocationService.getById(locationId);
         DrivingLocationDtlVo dtl = DrivingLocationMapping.INSTANCE.toDtl(byId);
+
         if (dtl!=null){
+            String s = dictDataService.selectDictLabel("place_status", dtl.getStatus());
+            dtl.setStatusName(s);
+            String typeName = dictDataService.selectDictLabel("place_type", dtl.getLocationTypeId());
+            dtl.setLocationTypeName(typeName);
             return R.ok(dtl);
         }return R.fail();
     }

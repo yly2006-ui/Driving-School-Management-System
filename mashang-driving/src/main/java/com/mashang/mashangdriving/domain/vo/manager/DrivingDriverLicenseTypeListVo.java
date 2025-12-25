@@ -30,5 +30,8 @@ public class DrivingDriverLicenseTypeListVo {
 
     @ApiModelProperty(value = "状态")
     private String status;
+    @ApiModelProperty(value = "状态名称")
+    private String statusName;
+
 
 }

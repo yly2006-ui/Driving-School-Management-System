@@ -15,6 +15,7 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.page.PageQuery;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.system.service.ISysDictDataService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
@@ -30,6 +31,9 @@ public class DrivingDriverLicenseTypeController extends BaseController {
 
     @Autowired
     private IDrivingDriverLicenseTypeService drivingDriverLicenseTypeService;
+
+    @Autowired
+    private ISysDictDataService dictDataService;
 
     @ApiOperation("分页查询驾照类型")
     @GetMapping("/list")
@@ -55,7 +59,15 @@ public class DrivingDriverLicenseTypeController extends BaseController {
         Page<DrivingDriverLicenseType>page =new Page<>(pageQuery.getPageNum(),pageQuery.getPageSize());
         Page<DrivingDriverLicenseType> result = drivingDriverLicenseTypeService.page(page, lqw);
 
-        List<DrivingDriverLicenseTypeListVo> listVo = DrivingDirverLicenseTypeMapping.INSTANCE.toListVo(result.getRecords());
+        List<DrivingDriverLicenseTypeListVo> listVo = DrivingDirverLicenseTypeMapping.INSTANCE.toListVo
+                (result.getRecords());
+
+        for (DrivingDriverLicenseTypeListVo vo : listVo) {
+            if (vo.getStatus()!=null){
+                String s = dictDataService.selectDictLabel("user_status", vo.getStatus());
+                vo.setStatusName(s);
+            }
+        }
         return getDataTable(listVo, result.getTotal());
     }
 
