@@ -1,5 +1,6 @@
 package com.mashang.mashangdriving.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -40,6 +41,7 @@ public class DrivingDriverLicenseType {
     @ApiModelProperty(value = "状态")
     private String status;
 
+    @TableLogic
     @ApiModelProperty(value = "删除标志")
     private String delFlag;
 }
