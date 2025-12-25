@@ -80,6 +80,7 @@ public class DrivingLocationController extends BaseController {
                 drivingLocationQuery.getMaster());
         lqw.eq(StringUtils.isNotEmpty(drivingLocationQuery.getStatus()),DrivingLocation::getStatus,
                 drivingLocationQuery.getStatus());
+        lqw.eq(DrivingLocation::getDelFlag,0);
         Page<DrivingLocationListVo> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
         Page<DrivingLocationListVo> query = drivingLocationService.query(page, lqw);
         return getDataTable(query.getRecords(), query.getTotal());

@@ -39,5 +39,7 @@
                  LEFT JOIN area county ON county.id = dl.area_id
                  LEFT JOIN area city ON city.id = county.parent_id
                  LEFT JOIN area province ON province.id = city.parent_id
+        <!-- 关键：拼接 wrapper 条件 -->
+        ${ew.customSqlSegment}
     </select>
 </mapper>
