@@ -4,11 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mashang.mashangdriving.domain.entity.DrivingDriverLicenseType;
+import com.mashang.mashangdriving.domain.param.manager.query.DrivingDriverLicenseTypeCreate;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingDriverLicenseTypeQuery;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingDriverLicenseTypeListVo;
 import com.mashang.mashangdriving.mapping.manager.DrivingDirverLicenseTypeMapping;
 import com.mashang.mashangdriving.service.manager.IDrivingDriverLicenseTypeService;
 import com.ruoyi.common.core.controller.BaseController;
+import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.page.PageQuery;
 import com.ruoyi.common.core.page.TableDataInfo;
 import io.swagger.annotations.Api;
@@ -46,12 +48,28 @@ public class DrivingDriverLicenseTypeController extends BaseController {
                 DrivingDriverLicenseType::getStatus,driverLicenseTypeQuery.getStatus());
         //过滤是否逻辑删除
         lqw.eq(DrivingDriverLicenseType::getDelFlag, 0);
+        lqw.orderByDesc(DrivingDriverLicenseType::getDriverLicenseId);
 
         Page<DrivingDriverLicenseType>page =new Page<>(pageQuery.getPageNum(),pageQuery.getPageSize());
         Page<DrivingDriverLicenseType> result = drivingDriverLicenseTypeService.page(page, lqw);
 
         List<DrivingDriverLicenseTypeListVo> listVo = DrivingDirverLicenseTypeMapping.INSTANCE.toListVo(result.getRecords());
         return getDataTable(listVo, result.getTotal());
+    }
+
+    @ApiOperation("新增驾照类型")
+    @PostMapping("/create")
+    public R createType(@RequestBody DrivingDriverLicenseTypeCreate drivingDriverLicenseTypeCreate){
+        DrivingDriverLicenseType create = DrivingDirverLicenseTypeMapping.INSTANCE.toCreate(drivingDriverLicenseTypeCreate);
+        boolean save = drivingDriverLicenseTypeService.save(create);
+        return toR(save);
+    }
+
+    @ApiOperation("删除驾照类型")
+    @DeleteMapping("/delete/{driverLicenseId}")
+    public R deleteType(@PathVariable Long driverLicenseId){
+        boolean b = drivingDriverLicenseTypeService.removeById(driverLicenseId);
+        return toR(b);
     }
 
 

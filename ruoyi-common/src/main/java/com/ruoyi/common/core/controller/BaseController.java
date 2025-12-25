@@ -3,6 +3,8 @@ package com.ruoyi.common.core.controller;
 import java.beans.PropertyEditorSupport;
 import java.util.Date;
 import java.util.List;
+
+import com.ruoyi.common.core.domain.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.WebDataBinder;
@@ -172,6 +174,28 @@ public class BaseController
     protected AjaxResult toAjax(boolean result)
     {
         return result ? success() : error();
+    }
+
+    /**
+     * 响应返回结果
+     *
+     * @param rows 影响行数
+     * @return 操作结果
+     */
+    protected R toR(int rows)
+    {
+        return rows > 0 ? R.ok() : R.fail();
+    }
+
+    /**
+     * 响应返回结果
+     *
+     * @param result 结果
+     * @return 操作结果
+     */
+    protected R toR(boolean result)
+    {
+        return result ? R.ok() : R.fail();
     }
 
     /**

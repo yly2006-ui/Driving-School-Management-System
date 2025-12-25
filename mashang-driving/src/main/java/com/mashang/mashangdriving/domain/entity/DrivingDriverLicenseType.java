@@ -1,9 +1,7 @@
 package com.mashang.mashangdriving.domain.entity;
 
-import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.IdType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.Date;
@@ -26,9 +24,11 @@ public class DrivingDriverLicenseType {
     @ApiModelProperty(value = "培训周期")
     private String trainingCycle;
 
+    @TableField(fill = FieldFill.INSERT)
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
 
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     @ApiModelProperty(value = "更新时间")
     private Date updateTime;
 
@@ -41,7 +41,6 @@ public class DrivingDriverLicenseType {
     @ApiModelProperty(value = "状态")
     private String status;
 
-    @TableLogic
     @ApiModelProperty(value = "删除标志")
-    private String delFlag;
+    private Integer delFlag;
 }
