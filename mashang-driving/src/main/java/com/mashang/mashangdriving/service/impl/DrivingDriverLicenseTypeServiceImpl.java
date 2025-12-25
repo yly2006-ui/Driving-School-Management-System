@@ -8,4 +8,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class DrivingDriverLicenseTypeServiceImpl extends ServiceImpl<DrivingDriverLicenseTypeMapper, DrivingDriverLicenseType> implements IDrivingDriverLicenseTypeService {
+
+
 }

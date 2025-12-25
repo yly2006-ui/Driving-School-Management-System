@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @ApiModel("首页--数据概览响应参数")
 public class DataOverviewDtlVo {
@@ -31,4 +33,7 @@ public class DataOverviewDtlVo {
 
     @ApiModelProperty("待处理预约较昨日增加/减少百分数")
     private int lastDayPendingAppointments;
+
+    @ApiModelProperty("最新通知")
+    private List<DataOverviewNoticeDtlVo> DataOverviewNoticeDtlVoS;
 }
