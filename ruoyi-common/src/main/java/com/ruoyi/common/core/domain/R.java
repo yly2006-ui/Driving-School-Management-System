@@ -29,11 +29,11 @@ public class R<T> implements Serializable
      * @param result 结果
      * @return 操作结果
      */
-    protected R toResult(boolean result)
+    protected static R toResult(boolean result)
     {
         return result ? R.ok() : R.fail();
     }
-    protected R toResult(int rows)
+    protected static R toResult(int rows)
     {
         return rows > 0 ? R.ok() : R.fail();
     }
