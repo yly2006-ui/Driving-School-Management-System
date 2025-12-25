@@ -15,7 +15,6 @@ import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.page.PageQuery;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.StringUtils;
-import com.ruoyi.system.service.ISysDictDataService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
@@ -24,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-@Api(tags = "地点管理")
+@Api(tags = "管理端--地点管理")
 @RestController
 @RequestMapping("/drivingLocation")
 public class DrivingLocationController extends BaseController {
@@ -32,8 +31,6 @@ public class DrivingLocationController extends BaseController {
     @Autowired
     private IDrivingLocationService drivingLocationService;
 
-    @Autowired
-    private ISysDictDataService dictDataService;
 
 
     @ApiOperation("新增地点")
