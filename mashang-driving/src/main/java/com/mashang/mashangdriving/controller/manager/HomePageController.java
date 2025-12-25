@@ -1,6 +1,8 @@
 package com.mashang.mashangdriving.controller.manager;
 
 import com.mashang.mashangdriving.domain.vo.manager.DataOverviewDtlVo;
+import com.mashang.mashangdriving.service.manager.IAppointmentService;
+import com.mashang.mashangdriving.service.manager.IBillRecordService;
 import com.mashang.mashangdriving.service.manager.IInstructorService;
 import com.mashang.mashangdriving.service.manager.INoticeService;
 import com.mashang.mashangdriving.service.student.IStudentService;
@@ -27,13 +29,40 @@ public class HomePageController extends BaseController {
     @Autowired
     private IStudentService studentService;
 
+    @Autowired
+    private IBillRecordService billRecordService;
+
+    @Autowired
+    private IAppointmentService appointmentService;
+
     @ApiOperation("管理端----数据概览")
     @GetMapping("/manager/overview")
     public R<DataOverviewDtlVo> DataOverview(){
 
-        return R.ok();
-    }
+        //当下的所有人数
+        int allCount = (int) studentService.count();
+        int lastMonthStudentMount = studentService.lastMonthStudentMount();
+        int countLastMonthActiveStudent = studentService.countLastMonthActiveStudent();
+        int countOnMonthActiveStudent = studentService.countOnMonthActiveStudent();
+        double lastMonthTotalIncome = billRecordService.getLastMonthTotalIncome();
+        double onMonthTotalIncome = billRecordService.selectOnMonthTotalIncome();
+        int countYesterdayStatusOne = appointmentService.countYesterdayStatusOne();
+        int countOnDayStatusOne = appointmentService.countOnDayStatusOne();
 
+        DataOverviewDtlVo dataOverviewDtlVo = new DataOverviewDtlVo();
+
+        dataOverviewDtlVo.setStudentNumber(allCount);
+        dataOverviewDtlVo.setLearnStudent(countOnMonthActiveStudent);
+        dataOverviewDtlVo.setTotalRevenue(onMonthTotalIncome);
+        dataOverviewDtlVo.setPendingAppointments(countOnDayStatusOne);
+        dataOverviewDtlVo.setLastMonthStudentNumber(lastMonthStudentMount);
+        dataOverviewDtlVo.setLastMonthLearnStudent(countLastMonthActiveStudent);
+        dataOverviewDtlVo.setLastMonthTotalRevenue(lastMonthTotalIncome);
+        dataOverviewDtlVo.setLastDayPendingAppointments(countYesterdayStatusOne);
+
+
+        return R.ok(dataOverviewDtlVo);
+    }
 
 
 

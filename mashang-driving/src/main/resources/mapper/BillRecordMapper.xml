@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mashang.mashangdriving.mapper.manager.BillRecordMapper">
+
+    <select id="selectLastMonthTotalIncome" resultType="double">
+        SELECT
+            COALESCE(SUM(p.pay_amount), 0)
+        FROM driving_bill_record b
+                 LEFT JOIN driving_pay p ON b.pay_id = p.id
+        WHERE b.create_time <![CDATA[ >= ]]> #{startTime}
+          AND b.create_time <![CDATA[ < ]]> #{endTime}
+        <!-- WHERE b.create_time >= '2024-12-01 00:00:00'
+       AND b.create_time <  '2025-01-01 00:00:00'
+       COALESCE：防止没数据返回 null-->
+    </select>
+
+
+    <select id="selectOnMonthTotalIncome" resultType="double">
+        SELECT
+        COALESCE(SUM(p.pay_amount), 0)
+        FROM driving_bill_record b
+        LEFT JOIN driving_pay p ON b.pay_id = p.id
+    </select>
+</mapper>

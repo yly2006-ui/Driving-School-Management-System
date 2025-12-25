@@ -22,16 +22,16 @@ public class DataOverviewDtlVo {
     @ApiModelProperty("待处理预约")
     private int pendingAppointments;
 
-    @ApiModelProperty("总学员数较上个月增加/减少百分数")
-    private Object lastMonthStudentNumber;
+    @ApiModelProperty("上个月总学员数")
+    private int lastMonthStudentNumber;
 
-    @ApiModelProperty("在学学员较上个月增加/减少百分数")
+    @ApiModelProperty("上个月在学学员")
     private int lastMonthLearnStudent; //状态为正常的学员
 
-    @ApiModelProperty("本月收入较上个月增加/减少百分数")
+    @ApiModelProperty("上个月总收入")
     private Double lastMonthTotalRevenue;
 
-    @ApiModelProperty("待处理预约较昨日增加/减少百分数")
+    @ApiModelProperty("昨日待处理预约")
     private int lastDayPendingAppointments;
 
     @ApiModelProperty("最新通知")
