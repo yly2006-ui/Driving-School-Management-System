@@ -1,14 +1,13 @@
-package com.mashang.mashangdriving.controller;
+package com.mashang.mashangdriving.controller.manager;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mashang.mashangdriving.domain.entity.DrivingDriverLicenseType;
-import com.mashang.mashangdriving.domain.param.query.DrivingDriverLicenseTypeQuery;
-import com.mashang.mashangdriving.domain.vo.DrivingDriverLicenseTypeListVo;
-import com.mashang.mashangdriving.mapping.DrivingDirverLicenseTypeMapping;
-import com.mashang.mashangdriving.service.IDrivingDriverLicenseTypeService;
-import com.ruoyi.common.constant.Constants;
+import com.mashang.mashangdriving.domain.param.manager.query.DrivingDriverLicenseTypeQuery;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingDriverLicenseTypeListVo;
+import com.mashang.mashangdriving.mapping.manager.DrivingDirverLicenseTypeMapping;
+import com.mashang.mashangdriving.service.manager.IDrivingDriverLicenseTypeService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.PageQuery;
 import com.ruoyi.common.core.page.TableDataInfo;
@@ -34,15 +33,18 @@ public class DrivingDriverLicenseTypeController extends BaseController {
                                                                     DrivingDriverLicenseTypeQuery driverLicenseTypeQuery){
         LambdaQueryWrapper<DrivingDriverLicenseType> lqw =new LambdaQueryWrapper<>();
         //过滤驾照类型代码
-        lqw.eq(StringUtils.isNotEmpty(driverLicenseTypeQuery.getDriverLicenseCode()),DrivingDriverLicenseType::getDriverLicenseCode,driverLicenseTypeQuery.getDriverLicenseCode());
+        lqw.eq(StringUtils.isNotEmpty(driverLicenseTypeQuery.getDriverLicenseCode()),
+                DrivingDriverLicenseType::getDriverLicenseCode,driverLicenseTypeQuery.getDriverLicenseCode());
         //过滤驾照类型名称
         lqw.like(StringUtils.isNotEmpty(driverLicenseTypeQuery.getDriverLicenseName()),
                 DrivingDriverLicenseType::getDriverLicenseName,driverLicenseTypeQuery.getDriverLicenseName());
         //过滤驾照难度状态
-        lqw.eq(StringUtils.isNotEmpty(driverLicenseTypeQuery.getLearningDifficulty()),DrivingDriverLicenseType::getLearningDifficulty,driverLicenseTypeQuery.getLearningDifficulty());
+        lqw.eq(StringUtils.isNotEmpty(driverLicenseTypeQuery.getLearningDifficulty()),
+                DrivingDriverLicenseType::getLearningDifficulty,driverLicenseTypeQuery.getLearningDifficulty());
         //过滤驾照状态
-        lqw.eq(StringUtils.isNotEmpty(driverLicenseTypeQuery.getStatus()),DrivingDriverLicenseType::getStatus,driverLicenseTypeQuery.getStatus());
-
+        lqw.eq(StringUtils.isNotEmpty(driverLicenseTypeQuery.getStatus()),
+                DrivingDriverLicenseType::getStatus,driverLicenseTypeQuery.getStatus());
+        //过滤是否逻辑删除
         lqw.eq(DrivingDriverLicenseType::getDelFlag, 0);
 
         Page<DrivingDriverLicenseType>page =new Page<>(pageQuery.getPageNum(),pageQuery.getPageSize());
