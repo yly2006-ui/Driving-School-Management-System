@@ -83,6 +83,21 @@ public class DrivingLocationController extends BaseController {
         lqw.eq(DrivingLocation::getDelFlag,0);
         Page<DrivingLocationListVo> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
         Page<DrivingLocationListVo> query = drivingLocationService.query(page, lqw);
+        List<DrivingLocationListVo> records = query.getRecords();
+        for (DrivingLocationListVo record : records) {
+            String county = record.getCounty();
+            String city = record.getCity();
+            String province = record.getProvince();
+            if ("北京市".equals(city) ||
+                    "上海市".equals(city) ||
+                    "天津市".equals(city) ||
+                    "重庆市".equals(city)){
+                String area=city+county;
+                record.setArea(area);
+            }else {
+            String areas=province+city+county;
+            record.setArea(areas);}
+        }
         return getDataTable(query.getRecords(), query.getTotal());
     }
 

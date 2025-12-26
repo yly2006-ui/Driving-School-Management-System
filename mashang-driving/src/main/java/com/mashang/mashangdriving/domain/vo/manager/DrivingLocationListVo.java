@@ -59,4 +59,7 @@ public class DrivingLocationListVo {
     @TableField(exist = false)
     @ApiModelProperty(value = "区名称")
     private String county;
+    @TableField(exist = false)
+    @ApiModelProperty(value = "定位")
+    private String area=province+city+county;
 }
