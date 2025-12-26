@@ -5,8 +5,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mashang.mashangdriving.domain.entity.DrivingStudent;
+import com.mashang.mashangdriving.domain.vo.student.StudentDataOverviewDtlVo;
 import com.mashang.mashangdriving.mapper.student.StudentMapper;
 import com.mashang.mashangdriving.service.student.IStudentService;
+import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.common.utils.ServletUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -97,5 +100,13 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, DrivingStuden
         Long countLong = studentMapper.selectCount(wrapper);
         int mountOnMonth = (int) (countLong != null ? countLong.longValue() : 0L);
         return mountOnMonth;
+    }
+
+    @Override
+    public StudentDataOverviewDtlVo student() {
+
+        Long userId = SecurityUtils.getLoginUser().getUserId();
+        StudentDataOverviewDtlVo student = studentMapper.student(userId);
+        return student;
     }
 }

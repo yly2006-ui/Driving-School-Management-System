@@ -4,21 +4,125 @@
 
     <select id="selectLastMonthTotalIncome" resultType="double">
         SELECT
-            COALESCE(SUM(p.pay_amount), 0)
+            COALESCE(SUM(c.amount), 0)
         FROM driving_bill_record b
-                 LEFT JOIN driving_pay p ON b.pay_id = p.id
-        WHERE b.create_time <![CDATA[ >= ]]> #{startTime}
-          AND b.create_time <![CDATA[ < ]]> #{endTime}
+                 LEFT JOIN driving_pay p ON b.pay_id = p.pay_id
+        LEFT JOIN driving_charge_ltem c
+        ON p.charge_ltem_id = c.charge_ltem_id
+        WHERE p.create_time <![CDATA[ >= ]]> #{startTime}
+          AND p.create_time <![CDATA[ < ]]> #{endTime}
         <!-- WHERE b.create_time >= '2024-12-01 00:00:00'
        AND b.create_time <  '2025-01-01 00:00:00'
        COALESCE：防止没数据返回 null-->
     </select>
 
-
     <select id="selectOnMonthTotalIncome" resultType="double">
         SELECT
-        COALESCE(SUM(p.pay_amount), 0)
+            COALESCE(SUM(c.amount), 0)
         FROM driving_bill_record b
-        LEFT JOIN driving_pay p ON b.pay_id = p.id
+                 LEFT JOIN driving_pay p ON b.pay_id = p.pay_id
+                 LEFT JOIN driving_charge_ltem c
+                           ON p.charge_ltem_id = c.charge_ltem_id
     </select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </mapper>

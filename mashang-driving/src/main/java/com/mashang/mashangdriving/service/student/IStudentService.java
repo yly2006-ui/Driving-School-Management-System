@@ -2,6 +2,7 @@ package com.mashang.mashangdriving.service.student;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mashang.mashangdriving.domain.entity.DrivingStudent;
+import com.mashang.mashangdriving.domain.vo.student.StudentDataOverviewDtlVo;
 
 public interface IStudentService extends IService<DrivingStudent> {
 
@@ -13,4 +14,7 @@ public interface IStudentService extends IService<DrivingStudent> {
 
     //这个月所有在学学员
     int countOnMonthActiveStudent();
+
+    //根据登陆信息查询该学员
+    StudentDataOverviewDtlVo student();
 }

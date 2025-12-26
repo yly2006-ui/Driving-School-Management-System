@@ -7,8 +7,8 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-@ApiModel("首页--数据概览响应参数")
-public class DataOverviewDtlVo {
+@ApiModel("首页--教练端数据概览响应参数")
+public class ManagerDataOverviewDtlVo {
 
     @ApiModelProperty("总学员数")
     private int studentNumber;
