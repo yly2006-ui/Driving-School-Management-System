@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mashang.mashangdriving.mapper.manager.DrivingBillRecordMapper">
+    <resultMap id="DrivingBillRecordListVo" type="com.mashang.mashangdriving.domain.vo.manager.DrivingBillRecordListVo">
+        <id property="recordId" column="record_id"/>
+        <result property="userName" column="student_name"/>
+        <result property="chargeItem" column="charge_ltem_name"/>
+        <result property="amount" column="amount"/>
+        <result property="roleName" column="role_name"/>
+        <result property="paymentMethod" column="pay_type"/>
+        <result property="paymentTime" column="create_time"/>
+
+    </resultMap>
+    <select id="queryBillRecord" resultMap="DrivingBillRecordListVo">
+
+        SELECT r.record_id,driving_student.student_name,l.charge_ltem_name,role.role_name,l.amount ,pay.pay_type,pay.create_time
+        FROM `driving_bill_record` r
+                 LEFT JOIN driving_charge_ltem l
+                           ON r.charge_ltem_id=l.charge_ltem_id
+                 LEFT JOIN sys_role role
+                           ON r.role_id=role.role_id
+                 LEFT JOIN driving_pay pay
+                           ON pay.pay_id=r.pay_id
+                 LEFT JOIN sys_user
+                           ON pay.user_id=sys_user.user_id
+                 LEFT JOIN driving_student
+                           ON sys_user.user_id=driving_student.user_id
+        <!-- 关键：拼接 wrapper 条件 -->
+        ${ew.customSqlSegment}
+    </select>
+</mapper>

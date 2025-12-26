@@ -37,6 +37,7 @@ import com.ruoyi.system.service.ISysUserService;
  * 
  * @author ruoyi
  */
+
 @RestController
 @RequestMapping("/system/user")
 public class SysUserController extends BaseController

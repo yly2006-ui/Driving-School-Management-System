@@ -1,7 +1,6 @@
 package com.mashang.mashangdriving.service.impl.student;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mashang.mashangdriving.domain.entity.DrivingStudent;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Service
 public class StudentServiceImpl extends ServiceImpl<StudentMapper, DrivingStudent> implements

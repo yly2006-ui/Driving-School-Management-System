@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="com.mashang.mashangdriving.mapper.student.DrivingStudentMapper">
+
+ <select id="selectById" resultType="com.mashang.mashangdriving.domain.vo.student.DrivingStudentDtlVo">
+          SELECT s.student_id,s.student_name,s.student_code,s.phone,s.id_number,t.driver_license_code ,s.create_time,s.avatar
+          FROM driving_student s
+          LEFT JOIN driving_driver_license_type t
+          ON s.driver_license_id=t.driver_license_id
+          where s.student_id=#{studentId}
+ </select>
+</mapper>

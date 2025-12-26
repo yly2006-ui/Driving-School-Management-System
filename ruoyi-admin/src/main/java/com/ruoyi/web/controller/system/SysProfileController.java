@@ -1,5 +1,6 @@
 package com.ruoyi.web.controller.system;
 
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +29,7 @@ import com.ruoyi.system.service.ISysUserService;
  * 
  * @author ruoyi
  */
+@Api("")
 @RestController
 @RequestMapping("/system/user/profile")
 public class SysProfileController extends BaseController

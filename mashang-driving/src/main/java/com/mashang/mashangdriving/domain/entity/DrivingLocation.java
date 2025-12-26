@@ -34,8 +34,6 @@ public class DrivingLocation {
     @ApiModelProperty(value = "删除标志", example = "0", notes = "0:正常 1:删除")
     private String delFlag;
 
-
-
     @ApiModelProperty(value = "负责人", example = "张主任")
     private String master;
 
