@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mashang.mashangdriving.domain.entity.DrivingAppointment;
 import com.mashang.mashangdriving.mapper.manager.AppointmentMapper;
 import com.mashang.mashangdriving.service.manager.IAppointmentService;
+import com.ruoyi.common.constant.AppointmentConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,7 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
         LambdaQueryWrapper<DrivingAppointment> wrapper = Wrappers.lambdaQuery();
 
         // 条件 1：状态 = "1"
-        wrapper.eq(DrivingAppointment::getStatus, "1");
+        wrapper.eq(DrivingAppointment::getStatus, AppointmentConstants.PROCESSED_STATUS);
 
         // 条件 2：创建时间 >= 昨天开始
         wrapper.ge(DrivingAppointment::getCreateTime, startTime);
@@ -54,7 +55,7 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
     @Override
     public int countOnDayStatusOne() {
         LambdaQueryWrapper<DrivingAppointment> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(DrivingAppointment::getStatus, "1");
+        wrapper.eq(DrivingAppointment::getStatus, AppointmentConstants.PROCESSED_STATUS);
         Long countLong = appointmentMapper.selectCount(wrapper);
         int countOnDayStatusOne = (int) (countLong != null ? countLong.longValue() : 0L);
         return countOnDayStatusOne;

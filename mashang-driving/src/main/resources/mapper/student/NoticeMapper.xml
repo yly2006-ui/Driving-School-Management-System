@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mashang.mashangdriving.mapper.manager.NoticeMapper">
+
+    <select id="allDataOverviewNotice" resultType="studentDataOverviewNoticeDtlVo">
+        SELECT
+            tice.notice_id,
+            tice.text,
+            tice.publish_time,
+            tice.title_photo,
+            nt.type_name,
+            nt.type_id
+        FROM
+            driving_notice AS tice
+                LEFT JOIN
+            driving_notice_type AS nt
+            ON
+                tice.type_id = nt.type_id
+        WHERE
+            tice.user_id = #{userId} AND tice.`status` = "1"
+    </select>
+</mapper>

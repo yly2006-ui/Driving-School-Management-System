@@ -1,6 +1,5 @@
-package com.mashang.mashangdriving.domain.vo.manager;
+package com.mashang.mashangdriving.domain.vo.student;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -9,13 +8,16 @@ import java.util.Date;
 
 @Data
 @ApiModel("首页--数据概览响应参数(最新通知)")
-public class DataOverviewNoticeDtlVo {
+public class StudentDataOverviewNoticeDtlVo {
+
+    @ApiModelProperty("通知类型id")
+    private Long typeId;
+
+    @ApiModelProperty("通知类型名称")
+    private String typeName;
 
     @ApiModelProperty("通知id")
-    private long noticeId;
-
-    @ApiModelProperty("通知标题")
-    private String title;
+    private Long noticeId;
 
     @ApiModelProperty("通知内容")
     private String text;

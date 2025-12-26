@@ -1,11 +1,19 @@
 package com.mashang.mashangdriving.controller.manager;
 
-import com.mashang.mashangdriving.domain.vo.manager.DataOverviewDtlVo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.mashang.mashangdriving.domain.entity.DrivingNotice;
+import com.mashang.mashangdriving.domain.entity.DrivingStudent;
+import com.mashang.mashangdriving.domain.vo.manager.ManagerDataOverviewDtlVo;
+import com.mashang.mashangdriving.domain.vo.manager.DataOverviewNoticeDtlVo;
+import com.mashang.mashangdriving.domain.vo.student.StudentDataOverviewDtlVo;
+import com.mashang.mashangdriving.domain.vo.student.StudentDataOverviewNoticeDtlVo;
+import com.mashang.mashangdriving.mapping.manager.NoticeMapping;
 import com.mashang.mashangdriving.service.manager.IAppointmentService;
 import com.mashang.mashangdriving.service.manager.IBillRecordService;
 import com.mashang.mashangdriving.service.manager.IInstructorService;
 import com.mashang.mashangdriving.service.manager.INoticeService;
 import com.mashang.mashangdriving.service.student.IStudentService;
+import com.ruoyi.common.constant.NoticeConstants;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
 import io.swagger.annotations.Api;
@@ -14,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @Api(tags = "首页")
 @RestController
@@ -37,7 +47,7 @@ public class HomePageController extends BaseController {
 
     @ApiOperation("管理端----数据概览")
     @GetMapping("/manager/overview")
-    public R<DataOverviewDtlVo> DataOverview(){
+    public R<ManagerDataOverviewDtlVo> managerDataOverview(){
 
         //当下的所有人数
         int allCount = (int) studentService.count();
@@ -49,21 +59,37 @@ public class HomePageController extends BaseController {
         int countYesterdayStatusOne = appointmentService.countYesterdayStatusOne();
         int countOnDayStatusOne = appointmentService.countOnDayStatusOne();
 
-        DataOverviewDtlVo dataOverviewDtlVo = new DataOverviewDtlVo();
+        LambdaQueryWrapper<DrivingNotice> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DrivingNotice::getStatus, NoticeConstants.NORMAL_STATUS);
+        List<DrivingNotice> noticeList = noticeService.list(wrapper);
+        List<DataOverviewNoticeDtlVo> dataOverviewNoticeDtlVo =
+                NoticeMapping.INSTANCE.toDataOverviewNoticeDtlVo(noticeList);
 
-        dataOverviewDtlVo.setStudentNumber(allCount);
-        dataOverviewDtlVo.setLearnStudent(countOnMonthActiveStudent);
-        dataOverviewDtlVo.setTotalRevenue(onMonthTotalIncome);
-        dataOverviewDtlVo.setPendingAppointments(countOnDayStatusOne);
-        dataOverviewDtlVo.setLastMonthStudentNumber(lastMonthStudentMount);
-        dataOverviewDtlVo.setLastMonthLearnStudent(countLastMonthActiveStudent);
-        dataOverviewDtlVo.setLastMonthTotalRevenue(lastMonthTotalIncome);
-        dataOverviewDtlVo.setLastDayPendingAppointments(countYesterdayStatusOne);
+        ManagerDataOverviewDtlVo managerDataOverviewDtlVo = new ManagerDataOverviewDtlVo();
 
+        managerDataOverviewDtlVo.setStudentNumber(allCount);
+        managerDataOverviewDtlVo.setLearnStudent(countOnMonthActiveStudent);
+        managerDataOverviewDtlVo.setTotalRevenue(onMonthTotalIncome);
+        managerDataOverviewDtlVo.setPendingAppointments(countOnDayStatusOne);
+        managerDataOverviewDtlVo.setLastMonthStudentNumber(lastMonthStudentMount);
+        managerDataOverviewDtlVo.setLastMonthLearnStudent(countLastMonthActiveStudent);
+        managerDataOverviewDtlVo.setLastMonthTotalRevenue(lastMonthTotalIncome);
+        managerDataOverviewDtlVo.setLastDayPendingAppointments(countYesterdayStatusOne);
+        managerDataOverviewDtlVo.setDataOverviewNoticeDtlVoS(dataOverviewNoticeDtlVo);
 
-        return R.ok(dataOverviewDtlVo);
+        return R.ok(managerDataOverviewDtlVo);
     }
 
+    @ApiOperation("学员端----数据概览")
+    @GetMapping("/student/overview")
+    public R<StudentDataOverviewDtlVo> studentDataOverview(){
 
+        List<StudentDataOverviewNoticeDtlVo> studentDataOverviewNoticeDtlVos = noticeService.allDataOverviewNotice();
+        StudentDataOverviewDtlVo student = studentService.student();
+        student.setDataOverviewNoticeDtlVoS(studentDataOverviewNoticeDtlVos);
+
+        return R.ok(student);
+
+    }
 
 }

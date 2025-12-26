@@ -14,7 +14,7 @@ public class DrivingInstructor {
   private Long userId;
   private String instructorName;
   private String phone;
-  private Long idNumber;
+  private String idNumber;
   private Date entryDate;
   private Long instructorNo;
   private String status;
