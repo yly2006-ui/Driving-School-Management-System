@@ -18,13 +18,16 @@ public class DrivingInstructor {
   private Date entryDate;
   private Long instructorNo;
   private String status;
-  private Long teachingYears;
+  private String teachingYears;
+  private String goodSubject;
   private Date schedulableTimeStart;
   private Date schedulableTimeEnd;
   private Date noSchedulableTimeStart;
-  private Date _NoSchedulableTimeEnd;
+  private Date noSchedulableTimeEnd;
   private String photo;
-  private String _InstructorCertificate;
+  private String instructorCertificate;
   private String delFlag;
+  private double score;
+  private String content;
 
 }
