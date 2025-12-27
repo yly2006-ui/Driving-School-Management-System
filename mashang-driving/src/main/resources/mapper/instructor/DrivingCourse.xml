@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mashang.mashangdriving.mapper.manager.DrivingCourseMapper">
+    <resultMap id="list" type="drivingCourseDtlVo">
+        <id property="courseId" column="course_id"/>
+        <result property="courseName" column="course_name"/>
+        <result property="personCount" column="person_count"/>
+        <result property="type" column="type"/>
+        <result property="allHours" column="all_hours"/>
+        <collection property="chapterDtlVos" ofType="drivingChapterDtlVo">
+            <id property="chapterId" column="chapter_id"/>
+            <result property="chapterName" column="chapter_name"/>
+            <collection property="drivingSectionDtlVos" ofType="drivingSectionDtlVo">
+                <id property="chapterId" column="chapter_id"/>
+                <result property="sectionId" column="section_id"/>
+                <result property="sectionName" column="section_name"/>
+                <result property="sectionExplain" column="section_explain"/>
+                <result property="picture" column="picture"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="selectByCourseId" resultMap="list">
+        SELECT course.course_id, course.course_name,course.type, course.all_hours,course.person_count,
+               chapter.chapter_id,chapter.chapter_name,
+               section.section_id,section.section_name,section.section_explain,section.picture
+        FROM driving_course course
+                 LEFT JOIN driving_chapter chapter
+                           ON course.course_id=chapter.course_id
+                 LEFT JOIN driving_section section
+        ON chapter.chapter_id=section.chapter_id
+        WHERE course.course_id=#{courseId}
+    </select>
+</mapper>

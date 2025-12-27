@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-@Api(tags = "地区管理")
+@Api(tags = "管理端地点管理--地区管理")
 @RestController
 @RequestMapping("/area")
 public class AreaController extends BaseController {
