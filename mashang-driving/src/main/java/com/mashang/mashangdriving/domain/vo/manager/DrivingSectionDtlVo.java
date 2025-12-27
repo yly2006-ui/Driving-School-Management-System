@@ -8,6 +8,9 @@ public class DrivingSectionDtlVo{
     @ApiModelProperty(value = "小节ID", example = "1")
     private Integer sectionId;
 
+    @ApiModelProperty(value = "章ID", example = "1")
+    private Integer chapterId;
+
     @ApiModelProperty(value = "小节名称", example = "道路交通安全法基本原则")
     private String sectionName;
 

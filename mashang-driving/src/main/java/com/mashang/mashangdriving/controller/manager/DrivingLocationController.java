@@ -6,9 +6,11 @@ import com.mashang.mashangdriving.domain.entity.DrivingLocation;
 import com.mashang.mashangdriving.domain.param.manager.create.DrivingLocationCreate;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingLocationQuery;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingLocationUpdate;
+import com.mashang.mashangdriving.domain.vo.manager.AreaListVO;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingLocationDtlVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingLocationListVo;
 import com.mashang.mashangdriving.mapping.manager.DrivingLocationMapping;
+import com.mashang.mashangdriving.service.manager.IAreaService;
 import com.mashang.mashangdriving.service.manager.IDrivingLocationService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
@@ -34,6 +36,9 @@ public class DrivingLocationController extends BaseController {
 
     @Autowired
     private ISysDictDataService dictDataService;
+
+    @Autowired
+    private IAreaService areaService;
 
 
 
@@ -122,6 +127,14 @@ public class DrivingLocationController extends BaseController {
             dtl.setLocationTypeName(typeName);
             return R.ok(dtl);
         }return R.fail();
+    }
+
+
+    @ApiOperation("嵌套查询所有省市县对应关系")
+    @GetMapping("area/select")
+    public TableDataInfo<List<AreaListVO> >select(){
+        List<AreaListVO> select = areaService.select();
+        return getDataTable(select);
     }
 
 }

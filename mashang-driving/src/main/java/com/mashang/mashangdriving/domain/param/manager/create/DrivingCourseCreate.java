@@ -1,8 +1,5 @@
-package com.mashang.mashangdriving.domain.vo.manager;
+package com.mashang.mashangdriving.domain.param.manager.create;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -12,7 +9,7 @@ import lombok.Data;
 @Data
 public class DrivingCourseCreate {
 
-    @ApiModelProperty(value = "课程名称", required = true, example = "C1驾照零基础培训课程")
+    @ApiModelProperty(value = "课程名称", required = true, example = "科目一理论基础")
     private String courseName;
 
     @ApiModelProperty(value = "总学时", required = true, example = "40")

@@ -25,10 +25,13 @@ public class DrivingBillRecordListVo {
     @ApiModelProperty(value = "金额（分）", example = "500000")
     private Long amount;
 
-    @ApiModelProperty(value = "用户角色", example = "学生", allowableValues = "学生,教练,管理员")
+    @ApiModelProperty(value = "金额", example = "+500000或者_50000")
+    private String finalAmount;
+
+    @ApiModelProperty(value = "用户角色", example = "学生")
     private String roleName;
 
-    @ApiModelProperty(value = "支付方式", example = "支付宝", allowableValues = "微信支付,支付宝,现金,银行转账")
+    @ApiModelProperty(value = "支付方式", example = "支付宝")
     private String paymentMethod;
 
     @ApiModelProperty(value = "支付时间", example = "2024-01-15 10:30:00")

@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 驾驶课程列表VO
  */
@@ -22,4 +24,9 @@ public class DrivingCourseListVo {
 
     @ApiModelProperty(value = "课程状态（0=进行中，1=已结束）", example = "0")
     private String status;
+
+    @ApiModelProperty(value = "课程类型",example = "0")
+    private String type;
+    private List<DrivingLearningMaterialsVo>drivingLearningMaterialsVos;
+
 }

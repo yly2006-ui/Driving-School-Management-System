@@ -1,8 +1,11 @@
 package com.mashang.mashangdriving.domain.entity;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.IdType;
+
+import java.util.Date;
 
 @Data
 public class DrivingBillRecord {
@@ -14,4 +17,6 @@ public class DrivingBillRecord {
     private Long chargeLtemId;
     private Long roleId;
     private String delFlag;
+    @ApiModelProperty(value = "创建时间")
+    private Date createTime;
 }

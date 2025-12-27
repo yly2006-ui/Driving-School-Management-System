@@ -37,6 +37,7 @@ logging:
   level:
     com.ruoyi: debug
     org.springframework: warn
+    com.mashang.mashangdriving.mapper: DEBUG  # 你的Mapper接口包路径，开启后会打印SQL
 
 # 用户配置
 user:

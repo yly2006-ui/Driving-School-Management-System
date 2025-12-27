@@ -12,8 +12,8 @@
             <id property="chapterId" column="chapter_id"/>
             <result property="chapterName" column="chapter_name"/>
             <collection property="drivingSectionDtlVos" ofType="drivingSectionDtlVo">
-                <id property="chapterId" column="chapter_id"/>
-                <result property="sectionId" column="section_id"/>
+                <id property="sectionId" column="section_id"/>
+                <result property="chapterId" column="chapter_id"/>
                 <result property="sectionName" column="section_name"/>
                 <result property="sectionExplain" column="section_explain"/>
                 <result property="picture" column="picture"/>
@@ -32,4 +32,29 @@
         ON chapter.chapter_id=section.chapter_id
         WHERE course.course_id=#{courseId}
     </select>
+
+
+    <resultMap id="courseListVo" type="drivingCourseListVo">
+        <id property="courseId" column="course_id"/>
+        <result property="courseName" column="course_name"/>
+        <result property="type" column="type"/>
+        <result property="allHours" column="all_hours"/>
+        <result property="status" column="status"/>
+        <collection property="drivingLearningMaterialsVos" ofType="drivingLearningMaterialsVo">
+            <id property="materialsId" column="materials_id"/>
+            <result property="materialsName" column="materials_name"/>
+        </collection>
+    </resultMap>
+    <select id="query" resultMap="courseListVo">
+        SELECT c.course_id,c.course_name ,c.type,c.all_hours,c.`status`,
+               m.materials_id,m.materials_name
+        FROM driving_course c
+                 LEFT JOIN driving_learning_materials m
+                           ON c.course_id=m.course_id
+        <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
+        ${ew.customSqlSegment}
+    </select>
+
+
+
 </mapper>
