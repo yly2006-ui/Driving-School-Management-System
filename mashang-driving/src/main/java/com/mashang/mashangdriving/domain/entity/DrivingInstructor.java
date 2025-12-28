@@ -22,10 +22,10 @@ public class DrivingInstructor {
   private String goodSubject;
   private Date schedulableTimeStart;
   private Date schedulableTimeEnd;
-  private Date noSchedulableTimeStart;
-  private Date noSchedulableTimeEnd;
+  private Date noTimeStart;
+  private Date noTimeEnd;
   private String photo;
-  private String instructorCertificate;
+  private String certificate;
   private String delFlag;
   private double score;
   private String content;
