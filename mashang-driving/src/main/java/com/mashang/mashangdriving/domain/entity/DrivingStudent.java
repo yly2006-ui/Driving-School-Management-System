@@ -24,9 +24,6 @@ public class DrivingStudent {
     @ApiModelProperty(value = "关联系统用户ID", example = "1001")
     private Long userId;
 
-    @ApiModelProperty(value = "当前科目ID", example = "2")
-    private Long subjectId;
-
     @ApiModelProperty(value = "驾照类型ID", example = "1")
     private Long driverLicenseId;
 
