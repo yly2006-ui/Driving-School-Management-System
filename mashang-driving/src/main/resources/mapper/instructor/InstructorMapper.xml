@@ -12,10 +12,7 @@
             tor.score
         FROM
             driving_instructor AS tor
-        left join driving_instructor_student instu
-        on tor.instructor_id = instu.instructor_id
         WHERE tor.instructor_id = #{instructorId}
-
     </select>
 
 

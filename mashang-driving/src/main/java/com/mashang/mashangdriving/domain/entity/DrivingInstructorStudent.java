@@ -10,7 +10,7 @@ public class DrivingInstructorStudent {
 
     @TableId(type = IdType.AUTO)
   private Long instructorId;
-
+    private Long subjectId;
   private String studentId;
   private String delFlag;
 

@@ -59,14 +59,11 @@ public class StudentAppointmentController extends BaseController {
         return R.ok(instructorService.myInstructor());
     }
 
-    @ApiOperation("我的教练---(科目三)根据科目二教练默认")
+    @ApiOperation("我的教练---(科目三)")
     @GetMapping("/my/instructor/three")
-//    “我的教练” ≠ 已经绑定的唯一教练，在【预约阶段】，“我的教练”指的是：当前学员「历史上服务过 / 系统优先推荐」的教练集合中的首选教练
     public R myInstructorThree(){
 
-        //先查询其科目二教练是谁 是否在职且教科三 如果是 默认为科
-
-        return null;
+        return R.ok(instructorService.myThreeInstructor());
     }
 
     @ApiOperation("在职教练预约时间安排")
