@@ -46,7 +46,6 @@ public class InstructorServiceImpl extends ServiceImpl<InstructorMapper, Driving
         DrivingStudent student = studentMapper.selectOne(
                 Wrappers.<DrivingStudent>lambdaQuery()
                         .eq(DrivingStudent::getUserId, SecurityUtils.getUserId())
-                        .eq(DrivingStudent::getSubjectId, 2L)
                         .eq(DrivingStudent::getDelFlag, "0")
         );
         DrivingInstructorStudent drivingInstructorStudent = instructorStudentMapper.selectById(student.getStudentId());
@@ -60,7 +59,6 @@ public class InstructorServiceImpl extends ServiceImpl<InstructorMapper, Driving
         DrivingStudent student = studentMapper.selectOne(
                 Wrappers.<DrivingStudent>lambdaQuery()
                         .eq(DrivingStudent::getUserId, SecurityUtils.getUserId())
-                        .eq(DrivingStudent::getSubjectId, 3L)
                         .eq(DrivingStudent::getDelFlag, "0")
         );
 
