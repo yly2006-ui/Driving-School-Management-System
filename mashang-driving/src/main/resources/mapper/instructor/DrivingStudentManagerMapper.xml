@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mashang.mashangdriving.mapper.manager.DrivingStudentManagerMapper">
+
+    <resultMap id="DrivingStudentListVoResult" type="com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo">
+        <result column="student_id" property="studentId" />
+        <result column="student_name" property="studentName" />
+        <result column="user_id" property="userId" />
+        <result column="driver_license_id" property="driverLicenseId" />
+        <result column="phone" property="phone" />
+        <result column="emergency_phone" property="emergencyPhone" />
+        <result column="status" property="status" />
+        <result column="id_number" property="idNumber" />
+        <result column="id_number_front" property="idNumberFront" />
+        <result column="id_number_back" property="idNumberBack" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <association property="drivingDriverLicenseType" javaType="com.mashang.mashangdriving.domain.entity.DrivingDriverLicenseType">
+            <id column="driver_license_id" property="driverLicenseId" />
+            <result column="driver_license_code" property="driverLicenseCode"/>
+        </association>
+        <association property="drivingCourseRecord" javaType="com.mashang.mashangdriving.domain.entity.DrivingCourseRecord">
+            <result column="record_id" property="recordId" />
+            <result column="student_id" property="studentId" />
+            <result column="course_id" property="courseId" />
+            <result column="finished_hours" property="finishedHours" />
+            <result column="status" property="status" />
+        </association>
+        <association property="drivingInstructorStudent" javaType="com.mashang.mashangdriving.domain.entity.DrivingInstructorStudent">
+            <result column="instructor_id" property="instructorId" />
+            <result column="student_id" property="studentId" />
+        </association>
+        <association property="drivingInstructor" javaType="com.mashang.mashangdriving.domain.entity.DrivingInstructor" autoMapping="false">
+            <result column="instructor_name" property="instructorName" />
+            <result column="score" property="score"/>
+        </association>
+        <association property="drivingSubject" javaType="com.mashang.mashangdriving.domain.entity.DrivingSubject">
+            <result column="subject_name" property="subjectName"/>
+        </association>
+    </resultMap>
+
+    <select id="getList" resultMap="DrivingStudentListVoResult">
+        SELECT ds.student_id, student_name, ds.user_id, ds.driver_license_id,
+               ds.phone, emergency_phone, ds.status, ds.id_number, id_number_front, id_number_back,
+                ds.create_time, avatar, student_code, ds.update_time,ddlt.driver_license_code,
+                dcr.finished_hours,dcr.status,di.instructor_name,di.score,dsj.subject_name
+            FROM ms_stu_pro339.driving_student ds
+        LEFT JOIN ms_stu_pro339.driving_driver_license_type ddlt ON ds.driver_license_id = ddlt.driver_license_id
+            LEFT JOIN ms_stu_pro339.driving_course_record dcr ON dcr.record_id = ds.student_id
+            LEFT JOIN ms_stu_pro339.driving_instructor_student dis ON dis.student_id = ds.student_id
+                LEFT JOIN ms_stu_pro339.driving_subject dsj ON dis.subject_id = dsj.subject_id
+            LEFT JOIN ms_stu_pro339.driving_instructor di ON dis.instructor_id = di.instructor_id
+        ORDER BY student_id ASC
+    </select>
+    <select id="selectOne" resultMap="DrivingStudentListVoResult">
+        SELECT ds.student_id, ds.student_name, ds.user_id, ds.driver_license_id,
+        ds.phone, emergency_phone, ds.status, ds.id_number, id_number_front, id_number_back,
+        ds.create_time, avatar, student_code,ddlt.driver_license_code,
+        dcr.finished_hours,dcr.status,di.instructor_name,di.score,dsj.subject_name
+        FROM ms_stu_pro339.driving_student ds
+        LEFT JOIN ms_stu_pro339.driving_driver_license_type ddlt ON ds.driver_license_id = ddlt.driver_license_id
+        LEFT JOIN ms_stu_pro339.driving_course_record dcr ON dcr.record_id = ds.student_id
+        LEFT JOIN ms_stu_pro339.driving_instructor_student dis ON dis.student_id = ds.student_id
+        LEFT JOIN ms_stu_pro339.driving_subject dsj ON dis.subject_id = dsj.subject_id
+        LEFT JOIN ms_stu_pro339.driving_instructor di ON dis.instructor_id = di.instructor_id
+                <where>
+                    <if test="drivingStudentQuery.studentName!=null and drivingStudentQuery.studentName!=''">
+                        AND ds.student_name LIKE CONCAT('%',#{drivingStudentQuery.studentName},'%')
+                    </if>
+                    <if test="drivingStudentQuery.phone!=null and drivingStudentQuery.phone!=''">
+                        AND ds.phone =#{drivingStudentQuery.phone}
+                    </if>
+                    <if test="drivingStudentQuery.idNumber!=null and drivingStudentQuery.idNumber!=''">
+                    AND ds.id_number = #{drivingStudentQuery.idNumber}
+                    </if>
+                </where>
+        ORDER BY student_id ASC
+    </select>
+</mapper>

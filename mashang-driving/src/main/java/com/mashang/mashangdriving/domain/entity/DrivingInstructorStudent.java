@@ -1,17 +1,15 @@
 package com.mashang.mashangdriving.domain.entity;
 
-
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class DrivingInstructorStudent {
 
-    @TableId(type = IdType.AUTO)
   private Long instructorId;
-    private Long subjectId;
   private String studentId;
   private String delFlag;
+  private int subjectId;
 
 }

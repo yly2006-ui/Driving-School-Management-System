@@ -1,14 +1,16 @@
-package com.mashang.mashangdriving.domain.entity;
+package com.mashang.mashangdriving.domain.vo.manager;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.mashang.mashangdriving.domain.entity.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.util.Date;
 
 /**
  * 驾校学员实体类
@@ -16,7 +18,7 @@ import io.swagger.annotations.ApiModelProperty;
 @Data
 @ApiModel(description = "驾校学员信息")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DrivingStudent {
+public class DrivingStudentListVo  {
 
     @TableId(type = IdType.AUTO)
     @ApiModelProperty(value = "学员ID", example = "1")
@@ -50,14 +52,21 @@ public class DrivingStudent {
     private String idNumberBack;
 
     @ApiModelProperty(value = "删除标志(0-未删除 2-已删除)", example = "0")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String delFlag;
 
     @ApiModelProperty(value = "创建时间", example = "2024-01-15 10:30:00")
     private Date createTime;
     @ApiModelProperty(value = "修改时间", example = "2024-01-15 10:30:00")
     private Date updateTime;
-
     @ApiModelProperty(value = "驾驶类型")
-    @TableField(exist = false)
     private DrivingDriverLicenseType drivingDriverLicenseType;
+    @ApiModelProperty(value = "课目表")
+    private DrivingSubject drivingSubject;
+    @ApiModelProperty(value = "学员课程表")
+    private DrivingCourseRecord drivingCourseRecord;
+    @ApiModelProperty(value = "教练学员表")
+    private DrivingInstructorStudent drivingInstructorStudent;
+    @ApiModelProperty(value = "教练表")
+    private DrivingInstructor drivingInstructor;
 }

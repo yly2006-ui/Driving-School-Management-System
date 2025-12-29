@@ -1,6 +1,7 @@
 package com.mashang.mashangdriving.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -9,6 +10,7 @@ import java.util.Date;
 
 @Data
 @ApiModel(description = "驾驶证类型信息")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DrivingDriverLicenseType {
 
     @TableId(type = IdType.AUTO)
