@@ -20,6 +20,6 @@ public interface IDrivingBillRecordService extends IService<DrivingBillRecord> {
                                                   @Param("query") DrivingBillRecordQuery query);
 
     //查询年度总表头
-    DrivingBillYearMessageVo queryAll(Integer year);
+    DrivingBillYearMessageVo queryAll(String year);
 
 }

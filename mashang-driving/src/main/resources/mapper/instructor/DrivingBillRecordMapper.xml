@@ -89,8 +89,8 @@
             resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillYearMessageVo">
         SELECT COUNT(*) total_students
         FROM driving_student s
-        LEFT JOIN driving_bill_record b
-        ON b.user_id=s.user_id
+--         LEFT JOIN driving_bill_record b
+--         ON b.user_id=s.user_id
         <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
         ${ew.customSqlSegment}
     </select>
