@@ -38,4 +38,7 @@ public class MyAppointmentDtlVo {
     @ApiModelProperty(value = "科目名称")
     private String subjectName;
 
+    @ApiModelProperty("预约处理状况(0 已确认 1 待审核 2 已完成 3 已取消)")
+    private String status;
+
 }
