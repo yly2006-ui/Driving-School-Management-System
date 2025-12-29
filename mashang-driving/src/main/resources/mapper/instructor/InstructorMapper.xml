@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mashang.mashangdriving.mapper.manager.InstructorMapper">
+
+    <select id="myInstructor" resultType="allInstructorListVo">
+        SELECT
+            tor.instructor_id,
+            tor.instructor_name,
+            tor.teaching_years,
+            tor.photo,
+            tor.good_subject,
+            tor.score
+        FROM
+            driving_instructor AS tor
+        WHERE tor.instructor_id = #{instructorId}
+    </select>
+
+
+    <select id="allnstructorList" resultType="allInstructorListVo">
+        SELECT
+            tor.instructor_id,
+            tor.instructor_name,
+            tor.teaching_years,
+            tor.photo,
+            tor.good_subject,
+            tor.score
+        FROM
+            driving_instructor AS tor
+        WHERE
+            tor.`status` = '0'
+    </select>
+</mapper>

@@ -2,7 +2,6 @@ package com.mashang.mashangdriving.controller.manager;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mashang.mashangdriving.domain.entity.DrivingNotice;
-import com.mashang.mashangdriving.domain.entity.DrivingStudent;
 import com.mashang.mashangdriving.domain.vo.manager.ManagerDataOverviewDtlVo;
 import com.mashang.mashangdriving.domain.vo.manager.DataOverviewNoticeDtlVo;
 import com.mashang.mashangdriving.domain.vo.student.StudentDataOverviewDtlVo;
@@ -28,13 +27,10 @@ import java.util.List;
 @Api(tags = "首页")
 @RestController
 @RequestMapping("/home")
-public class HomePageController extends BaseController {
+public class ManagerHomePageController extends BaseController {
 
     @Autowired
     private INoticeService noticeService;
-
-    @Autowired
-    private IInstructorService instructorService;
 
     @Autowired
     private IStudentService studentService;
@@ -78,18 +74,6 @@ public class HomePageController extends BaseController {
         managerDataOverviewDtlVo.setDataOverviewNoticeDtlVoS(dataOverviewNoticeDtlVo);
 
         return R.ok(managerDataOverviewDtlVo);
-    }
-
-    @ApiOperation("学员端----数据概览")
-    @GetMapping("/student/overview")
-    public R<StudentDataOverviewDtlVo> studentDataOverview(){
-
-        List<StudentDataOverviewNoticeDtlVo> studentDataOverviewNoticeDtlVos = noticeService.allDataOverviewNotice();
-        StudentDataOverviewDtlVo student = studentService.student();
-        student.setDataOverviewNoticeDtlVoS(studentDataOverviewNoticeDtlVos);
-
-        return R.ok(student);
-
     }
 
 }
