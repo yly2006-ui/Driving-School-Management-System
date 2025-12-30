@@ -28,16 +28,19 @@ public class DrivingBillYearMessageVo {
 
     @ApiModelProperty(value = "学员总数", example = "1,245")
     private String totalStudents;
+
     @ApiModelProperty(value = "学员总数增长率", example = "1,245")
     private String totalStudentslastYear;
 
     @ApiModelProperty(value = "完成培训数", example = "986")
     private String completedTraining;
+
     @ApiModelProperty(value = "完成培训数", example = "986")
     private String completedTrainingFinsh;
 
     @ApiModelProperty(value = "利润率", example = "53.6%")
     private String profitMargin;
+
     @ApiModelProperty(value = "利润率增长率", example = "53.6%")
     private String profitMarginlastYear;
 }

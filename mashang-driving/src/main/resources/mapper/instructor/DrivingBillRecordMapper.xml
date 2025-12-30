@@ -94,4 +94,69 @@
         <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
         ${ew.customSqlSegment}
     </select>
+
+
+    <select id="queryMonthTotalIncome"
+            resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillMonthMessageVo">
+        -- 这是查询月收入
+        SELECT
+        SUM( c.amount) total_income
+        FROM driving_charge_ltem c
+        LEFT JOIN driving_bill_record b
+        ON c.charge_ltem_id=b.charge_ltem_id
+        LEFT JOIN driving_pay p
+        ON p.pay_id=b.pay_id
+        <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
+        ${ew.customSqlSegment}
+    </select>
+    <select id="queryMonthTotalExpenditure"
+            resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillMonthMessageVo">
+        -- 月支出
+        SELECT
+        SUM( c.amount) total_expense
+        FROM driving_charge_ltem c
+        LEFT JOIN driving_bill_record b
+        ON c.charge_ltem_id=b.charge_ltem_id
+        LEFT JOIN driving_pay p
+        ON p.pay_id=b.pay_id
+        <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
+        ${ew.customSqlSegment}
+    </select>
+    <select id="queryStudentTotalIncome"
+            resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillMonthMessageVo">
+        SELECT
+        SUM( c.amount) studentPayment
+        FROM driving_charge_ltem c
+        LEFT JOIN driving_bill_record b
+        ON c.charge_ltem_id=b.charge_ltem_id
+        LEFT JOIN driving_pay p
+        ON p.pay_id=b.pay_id
+        <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
+        ${ew.customSqlSegment}
+    </select>
+    <select id="queryNotStudentTotalIncome"
+            resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillMonthMessageVo">
+        SELECT
+            SUM( c.amount) otherIncome
+        FROM driving_charge_ltem c
+                 LEFT JOIN driving_bill_record b
+                           ON c.charge_ltem_id=b.charge_ltem_id
+                 LEFT JOIN driving_pay p
+                           ON p.pay_id=b.pay_id
+    </select>
+    <select id="queryIncomeByYearGroupByMonth"
+            resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingGroupMonthVo">
+        <!-- 新增：按年+月分组查询月收入 -->
+            SELECT
+                DATE_FORMAT(b.create_time, '%Y-%m') AS month, -- 提取年月（如2025-01）
+        SUM(c.amount) AS monthIncome -- 统计当月收入
+            FROM driving_charge_ltem c
+                LEFT JOIN driving_bill_record b ON c.charge_ltem_id = b.charge_ltem_id
+                LEFT JOIN driving_pay p ON p.pay_id = b.pay_id
+                ${ew.customSqlSegment} -- 接收年份范围、role_id等条件
+            GROUP BY DATE_FORMAT(b.create_time, '%Y-%m') -- 按年月分组
+            ORDER BY month ASC -- 按月份升序排列
+    </select>
+
+
 </mapper>

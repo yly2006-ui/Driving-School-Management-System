@@ -5,8 +5,10 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mashang.mashangdriving.domain.entity.DrivingBillRecord;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingBillRecordQuery;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingBillMonthMessageVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingBillRecordListVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingBillYearMessageVo;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingGroupMonthVo;
 import com.mashang.mashangdriving.service.manager.IDrivingBillRecordService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
@@ -41,7 +43,7 @@ public class DrivingBillRecordController extends BaseController {
         return getDataTable(query.getRecords(), query.getTotal());
     }
 
-    @ApiOperation("查询财务年度信息")
+    @ApiOperation("年度财务汇总")
     @GetMapping("/year/queryAll")
     public R queryAll(@ApiParam("查询年度财务的时间")@RequestParam String year){
 
@@ -51,6 +53,25 @@ public class DrivingBillRecordController extends BaseController {
         }else {
             return R.fail();
         }
+    }
+
+    @ApiOperation("月度财务报表")
+    @GetMapping("/month/query")
+    public R query(@RequestParam String yearAndMonth){
+
+        DrivingBillMonthMessageVo drivingBillMonthMessageVo = drivingBillRecordService.queryMonthAll(yearAndMonth);
+        if (drivingBillMonthMessageVo!=null){
+            return R.ok(drivingBillMonthMessageVo);
+        }else {
+            return R.fail();
+        }
+    }
+
+    @ApiOperation("每月的收入查询")
+    @GetMapping("/income/trend")
+    public TableDataInfo<List<DrivingGroupMonthVo>> queryIncomeTrend(@RequestParam String year) {
+        List<DrivingGroupMonthVo> trendList = drivingBillRecordService.queryIncomeTrendByYear(year);
+        return getDataTable(trendList);
     }
 
 }
