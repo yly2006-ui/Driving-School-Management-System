@@ -1,15 +1,21 @@
 package com.mashang.mashangdriving.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class DrivingInstructorStudent {
-
+  @ApiModelProperty(required = true,value = "教练ID")
   private Long instructorId;
-  private String studentId;
+
+  @ApiModelProperty(hidden = true)
+  private Long studentId;
+  @ApiModelProperty(hidden = true)
   private String delFlag;
+  @ApiModelProperty(required = true,value = "科目ID")
   private int subjectId;
 
 }

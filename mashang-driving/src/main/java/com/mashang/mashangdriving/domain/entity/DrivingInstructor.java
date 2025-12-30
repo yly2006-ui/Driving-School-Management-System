@@ -29,7 +29,7 @@ public class DrivingInstructor {
   private String photo;
   private String certificate;
   private String delFlag;
-  private double score;
+  private Double score;
   private String content;
 
 }

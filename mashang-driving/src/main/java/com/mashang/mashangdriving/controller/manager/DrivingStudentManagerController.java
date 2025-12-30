@@ -3,6 +3,7 @@ package com.mashang.mashangdriving.controller.manager;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mashang.mashangdriving.Exception.BusinessException;
 import com.mashang.mashangdriving.domain.entity.DrivingStudent;
+import com.mashang.mashangdriving.domain.param.manager.create.DrivingStudentCreate;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingStudentQuery;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo;
 import com.mashang.mashangdriving.mapping.manager.DrivingStudentMapping;
@@ -42,6 +43,7 @@ public class DrivingStudentManagerController extends BaseController {
     public R selectOne(@RequestParam(value = "studentName", required = false) String studentName,
                        @RequestParam(value = "phone", required = false) String phone,
                        @RequestParam(value = "idNumber", required = false) String idNumber) throws BusinessException {
+
         DrivingStudentQuery query = new DrivingStudentQuery();
         query.setStudentName(studentName);
         query.setPhone(phone);
@@ -53,6 +55,16 @@ public class DrivingStudentManagerController extends BaseController {
             return R.fail("查询为空");
         }
         return R.ok(one,"查询成功");
+    }
+
+    @PostMapping("/createStudent")
+    @ApiOperation("新增学员")
+    public R createStudent( DrivingStudentCreate dto)  {
+        DrivingStudentListVo drivingStudentListVo = drivingStudentManagerService.insertStudent(dto);
+        if (drivingStudentListVo == null) {
+            return R.fail("新增失败");
+        }
+        return R.ok(drivingStudentListVo);
     }
 
 }

@@ -12,7 +12,7 @@ import java.util.Date;
  * 驾校学员实体类
  */
 @Data
-@ApiModel(description = "驾校学员信息")
+@ApiModel(description = "查询学员信息")
 public class DrivingStudentQuery {
 
     @TableId(type = IdType.AUTO)
