@@ -3,15 +3,16 @@ package com.mashang.mashangdriving.service.impl.manager;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.mashang.mashangdriving.domain.entity.DrivingAppointment;
-import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
-import com.mashang.mashangdriving.domain.entity.DrivingStudent;
-import com.mashang.mashangdriving.domain.entity.DrivingSubject;
+import com.mashang.mashangdriving.domain.entity.*;
 import com.mashang.mashangdriving.domain.param.manager.create.CreateStudentAppointment;
+import com.mashang.mashangdriving.domain.vo.student.ContactInstructorVo;
+import com.mashang.mashangdriving.domain.vo.student.MyAppointmentDtlVo;
 import com.mashang.mashangdriving.domain.vo.student.StudentAppointmentVo;
 import com.mashang.mashangdriving.mapper.manager.AppointmentMapper;
+import com.mashang.mashangdriving.mapper.manager.DrivingLocationMapper;
 import com.mashang.mashangdriving.mapper.manager.InstructorMapper;
 import com.mashang.mashangdriving.mapper.manager.SubjectMapper;
+import com.mashang.mashangdriving.mapper.student.CarMapper;
 import com.mashang.mashangdriving.mapper.student.StudentMapper;
 import com.mashang.mashangdriving.mapping.student.CreateAppointmentMapping;
 import com.mashang.mashangdriving.service.manager.IAppointmentService;
@@ -23,8 +24,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, DrivingAppointment> implements IAppointmentService {
@@ -40,6 +43,12 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
 
     @Autowired
     private SubjectMapper subjectMapper;
+
+    @Autowired
+    private DrivingLocationMapper drivingLocationMapper;
+
+    @Autowired
+    private CarMapper carMapper;
 
     @Override
     public int countYesterdayStatusOne() {
@@ -155,5 +164,64 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
         appointmentVo.setEndTime(createStudentAppointment.getEndTime());
         appointmentVo.setSubjectId(createStudentAppointment.getSubjectId());
         return appointmentVo;
+    }
+
+    @Override
+    public List<MyAppointmentDtlVo> myAllAppointment() {
+
+        LambdaQueryWrapper<DrivingStudent> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DrivingStudent::getUserId,SecurityUtils.getUserId());
+        DrivingStudent drivingStudent = studentMapper.selectOne(wrapper);
+
+        LambdaQueryWrapper<DrivingAppointment> allWrapper = new LambdaQueryWrapper<>();
+        allWrapper.eq(DrivingAppointment::getStudentId, drivingStudent.getStudentId());
+        List<DrivingAppointment> drivingAppointments = appointmentMapper.selectList(allWrapper);
+
+        List<MyAppointmentDtlVo> myAppointmentList = new ArrayList<>();
+
+        for (DrivingAppointment appointment : drivingAppointments) {
+
+            MyAppointmentDtlVo myAppointmentDtlVo = new MyAppointmentDtlVo();
+
+            Long locationId = appointment.getLocationId();
+            Long instructorId = appointment.getInstructorId();
+            Long subjectId = appointment.getSubjectId();
+
+            //todo 自己判断该数据是否del_flog是否为0 自己手写sql语句
+            DrivingInstructor instructor = instructorMapper.selectById(instructorId);
+            DrivingLocation location = drivingLocationMapper.selectById(locationId);
+            DrivingSubject subject = subjectMapper.selectById(subjectId);
+
+            LambdaQueryWrapper<DrivingCar> carWrapper = new LambdaQueryWrapper<>();
+            carWrapper.eq(DrivingCar::getInstructorId, instructor.getInstructorId());
+            DrivingCar car = carMapper.selectOne(carWrapper);
+
+            myAppointmentDtlVo.setInstructorId(instructor.getInstructorId());
+            myAppointmentDtlVo.setInstructorName(instructor.getInstructorName());
+            myAppointmentDtlVo.setCarId(car.getCarId());
+            myAppointmentDtlVo.setCarName(car.getCarName());
+            myAppointmentDtlVo.setCarBrand(car.getCarBrand());
+            myAppointmentDtlVo.setPlateNumber(car.getPlateNumber());
+            myAppointmentDtlVo.setLocationId(location.getLocationId());
+            myAppointmentDtlVo.setLocationName(location.getLocationName());
+            myAppointmentDtlVo.setSubjectId(subject.getSubjectId());
+            myAppointmentDtlVo.setSubjectName(subject.getSubjectName());
+            myAppointmentDtlVo.setStatus(appointment.getStatus());
+            myAppointmentList.add(myAppointmentDtlVo);
+        }
+        return myAppointmentList;
+    }
+
+    @Override
+    public ContactInstructorVo getContactInstructor(Long appointmentId) {
+
+        ContactInstructorVo contactInstructorVo = new ContactInstructorVo();
+        DrivingAppointment drivingAppointment = appointmentMapper.selectById(appointmentId);
+
+        DrivingInstructor drivingInstructor = instructorMapper.selectById(drivingAppointment.getInstructorId());
+        contactInstructorVo.setInstructorName(drivingInstructor.getInstructorName());
+        contactInstructorVo.setInstructorId(drivingAppointment.getInstructorId());
+        contactInstructorVo.setPhone(drivingInstructor.getPhone());
+        return contactInstructorVo;
     }
 }
