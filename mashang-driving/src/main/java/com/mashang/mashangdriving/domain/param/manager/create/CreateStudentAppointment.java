@@ -29,4 +29,8 @@ public class CreateStudentAppointment {
     @NotNull(message = "预约结束时间不能为空")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm",timezone = "GMT+8")
     private Date endTime;
+
+    @ApiModelProperty(value = "场地id")
+    @NotNull(message = "场地id不能为空")
+    private Long locationId;
 }
