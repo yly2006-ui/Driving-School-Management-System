@@ -15,9 +15,14 @@ public class DrivingAppointment {
   private Long studentId;
   private Long subjectId;
   private Long locationId;
+
+    @ApiModelProperty(value = "预约开始时间")
   private Date startTime;
+
+    @ApiModelProperty(value = "预约结束时间")
   private Date endTime;
   private String delFlag;
   private Date createTime;
   private String status;
+  private Date approveTime;
 }

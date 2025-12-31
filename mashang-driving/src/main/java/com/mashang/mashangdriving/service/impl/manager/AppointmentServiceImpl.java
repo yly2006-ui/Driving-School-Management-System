@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mashang.mashangdriving.domain.entity.*;
 import com.mashang.mashangdriving.domain.param.manager.create.CreateStudentAppointment;
+import com.mashang.mashangdriving.domain.param.student.create.AddRating;
 import com.mashang.mashangdriving.domain.vo.student.ContactInstructorVo;
 import com.mashang.mashangdriving.domain.vo.student.MyAppointmentDtlVo;
 import com.mashang.mashangdriving.domain.vo.student.StudentAppointmentVo;
@@ -13,21 +14,24 @@ import com.mashang.mashangdriving.mapper.manager.DrivingLocationMapper;
 import com.mashang.mashangdriving.mapper.manager.InstructorMapper;
 import com.mashang.mashangdriving.mapper.manager.SubjectMapper;
 import com.mashang.mashangdriving.mapper.student.CarMapper;
+import com.mashang.mashangdriving.mapper.student.RatingMapper;
 import com.mashang.mashangdriving.mapper.student.StudentMapper;
 import com.mashang.mashangdriving.mapping.student.CreateAppointmentMapping;
+import com.mashang.mashangdriving.service.impl.student.AppointmentPeakVO;
 import com.mashang.mashangdriving.service.manager.IAppointmentService;
 import com.ruoyi.common.constant.AppointmentConstants;
 import com.ruoyi.common.constant.InstructorConstants;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.common.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.time.ZoneId;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, DrivingAppointment> implements IAppointmentService {
@@ -49,6 +53,9 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
 
     @Autowired
     private CarMapper carMapper;
+
+    @Autowired
+    private RatingMapper ratingMapper;
 
     @Override
     public int countYesterdayStatusOne() {
@@ -167,7 +174,7 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
     }
 
     @Override
-    public List<MyAppointmentDtlVo> myAllAppointment() {
+    public List<MyAppointmentDtlVo> myAllAppointment(String status) {
 
         LambdaQueryWrapper<DrivingStudent> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(DrivingStudent::getUserId,SecurityUtils.getUserId());
@@ -175,6 +182,7 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
 
         LambdaQueryWrapper<DrivingAppointment> allWrapper = new LambdaQueryWrapper<>();
         allWrapper.eq(DrivingAppointment::getStudentId, drivingStudent.getStudentId());
+        allWrapper.eq(StringUtils.isEmpty(status),DrivingAppointment::getStatus,status);
         List<DrivingAppointment> drivingAppointments = appointmentMapper.selectList(allWrapper);
 
         List<MyAppointmentDtlVo> myAppointmentList = new ArrayList<>();
@@ -224,4 +232,212 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
         contactInstructorVo.setPhone(drivingInstructor.getPhone());
         return contactInstructorVo;
     }
+
+    @Override
+    public int deleteAppointment(Long appointmentId) {
+
+        DrivingAppointment appointment = appointmentMapper.selectById(appointmentId);
+        if (AppointmentConstants.ON_PROCESSED_STATUS.equals(appointment.getStatus()
+        )){
+            throw new RuntimeException("该预约已完成,无法删除");
+        }
+
+        return appointmentMapper.deleteById(appointmentId);
+    }
+
+    @Override
+    public int createRating(AddRating addRating) {
+
+        DrivingAppointment appointment = appointmentMapper.selectById(addRating.getAppointmentId());
+
+        if (appointment.getAppointmentId() == null){
+            throw new RuntimeException("不存在该预约");
+        }
+
+        if (!Objects.equals(appointment.getStatus(), AppointmentConstants.ON_PROCESSED_STATUS)){
+            throw new RuntimeException("未完成预约的状况下不可以评价教练");
+        }
+        LambdaQueryWrapper<DrivingStudent> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DrivingStudent::getUserId,SecurityUtils.getUserId());
+        DrivingStudent student = studentMapper.selectOne(wrapper);
+
+        DrivingRating rating = new DrivingRating();
+        rating.setContanct(addRating.getContanct());
+        rating.setScore(addRating.getScore());
+        rating.setStudentId(student.getStudentId());
+        rating.setInstructorId(appointment.getInstructorId());
+
+        return ratingMapper.insert(rating);
+    }
+
+    @Override
+    public int awaitingApproval() {
+
+        LambdaQueryWrapper<DrivingAppointment> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DrivingAppointment::getStatus,AppointmentConstants.PROCESSED_STATUS);
+        Long count = appointmentMapper.selectCount(wrapper);
+
+        // 直接调用intValue()方法转换
+        return count.intValue();
+    }
+
+    @Override
+    public int confirmApproval() {
+
+        LambdaQueryWrapper<DrivingAppointment> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DrivingAppointment::getStatus,AppointmentConstants.NO_PROCESSED_STATUS);
+        Long count = appointmentMapper.selectCount(wrapper);
+
+        return count.intValue();
+    }
+
+    @Override
+    public int completedTodayApproval() {
+
+        // 获取今天的开始和结束时间
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();  // 今天的00:00:00
+        LocalDateTime endOfDay = today.atTime(23, 59, 59, 999999999);  // 今天的23:59:59.999999999
+
+        LambdaQueryWrapper<DrivingAppointment> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DrivingAppointment::getStatus,AppointmentConstants.ON_PROCESSED_STATUS);
+        wrapper.between(DrivingAppointment::getApproveTime, startOfDay, endOfDay);
+        Long count = appointmentMapper.selectCount(wrapper);
+
+        return count.intValue();
+    }
+
+    @Override
+    public int cancelApproval() {
+
+        Long count = appointmentMapper.cancelApproval();
+
+        return count.intValue();
+    }
+
+    /**
+     * 查询本周预约高峰时间段
+     *
+     * 业务处理流程说明：
+     *
+     * 【第一步】计算本周时间范围
+     *  - 以当前系统时间为基准
+     *  - 本周从周一 00:00:00 开始
+     *  - 到周日 23:59:59 结束
+     *
+     * 【第二步】查询本周内有效的预约记录
+     *  - 使用 MyBatis Plus 的 LambdaQueryWrapper 构造查询条件
+     *  - 只查询本周时间范围内的预约
+     *  - 统计所有且未删除的预约记录
+     *
+     * 【第三步】按“星期 + 时间段”维度进行统计
+     *  - 将预约开始时间转换为 LocalDateTime
+     *  - 解析出星期信息（周一 ~ 周日）
+     *  - 拼接预约时间段（如：09:00-11:00）
+     *  - 使用 Map 进行分组计数
+     *
+     * 【第四步】封装返回结果
+     *  - 将统计结果转换为 VO 对象
+     *  - 按预约次数降序排序
+     *  - 返回给 Controller 层用于前端展示
+     *
+     * @return 本周预约高峰时间段统计结果
+     */
+    @Override
+    public List<AppointmentPeakVO> getWeeklyAppointmentPeaks() {
+
+        LocalDate today = LocalDate.now();
+
+        // 本周周一的开始时间（00:00:00）
+        LocalDateTime weekStart = today
+                .with(DayOfWeek.MONDAY)
+                .atStartOfDay();
+
+        // 本周周日的结束时间（23:59:59）
+        LocalDateTime weekEnd = today
+                .with(DayOfWeek.SUNDAY)
+                .atTime(23, 59, 59);
+
+        LambdaQueryWrapper<DrivingAppointment> wrapper = new LambdaQueryWrapper<>();
+        // 查询本周时间范围内的预约记录
+        wrapper.between(
+                DrivingAppointment::getStartTime,
+                weekStart,
+                weekEnd
+        );
+
+        List<DrivingAppointment> appointmentList = this.list(wrapper);
+
+        // 用于统计“星期 + 时间段”对应的预约次数
+        Map<String, Integer> peakMap = new HashMap<>();
+
+        for (DrivingAppointment appointment : appointmentList) {
+
+            // 将 Date 转换为 LocalDateTime，方便时间处理
+            LocalDateTime startTime = appointment.getStartTime()
+                    .toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+
+            LocalDateTime endTime = appointment.getEndTime()
+                    .toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+
+            // 解析星期（周一 ~ 周日）
+            String week = convertWeek(startTime.getDayOfWeek());
+
+            // 拼接预约时间段，如：09:00-11:00
+            String timeRange = startTime.toLocalTime()
+                    + "-" + endTime.toLocalTime();
+
+            // 组合统计 Key（防止时间段冲突）
+            String key = week + "_" + timeRange;
+
+            // 累加预约次数
+            peakMap.put(key, peakMap.getOrDefault(key, 0) + 1);
+        }
+
+        return peakMap.entrySet()
+                .stream()
+                // 按预约次数降序排序
+                .sorted((a, b) -> b.getValue() - a.getValue())
+                // 转换为前端需要的 VO 结构
+                .map(entry -> {
+                    AppointmentPeakVO vo = new AppointmentPeakVO();
+                    String[] arr = entry.getKey().split("_");
+                    vo.setWeek(arr[0]);
+                    vo.setTimeRange(arr[1]);
+                    vo.setCount(entry.getValue());
+                    return vo;
+                })
+                .collect(Collectors.toList());
+    }
+    /**
+     * 将 DayOfWeek 枚举转换为中文星期
+     *
+     * @param dayOfWeek Java 时间 API 中的星期枚举
+     * @return 中文星期描述（周一 ~ 周日）
+     */
+    private String convertWeek(DayOfWeek dayOfWeek) {
+        switch (dayOfWeek) {
+            case MONDAY:
+                return "周一";
+            case TUESDAY:
+                return "周二";
+            case WEDNESDAY:
+                return "周三";
+            case THURSDAY:
+                return "周四";
+            case FRIDAY:
+                return "周五";
+            case SATURDAY:
+                return "周六";
+            case SUNDAY:
+                return "周日";
+            default:
+                return "";
+        }
+    }
+
 }

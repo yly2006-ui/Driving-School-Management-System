@@ -5,12 +5,16 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 @Data
-public class DrivingSubject {
+public class DrivingRating {
 
     @TableId(type = IdType.AUTO)
-  private Long subjectId;
-  private String subjectName;
-  private String tag;
-  private String delFlag;
+    private Long ratingId;
 
+    private double score;
+
+    private String contanct;
+
+    private Long instructorId;
+
+    private Long studentId;;
 }
