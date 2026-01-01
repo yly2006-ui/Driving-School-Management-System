@@ -24,6 +24,9 @@
             LIMIT 1;
     </select>
 
-
+    <select id="cancelApproval" resultType="long">
+        SELECT COUNT(*) FROM driving_appointment apo
+        WHERE apo.del_flag = '2'
+    </select>
 
 </mapper>

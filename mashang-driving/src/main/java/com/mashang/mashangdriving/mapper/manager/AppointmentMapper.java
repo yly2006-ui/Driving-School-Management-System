@@ -8,4 +8,8 @@ import com.mashang.mashangdriving.domain.vo.student.StudentAppointmentVo;
 public interface AppointmentMapper extends BaseMapper<DrivingAppointment> {
 
     StudentAppointmentVo appointmento();
+
+    //管理端查看已取消预约
+    Long cancelApproval();
+
 }

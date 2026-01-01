@@ -12,6 +12,7 @@ public class DrivingSubject {
     @TableId(type = IdType.AUTO)
   private Long subjectId;
   private String subjectName;
+  private String tag;
   private String delFlag;
 
 }
