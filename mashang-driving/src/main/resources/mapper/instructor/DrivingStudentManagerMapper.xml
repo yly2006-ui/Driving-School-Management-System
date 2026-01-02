@@ -51,6 +51,7 @@
             LEFT JOIN ms_stu_pro339.driving_instructor_student dis ON dis.student_id = ds.student_id
                 LEFT JOIN ms_stu_pro339.driving_subject dsj ON dis.subject_id = dsj.subject_id
             LEFT JOIN ms_stu_pro339.driving_instructor di ON dis.instructor_id = di.instructor_id
+        WHERE ds.del_flag = '0'
         ORDER BY student_id ASC
     </select>
     <select id="selectOne" resultMap="DrivingStudentListVoResult">
@@ -75,6 +76,7 @@
                     AND ds.id_number = #{drivingStudentQuery.idNumber}
                     </if>
                 </where>
+        WHERE ds.del_flag = '0'
         ORDER BY student_id ASC
     </select>
 </mapper>

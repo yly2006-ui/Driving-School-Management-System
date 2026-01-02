@@ -5,6 +5,8 @@ import com.mashang.mashangdriving.Exception.BusinessException;
 import com.mashang.mashangdriving.domain.entity.DrivingStudent;
 import com.mashang.mashangdriving.domain.param.manager.create.DrivingStudentCreate;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingStudentQuery;
+import com.mashang.mashangdriving.domain.param.manager.update.DrivingStudentManagerUpdate;
+import com.mashang.mashangdriving.domain.param.student.update.DrivingStudentUpdate;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo;
 import com.mashang.mashangdriving.mapping.manager.DrivingStudentMapping;
 import com.mashang.mashangdriving.service.manager.IDrivingStudentManagerService;
@@ -30,11 +32,12 @@ public class DrivingStudentManagerController extends BaseController {
     @Autowired
     private IDrivingStudentManagerService drivingStudentManagerService;
 
+
     @GetMapping("/list")
     @ApiOperation("分页查询学员列表")
-    public TableDataInfo<DrivingStudentListVo> getList(DrivingStudent drivingStudent,PageQuery pageQuery) {
+    public TableDataInfo<DrivingStudentListVo> getList(PageQuery pageQuery) {
         Page<DrivingStudentListVo> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
-        Page<DrivingStudentListVo> result = drivingStudentManagerService.getList(drivingStudent, page);
+        Page<DrivingStudentListVo> result = drivingStudentManagerService.getList( page);
         return getDataTable(result.getRecords(),result.getTotal());
     }
 
@@ -65,6 +68,26 @@ public class DrivingStudentManagerController extends BaseController {
             return R.fail("新增失败");
         }
         return R.ok(drivingStudentListVo);
+    }
+
+    @PutMapping("/updateStudent")
+    @ApiOperation("修改学员")
+    public R updateStudent(DrivingStudentManagerUpdate dto) {
+        DrivingStudentListVo drivingStudentListVo = drivingStudentManagerService.updateStudent(dto);
+        if (drivingStudentListVo == null) {
+            return R.fail("新增失败");
+        }
+        return R.ok(drivingStudentListVo);
+    }
+
+    @DeleteMapping("/studentId")
+    @ApiOperation("删除学员信息")
+    public R studentId(@RequestParam(value = "studentId", required = true) Long studentId) {
+        int i = drivingStudentManagerService.deleteById(studentId);
+        if (i>0){
+            return R.ok("删除成功");
+        }
+        return R.fail("删除失败");
     }
 
 }

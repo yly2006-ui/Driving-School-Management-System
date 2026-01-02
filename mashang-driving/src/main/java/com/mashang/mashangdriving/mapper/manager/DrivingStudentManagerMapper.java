@@ -13,7 +13,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 @Mapper
 public interface DrivingStudentManagerMapper extends BaseMapper<DrivingStudent> {
-    Page<DrivingStudentListVo> getList(@Param("drivingStudent")DrivingStudent drivingStudent, Page<DrivingStudentListVo> page);
+    Page<DrivingStudentListVo> getList( Page<DrivingStudentListVo> page);
     DrivingStudentListVo selectOne(@Param("drivingStudentQuery") DrivingStudentQuery drivingStudentQuery);
 
 }

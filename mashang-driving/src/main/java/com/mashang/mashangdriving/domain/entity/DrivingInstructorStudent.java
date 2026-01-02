@@ -8,14 +8,14 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class DrivingInstructorStudent {
-  @ApiModelProperty(required = true,value = "教练ID")
+  @ApiModelProperty(value = "教练ID")
   private Long instructorId;
 
   @ApiModelProperty(hidden = true)
   private Long studentId;
   @ApiModelProperty(hidden = true)
   private String delFlag;
-  @ApiModelProperty(required = true,value = "科目ID")
-  private int subjectId;
+  @ApiModelProperty(value = "科目ID")
+  private Long subjectId;
 
 }

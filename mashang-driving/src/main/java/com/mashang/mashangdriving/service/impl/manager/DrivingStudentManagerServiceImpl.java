@@ -1,11 +1,14 @@
 package com.mashang.mashangdriving.service.impl.manager;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mashang.mashangdriving.Exception.BusinessException;
 import com.mashang.mashangdriving.domain.entity.*;
 import com.mashang.mashangdriving.domain.param.manager.create.DrivingStudentCreate;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingStudentQuery;
+import com.mashang.mashangdriving.domain.param.manager.update.DrivingStudentManagerUpdate;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo;
 import com.mashang.mashangdriving.mapper.manager.*;
 import com.mashang.mashangdriving.service.manager.IDrivingStudentManagerService;
@@ -25,8 +28,8 @@ public class DrivingStudentManagerServiceImpl extends ServiceImpl<DrivingStudent
     private InstructorStudentManagerMapper instructorStudentManagerMapper;
 
     @Override
-    public Page<DrivingStudentListVo> getList(DrivingStudent drivingStudent, Page<DrivingStudentListVo> page) {
-        return baseMapper.getList(drivingStudent,page);
+    public Page<DrivingStudentListVo> getList( Page<DrivingStudentListVo> page) {
+        return baseMapper.getList(page);
     }
 
     @Override
@@ -54,17 +57,20 @@ public class DrivingStudentManagerServiceImpl extends ServiceImpl<DrivingStudent
         studentEntity.setDriverLicenseId(dto.getDriverLicenseId());
         studentEntity.setStatus("0");
         studentEntity.setDelFlag("0");
-        if (dto.getStudentId() != null) {
-            studentEntity.setUserId(100000L + dto.getStudentId());
-        } else {
-            studentEntity.setUserId(null);
-        }
         studentEntity.setCreateTime(new Date());
         studentEntity.setUpdateTime(new Date());
 
         int i = baseMapper.insert(studentEntity);
         if (i<=0){
             throw new RuntimeException("保存失败");
+        }
+
+        if (studentEntity.getStudentId() != null) {
+            Long userId = 100000L + studentEntity.getStudentId();
+            studentEntity.setUserId(userId);
+            baseMapper.updateById(studentEntity);
+        }else {
+            studentEntity.setUserId(null);
         }
         DrivingInstructorStudent drivingInstructorStudent = new DrivingInstructorStudent();
         drivingInstructorStudent.setStudentId(studentEntity.getStudentId());
@@ -79,6 +85,111 @@ public class DrivingStudentManagerServiceImpl extends ServiceImpl<DrivingStudent
 
         studentEntity.setDrivingInstructorStudent(drivingInstructorStudent);
         return getDrivingStudentListVo(studentEntity);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public DrivingStudentListVo updateStudent(DrivingStudentManagerUpdate dto) {
+
+        if(dto.getStudentId() == null){
+            throw new RuntimeException("学生ID不能为空");
+        }
+
+        LambdaUpdateWrapper<DrivingStudent> drivingStudentLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        drivingStudentLambdaUpdateWrapper.eq( DrivingStudent::getStudentId, dto.getStudentId());
+        if (dto.getDriverLicenseId() != null) {
+            drivingStudentLambdaUpdateWrapper.set(DrivingStudent::getDriverLicenseId, dto.getDriverLicenseId());
+        }
+
+        if (StringUtils.isNotBlank(dto.getStudentName())) {
+            drivingStudentLambdaUpdateWrapper.set(DrivingStudent::getStudentName, dto.getStudentName());
+        }
+
+        if (StringUtils.isNotBlank(dto.getPhone())) {
+            drivingStudentLambdaUpdateWrapper.set(DrivingStudent::getPhone, dto.getPhone());
+        }
+
+        if (StringUtils.isNotBlank(dto.getIdNumber())) {
+            drivingStudentLambdaUpdateWrapper.set(DrivingStudent::getIdNumber, dto.getIdNumber());
+        }
+        if(dto.getEmergencyPhone() != null){
+            drivingStudentLambdaUpdateWrapper.set(DrivingStudent::getEmergencyPhone, dto.getEmergencyPhone());
+        }
+        if (StringUtils.isNotBlank(dto.getIdNumberFront())){
+            drivingStudentLambdaUpdateWrapper.set(DrivingStudent::getIdNumberFront, dto.getIdNumberFront());
+        }
+        if (StringUtils.isNotBlank(dto.getIdNumberBack())){
+            drivingStudentLambdaUpdateWrapper.set(DrivingStudent::getIdNumberBack, dto.getIdNumberBack());
+        }
+        if (StringUtils.isNotBlank(dto.getStatus())){
+            drivingStudentLambdaUpdateWrapper.set(DrivingStudent::getStatus, dto.getStatus());
+        }
+
+        drivingStudentLambdaUpdateWrapper.set( DrivingStudent::getUpdateTime, new Date());
+        int i = baseMapper.update(null, drivingStudentLambdaUpdateWrapper);
+        if (i <= 0) {
+            throw new RuntimeException("学员信息修改失败");
+        }
+//教练学员表
+        if (dto.getDrivingInstructorStudent()!=null){
+
+            LambdaUpdateWrapper<DrivingInstructorStudent> drivingInstructorStudentLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+
+            drivingInstructorStudentLambdaUpdateWrapper.eq(DrivingInstructorStudent::getStudentId, dto.getStudentId());
+
+            boolean hasUpdate = false;
+        if (dto.getDrivingInstructorStudent().getInstructorId() != null) {
+            drivingInstructorStudentLambdaUpdateWrapper.set(DrivingInstructorStudent::getInstructorId,
+                    dto.getDrivingInstructorStudent().getInstructorId());
+            hasUpdate = true;
+        }
+        if(dto.getDrivingInstructorStudent().getSubjectId()!=null){
+            drivingInstructorStudentLambdaUpdateWrapper.set(DrivingInstructorStudent::getSubjectId,
+                    dto.getDrivingInstructorStudent().getSubjectId());
+            hasUpdate = true;
+        }
+        if (hasUpdate) {
+            int update = instructorStudentManagerMapper.update(null, drivingInstructorStudentLambdaUpdateWrapper);
+            if (update<=0) {
+                throw new RuntimeException("教练学员表更新失败");
+            }
+        }
+        }
+
+        DrivingStudent student = baseMapper.selectById(dto.getStudentId());
+        if (student == null) {
+            throw new RuntimeException("学员不存在");
+        }
+        LambdaQueryWrapper<DrivingInstructorStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(DrivingInstructorStudent::getStudentId, dto.getStudentId());
+        DrivingInstructorStudent drivingInstructorStudent = instructorStudentManagerMapper.selectOne(queryWrapper);
+        student.setDrivingInstructorStudent(drivingInstructorStudent);
+
+        return getDrivingStudentListVo(student);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int deleteById(Long studentId) {
+
+        if (studentId == null) {
+            throw new RuntimeException("该学员不存在");
+        }
+        LambdaUpdateWrapper<DrivingStudent> studentLambdaUpdateWrapper = new LambdaUpdateWrapper<DrivingStudent>()
+                .eq(DrivingStudent::getStudentId, studentId)
+                .set(DrivingStudent::getUpdateTime, new Date())
+                .set(DrivingStudent::getDelFlag, 2);
+        int i = baseMapper.update(null, studentLambdaUpdateWrapper);
+        if (i <= 0) {
+            throw new RuntimeException("学员表删除失败");
+        }
+        LambdaUpdateWrapper<DrivingInstructorStudent> instructorStudentLambdaUpdateWrapper = new LambdaUpdateWrapper<DrivingInstructorStudent>()
+                .eq(DrivingInstructorStudent::getStudentId, studentId)
+                .set(DrivingInstructorStudent::getDelFlag,2);
+        int update = instructorStudentManagerMapper.update(null, instructorStudentLambdaUpdateWrapper);
+
+
+        return 1;
     }
 
     private static DrivingStudentListVo getDrivingStudentListVo(DrivingStudent studentEntity) {
