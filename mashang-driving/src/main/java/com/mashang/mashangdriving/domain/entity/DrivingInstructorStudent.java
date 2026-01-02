@@ -1,17 +1,21 @@
 package com.mashang.mashangdriving.domain.entity;
 
-
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class DrivingInstructorStudent {
-
-    @TableId(type = IdType.AUTO)
+  @ApiModelProperty(value = "教练ID")
   private Long instructorId;
-    private Long subjectId;
-  private String studentId;
+
+  @ApiModelProperty(hidden = true)
+  private Long studentId;
+  @ApiModelProperty(hidden = true)
   private String delFlag;
+  @ApiModelProperty(value = "科目ID")
+  private Long subjectId;
 
 }

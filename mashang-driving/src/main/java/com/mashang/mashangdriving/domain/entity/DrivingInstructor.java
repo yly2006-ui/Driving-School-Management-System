@@ -3,9 +3,11 @@ package com.mashang.mashangdriving.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.util.Date;
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class DrivingInstructor {
 
@@ -27,7 +29,7 @@ public class DrivingInstructor {
   private String photo;
   private String certificate;
   private String delFlag;
-  private double score;
+  private Double score;
   private String content;
 
 }

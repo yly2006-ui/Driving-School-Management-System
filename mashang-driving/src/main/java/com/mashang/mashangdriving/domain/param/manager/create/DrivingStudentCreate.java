@@ -1,44 +1,44 @@
-package com.mashang.mashangdriving.domain.entity;
+package com.mashang.mashangdriving.domain.param.manager.create;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.mashang.mashangdriving.domain.entity.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.util.Date;
 
 /**
  * 驾校学员实体类
  */
 @Data
-@ApiModel(description = "驾校学员信息")
+@ApiModel(description = "添加学员")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DrivingStudent {
+public class DrivingStudentCreate {
 
     @TableId(type = IdType.AUTO)
-    @ApiModelProperty(value = "学员ID", example = "1")
+    @ApiModelProperty(value = "学员ID", example = "1",hidden = true)
     private Long studentId;
 
-    @ApiModelProperty(value = "学员姓名", example = "张三")
+    @ApiModelProperty(value = "学员姓名", required = true,example = "张三")
     private String studentName;
 
-    @ApiModelProperty(value = "关联系统用户ID", example = "1001")
+    @ApiModelProperty(value = "关联系统用户ID", example = "1001",hidden = true)
     private Long userId;
 
-    @ApiModelProperty(value = "驾照类型ID", example = "1")
+    @ApiModelProperty(value = "驾照类型ID",required = true, example = "1")
     private Long driverLicenseId;
 
     @ApiModelProperty(value = "手机号码", required = true, example = "13800138000")
     private String phone;
 
-
     @ApiModelProperty(value = "紧急联系人电话", example = "13900139000")
     private String emergencyPhone;
 
-    @ApiModelProperty(value = "学员状态",  example = "0(再学)")
+    @ApiModelProperty(value = "学员状态",  example = "0(再学)",hidden = true)
     private String status;
 
     @ApiModelProperty(value = "身份证号", required = true, example = "110101199001011234")
@@ -50,19 +50,13 @@ public class DrivingStudent {
     @ApiModelProperty(value = "身份证背面照片URL", example = "/upload/id/back/xxx.jpg")
     private String idNumberBack;
 
-    @ApiModelProperty(value = "删除标志(0-未删除 2-已删除)", example = "0")
+    @ApiModelProperty(value = "删除标志(0-未删除 2-已删除)", example = "0",hidden = true)
     private String delFlag;
 
-    @ApiModelProperty(value = "创建时间", example = "2024-01-15 10:30:00")
+    @ApiModelProperty(value = "创建时间", example = "2024-01-15 10:30:00", hidden = true)
     private Date createTime;
-    @ApiModelProperty(value = "修改时间", example = "2024-01-15 10:30:00")
-    private Date updateTime;
 
-    @ApiModelProperty(value = "驾驶类型")
-    @TableField(exist = false)
-    private DrivingDriverLicenseType drivingDriverLicenseType;
-
-    @TableField(exist = false)
     @ApiModelProperty(value = "教练学员表")
     private DrivingInstructorStudent drivingInstructorStudent;
+
 }
