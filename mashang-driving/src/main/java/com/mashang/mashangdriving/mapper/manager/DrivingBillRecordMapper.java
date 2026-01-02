@@ -33,6 +33,7 @@ public interface DrivingBillRecordMapper extends BaseMapper<DrivingBillRecord> {
     //查询学员总数
     DrivingBillYearMessageVo queryAllStudentCount(@Param(Constants.WRAPPER) Wrapper<DrivingBillRecord> wrapper);
 
+    Long finished(@Param("userId")Long userId);
 
 
     //查询月度收入

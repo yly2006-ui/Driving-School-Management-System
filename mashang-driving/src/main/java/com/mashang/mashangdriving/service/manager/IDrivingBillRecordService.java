@@ -31,4 +31,6 @@ public interface IDrivingBillRecordService extends IService<DrivingBillRecord> {
 
     //每月收入
     List<DrivingGroupMonthVo> queryIncomeTrendByYear(String year);
+
+
 }

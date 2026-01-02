@@ -9,6 +9,7 @@ import com.mashang.mashangdriving.domain.vo.manager.DrivingBillRecordListVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingBillYearMessageVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingGroupMonthVo;
 import com.mashang.mashangdriving.mapper.manager.DrivingBillRecordMapper;
+import com.mashang.mashangdriving.mapper.student.DrivingCourseAttributeMapper;
 import com.mashang.mashangdriving.service.manager.IDrivingBillRecordService;
 import com.ruoyi.common.utils.StringUtils;
 import org.apache.ibatis.annotations.Param;
@@ -27,6 +28,8 @@ import java.util.List;
 public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordMapper, DrivingBillRecord> implements IDrivingBillRecordService {
     @Autowired
     private DrivingBillRecordMapper drivingBillRecordMapper;
+    @Autowired
+    private DrivingCourseAttributeMapper drivingCourseAttributeMapper;
 
     @Override
     public Page<DrivingBillRecordListVo> queryBillRecord(Page<DrivingBillRecordListVo> page,
@@ -166,6 +169,8 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         String s = scale + "%";
 
         String subtract1 = NetProfit.subtract(lastyear)+"%";
+
+
 
         YearMessageVo.setAnnualTotalExpenditure(Expenditure);
         YearMessageVo.setAnnualTotalIncomelastYear(string);

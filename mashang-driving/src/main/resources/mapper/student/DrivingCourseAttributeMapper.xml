@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mashang.mashangdriving.mapper.student.DrivingCourseAttributeMapper">
+    <resultMap id="map" type="drivingCourseAttributeVO">
+        <id property="attributeId" column="attribute_id"/>
+        <result property="attributeName" column="attribute_name"/>
+        <result property="type" column="type"/>
+        <result property="courseCount" column="courseCount"/>
+        <collection property="drivingCourseLableVoList" ofType="drivingCourseLableVo">
+            <result property="lableId" column="lable_id"/>
+            <result property="lableName" column="lable_name"/>
+            <collection property="list" ofType="drivingCourseContextVo">
+                <result property="contentId" column="content_id"/>
+                <result property="contectName" column="contect_name"/>
+                <result property="contentTime" column="content_time"/>
+                <result property="courseContect" column="course_contect"/>
+                <result property="ipstructionalVideo" column="ipstructional_video"/>
+            </collection>
+        </collection>
+
+
+    </resultMap>
+    <select id="selectByCourseId"
+           resultMap="map">
+            SELECT
+                a.attribute_id,
+                a.attribute_name,
+                a.type,
+                l.lable_id,
+                l.lable_name,
+                c.content_id,
+                c.contect_name,
+                c.content_time,
+                c.course_contect,
+                c.ipstructional_video
+            FROM driving_course_attribute a
+                     JOIN driving_lable l ON a.attribute_id=l.attribute_id
+                     JOIN driving_content c ON l.lable_id=c.lable_id
+            WHERE a.attribute_id=#{attributeId}
+            -- 去掉count(*)，去掉JOIN driving_course_record r
+    </select>
+
+
+
+
+
+    <select id="countFinish"
+            resultType="com.mashang.mashangdriving.domain.vo.student.DrivingCourseAttributeVO">
+        SELECT count(r.record_id) finish
+        FROM driving_course_attribute a
+                 JOIN driving_lable l
+                      ON a.attribute_id=l.attribute_id
+                 JOIN driving_content c
+                      ON l.lable_id=c.lable_id
+                 JOIN driving_course_record r
+                      ON r.content_id=c.content_id
+        WHERE a.attribute_id=#{attributeId} and r.`status`=0 and r.user_id=#{userId}
+    </select>
+    <select id="selectFinished"
+            resultType="string">
+        SELECT
+               r.status finishStatus
+        FROM driving_course_attribute a
+                 JOIN driving_lable l
+                      ON a.attribute_id=l.attribute_id
+                 JOIN driving_content c
+                      ON l.lable_id=c.lable_id
+                 JOIN driving_course_record r
+                      ON r.content_id=c.content_id
+        WHERE c.content_id=#{contentId} and r.user_id=#{userId}
+    </select>
+    <select id="total" resultType="long">
+        SELECT
+            count(c.content_id)
+        FROM driving_course_attribute a
+                 JOIN driving_lable l
+                      ON a.attribute_id=l.attribute_id
+                 JOIN driving_content c
+                      ON l.lable_id=c.lable_id
+                 JOIN driving_course_record r
+                      ON r.content_id=c.content_id
+        WHERE a.attribute_id=#{attributeId}
+    </select>
+    <select id="selectStudyTotal" resultType="java.lang.String">
+        select DISTINCT count(r.user_id)
+        FROM driving_course_attribute a
+                 JOIN driving_lable l
+                      ON a.attribute_id=l.attribute_id
+                 JOIN driving_content c
+                      ON l.lable_id=c.lable_id
+                 JOIN driving_course_record r
+                      ON r.content_id=c.content_id
+        WHERE a.attribute_id=#{attributeId}
+    </select>
+</mapper>
