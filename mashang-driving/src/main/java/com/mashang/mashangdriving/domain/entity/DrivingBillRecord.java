@@ -1,5 +1,6 @@
 package com.mashang.mashangdriving.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -19,4 +20,6 @@ public class DrivingBillRecord {
     private String delFlag;
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
+    @TableField(exist = false)
+    private static final long serialVersionUID = 1L;
 }

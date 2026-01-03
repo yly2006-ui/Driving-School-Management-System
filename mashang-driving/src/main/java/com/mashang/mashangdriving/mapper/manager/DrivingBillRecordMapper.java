@@ -45,11 +45,11 @@ public interface DrivingBillRecordMapper extends BaseMapper<DrivingBillRecord> {
     //学员缴费
     DrivingBillMonthMessageVo queryStudentTotalIncome(@Param(Constants.WRAPPER) Wrapper<DrivingBillRecord> wrapper);
 
-
     //其他收入
     DrivingBillMonthMessageVo queryNotStudentTotalIncome(@Param(Constants.WRAPPER) Wrapper<DrivingBillRecord> wrapper);
 
     //每个月
     List<DrivingGroupMonthVo> queryIncomeByYearGroupByMonth(@Param("ew") QueryWrapper<DrivingBillRecord> queryWrapper);
 
+    //查询我的支付记录
 }

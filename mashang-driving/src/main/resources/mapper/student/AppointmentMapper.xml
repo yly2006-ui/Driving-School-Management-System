@@ -29,4 +29,94 @@
         WHERE apo.del_flag = '2'
     </select>
 
+    <select id="page" resultType="ManagerAppointmentListVo">
+        SELECT
+            app.appointment_id,
+            app.start_time,
+            app.end_time,
+            app.`status`,
+            stu.student_name,
+            stu.student_id,
+            stu.phone,
+            stu.create_time,
+            ins.instructor_id,
+            ins.instructor_name,
+            car.car_id,
+            car.car_name,
+            car.plate_number,
+            loc.location_id,
+            loc.location_name,
+            sub.subject_id,
+            sub.subject_name,
+            sub.tag
+        FROM
+            driving_appointment AS app
+                LEFT JOIN
+            driving_student AS stu
+            ON
+                app.student_id = stu.student_id
+                LEFT JOIN
+            driving_instructor AS ins
+            ON
+                app.instructor_id = ins.instructor_id
+                LEFT JOIN
+            driving_car AS car
+            ON
+                car.instructor_id = ins.instructor_id
+                LEFT JOIN
+            driving_location AS loc
+            ON
+                app.appointment_id = loc.location_id
+                LEFT JOIN
+            driving_subject AS sub
+            ON
+                sub.subject_id = app.subject_id
+            ${ew.customSqlSegment}
+    </select>
+
+    <select id="appointmentDtl" resultType="ManagerAppointmentListVo">
+        SELECT
+            app.appointment_id,
+            app.start_time,
+            app.end_time,
+            app.`status`,
+            stu.student_name,
+            stu.student_id,
+            stu.phone,
+            stu.create_time,
+            ins.instructor_id,
+            ins.instructor_name,
+            car.car_id,
+            car.car_name,
+            car.plate_number,
+            loc.location_id,
+            loc.location_name,
+            sub.subject_id,
+            sub.subject_name,
+            sub.tag
+        FROM
+            driving_appointment AS app
+                LEFT JOIN
+            driving_student AS stu
+            ON
+                app.student_id = stu.student_id
+                LEFT JOIN
+            driving_instructor AS ins
+            ON
+                app.instructor_id = ins.instructor_id
+                LEFT JOIN
+            driving_car AS car
+            ON
+                car.instructor_id = ins.instructor_id
+                LEFT JOIN
+            driving_location AS loc
+            ON
+                app.appointment_id = loc.location_id
+                LEFT JOIN
+            driving_subject AS sub
+            ON
+                sub.subject_id = app.subject_id
+        where app.appointment_id = #{appointmentId}
+    </select>
+
 </mapper>
