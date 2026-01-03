@@ -41,16 +41,16 @@
         <result property="allHours" column="all_hours"/>
         <result property="status" column="status"/>
         <collection property="drivingLearningMaterialsVos" ofType="drivingLearningMaterialsVo">
-            <id property="materialsId" column="materials_id"/>
-            <result property="materialsName" column="materials_name"/>
+            <id property="materialsId" column="lable_id"/>
+            <result property="materialsName" column="lable_name"/>
         </collection>
     </resultMap>
     <select id="query" resultMap="courseListVo">
         SELECT c.course_id,c.course_name ,c.type,c.all_hours,c.`status`,
-               m.materials_id,m.materials_name
+               l.lable_id,l.lable_name
         FROM driving_course c
-                 LEFT JOIN driving_learning_materials m
-                           ON c.course_id=m.course_id
+                 LEFT JOIN driving_lable l
+                           ON c.course_id=l.course_id
         <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
         ${ew.customSqlSegment}
     </select>

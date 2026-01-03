@@ -3,8 +3,11 @@ package com.mashang.mashangdriving.controller.student;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mashang.mashangdriving.domain.entity.DrivingCourseAttribute;
+import com.mashang.mashangdriving.domain.param.student.create.DrivingCourseAttributeCreate;
+import com.mashang.mashangdriving.domain.param.student.update.DrivingCourseAttributeUpdate;
 import com.mashang.mashangdriving.domain.vo.student.DrivingCourseAttributeVO;
 import com.mashang.mashangdriving.domain.vo.student.DrivingCourseStudentListVo;
+import com.mashang.mashangdriving.mapping.student.DrivingCourseAttributeMapping;
 import com.mashang.mashangdriving.service.student.IDrivingCourseAttributeService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
@@ -21,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
 
-@Api(tags = "学员端课程管理")
+@Api(tags = "学员端--课程管理")
 @RestController
 @RequestMapping("/drivingCourseAttribute")
 public class DrivingCourseAttributeController extends BaseController {
@@ -63,9 +66,41 @@ public class DrivingCourseAttributeController extends BaseController {
                 drivingCourseAttributeVOS.add(drivingCourseStudentListVo);
 
         }
-
-
-
         return getDataTable(drivingCourseAttributeVOS,attributePage.getTotal());
+    }
+
+    @ApiOperation("新增学习课程")
+    @PostMapping("/save")
+    public R insert(@RequestBody DrivingCourseAttributeCreate attributeCreate){
+        LambdaQueryWrapper<DrivingCourseAttribute>lambdaQueryWrapper=new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(DrivingCourseAttribute::getAttributeName,attributeCreate.getAttributeName());
+        DrivingCourseAttribute one = drivingCourseAttributeService.getOne(lambdaQueryWrapper);
+        if (one!=null) {
+            throw new RuntimeException("已存在此名称课程");
+        }
+        boolean save = drivingCourseAttributeService.save(DrivingCourseAttributeMapping.INSTANCE.toCreate(attributeCreate));
+        return toR(save);
+    }
+
+    @ApiOperation("修改学习课程")
+    @PutMapping("/update")
+    public R update(@RequestBody DrivingCourseAttributeUpdate attributeUpdate){
+        LambdaQueryWrapper<DrivingCourseAttribute>lambdaQueryWrapper=new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(DrivingCourseAttribute::getAttributeName,attributeUpdate.getAttributeName());
+        lambdaQueryWrapper.ne(DrivingCourseAttribute::getAttributeId,attributeUpdate.getAttributeId());
+        DrivingCourseAttribute one = drivingCourseAttributeService.getOne(lambdaQueryWrapper);
+        if (one!=null) {
+            throw new RuntimeException("已存在此名称课程");
+        }
+        boolean save = drivingCourseAttributeService.updateById(DrivingCourseAttributeMapping.INSTANCE.toUpdate(attributeUpdate));
+        return toR(save);
+    }
+
+    @ApiOperation("删除学习课程")
+    @DeleteMapping("/delete/{attributeId}")
+    public R delete(@PathVariable Long attributeId){
+        boolean b = drivingCourseAttributeService.removeById(attributeId);
+        return toR(b);
+
     }
 }
