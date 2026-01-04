@@ -1,11 +1,16 @@
 package com.mashang.mashangdriving.service.impl.manager;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mashang.mashangdriving.domain.entity.*;
 import com.mashang.mashangdriving.domain.param.manager.create.CreateStudentAppointment;
+import com.mashang.mashangdriving.domain.param.manager.query.ManagerAppointmentQuery;
 import com.mashang.mashangdriving.domain.param.student.create.AddRating;
+import com.mashang.mashangdriving.domain.vo.manager.ManagerAppointmentListVo;
 import com.mashang.mashangdriving.domain.vo.student.ContactInstructorVo;
 import com.mashang.mashangdriving.domain.vo.student.MyAppointmentDtlVo;
 import com.mashang.mashangdriving.domain.vo.student.StudentAppointmentVo;
@@ -21,6 +26,7 @@ import com.mashang.mashangdriving.service.impl.student.AppointmentPeakVO;
 import com.mashang.mashangdriving.service.manager.IAppointmentService;
 import com.ruoyi.common.constant.AppointmentConstants;
 import com.ruoyi.common.constant.InstructorConstants;
+import com.ruoyi.common.core.page.PageQuery;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,7 +164,7 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
 
         DrivingAppointment drivingAppointment = CreateAppointmentMapping.INSTANCE.toEntity(createStudentAppointment);
         drivingAppointment.setStudentId(student.getStudentId());
-
+        drivingAppointment.setStatus(AppointmentConstants.PROCESSED_STATUS);
         appointmentMapper.insert(drivingAppointment);
 
         DrivingSubject subject = subjectMapper.selectById(createStudentAppointment.getSubjectId());
@@ -182,7 +188,7 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
 
         LambdaQueryWrapper<DrivingAppointment> allWrapper = new LambdaQueryWrapper<>();
         allWrapper.eq(DrivingAppointment::getStudentId, drivingStudent.getStudentId());
-        allWrapper.eq(StringUtils.isEmpty(status),DrivingAppointment::getStatus,status);
+        allWrapper.eq(StringUtils.isNotEmpty(status),DrivingAppointment::getStatus,status);
         List<DrivingAppointment> drivingAppointments = appointmentMapper.selectList(allWrapper);
 
         List<MyAppointmentDtlVo> myAppointmentList = new ArrayList<>();
@@ -413,6 +419,96 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
                 })
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Page<ManagerAppointmentListVo> page(PageQuery pageQuery, ManagerAppointmentQuery query) {
+
+        //创建分页对象
+        Page<ManagerAppointmentListVo> page = new Page<>(
+                pageQuery.getPageNum(),
+                pageQuery.getPageSize()
+        );
+
+        QueryWrapper<ManagerAppointmentListVo> qw = new QueryWrapper<>();
+        qw.eq(
+                StringUtils.isNotBlank(query.getStatus()),
+                "app.status",
+                query.getStatus()
+        );
+
+        qw.like(
+                StringUtils.isNotBlank(query.getStudentName()),
+                "stu.student_name",
+                query.getStudentName()
+        );
+
+        qw.like(
+                StringUtils.isNotBlank(query.getPhone()),
+                "stu.phone",
+                query.getPhone()
+        );
+
+        qw.like(
+                StringUtils.isNotBlank(query.getInstructorName()),
+                "ins.instructor_name",
+                query.getInstructorName()
+        );
+
+        qw.like(
+                StringUtils.isNotBlank(query.getSubjectName()),
+                "sub.subject_name",
+                query.getSubjectName()
+        );
+
+        return appointmentMapper.page(page,qw);
+    }
+
+    @Override
+    public ManagerAppointmentListVo appointmentDtl(Long appointmentId) {
+
+        return appointmentMapper.appointmentDtl(appointmentId);
+    }
+
+    @Override
+    public int updateStatus(Long appointmentId) {
+
+        DrivingAppointment appointment =
+                appointmentMapper.selectById(appointmentId);
+
+        if (appointment == null) {
+            throw new RuntimeException("预约不存在");
+        }
+
+        if (!Objects.equals(appointment.getStatus(), AppointmentConstants.PROCESSED_STATUS)){
+            throw new RuntimeException("当前预约已审批");
+        }
+        LambdaUpdateWrapper<DrivingAppointment> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(DrivingAppointment::getAppointmentId,appointmentId)
+                .set(DrivingAppointment::getStatus,AppointmentConstants.NO_PROCESSED_STATUS);
+
+        return appointmentMapper.update(null, updateWrapper);
+    }
+
+    @Override
+    public int managerDeleteAppointment(Long appointmentId) {
+
+        DrivingAppointment appointment =
+                appointmentMapper.selectById(appointmentId);
+
+        if (appointment == null) {
+            throw new RuntimeException("预约不存在");
+        }
+
+        if (!Objects.equals(appointment.getStatus(), AppointmentConstants.PROCESSED_STATUS)){
+            throw new RuntimeException("当前预约已审批");
+        }
+
+        LambdaUpdateWrapper<DrivingAppointment> deleteWrapper = new LambdaUpdateWrapper<>();
+        deleteWrapper.eq(DrivingAppointment::getAppointmentId,appointmentId);
+
+        return appointmentMapper.update(null,deleteWrapper);
+    }
+
     /**
      * 将 DayOfWeek 枚举转换为中文星期
      *

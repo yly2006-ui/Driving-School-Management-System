@@ -1,13 +1,17 @@
 package com.mashang.mashangdriving.service.manager;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mashang.mashangdriving.domain.entity.DrivingAppointment;
 import com.mashang.mashangdriving.domain.param.manager.create.CreateStudentAppointment;
+import com.mashang.mashangdriving.domain.param.manager.query.ManagerAppointmentQuery;
 import com.mashang.mashangdriving.domain.param.student.create.AddRating;
+import com.mashang.mashangdriving.domain.vo.manager.ManagerAppointmentListVo;
 import com.mashang.mashangdriving.domain.vo.student.ContactInstructorVo;
 import com.mashang.mashangdriving.domain.vo.student.MyAppointmentDtlVo;
 import com.mashang.mashangdriving.domain.vo.student.StudentAppointmentVo;
 import com.mashang.mashangdriving.service.impl.student.AppointmentPeakVO;
+import com.ruoyi.common.core.page.PageQuery;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
@@ -64,4 +68,18 @@ public interface IAppointmentService extends IService<DrivingAppointment> {
      * @return 本周预约高峰时间段列表
      */
     List<AppointmentPeakVO> getWeeklyAppointmentPeaks();
+
+    //管理端分页查询所有预约
+    Page<ManagerAppointmentListVo> page(PageQuery pageQuery, ManagerAppointmentQuery managerAppointmentQuery);
+
+    //管理端查询预约详情
+    ManagerAppointmentListVo appointmentDtl(Long appointmentId);
+
+    //管理员审批通过预约(改为已确认状态)
+    int updateStatus(Long appointmentId);
+
+    //管理员拒绝预约(删除预约)
+    int managerDeleteAppointment(Long appointmentId);
+
+
 }
