@@ -103,7 +103,7 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         DrivingBillYearMessageVo YearMessageVo=new DrivingBillYearMessageVo();
 
         String Expenditure = AnnualTotalExpenditure.getAnnualTotalExpenditure();
-        System.out.println("今年支出"+Expenditure);
+//        System.out.println("今年支出"+Expenditure);
         String TotalIncome = AnnualTotalIncome.getAnnualTotalIncome();
 
         BigDecimal bd1 = new BigDecimal(Expenditure);
@@ -112,7 +112,7 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         BigDecimal NetProfit = bd2.subtract(bd1);
 
         String totalStudents = allStudentCount.getTotalStudents();
-
+        System.out.println("今年一共存在的学生数量"+totalStudents);
         BigDecimal TotalIncomed=new BigDecimal(TotalIncome);
         BigDecimal divide = NetProfit.divide(TotalIncomed,3, RoundingMode.HALF_UP);
         BigDecimal profitMarginPercent = divide.multiply(new BigDecimal("100"));
@@ -170,6 +170,19 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
 
         String subtract1 = NetProfit.subtract(lastyear)+"%";
 
+        //完成培训学生数量
+        QueryWrapper<DrivingBillRecord>finishedStudent=new QueryWrapper<>();
+        finishedStudent.between("s.create_time", startDate, endDate);
+        finishedStudent.eq("s.status","1");
+        Long finisheded = drivingBillRecordMapper.finishedStudent(finishedStudent);
+        System.out.println("完成培训学生数量"+finisheded);
+
+        BigDecimal bigDecimal=new BigDecimal(finisheded);
+
+        //通过培训率
+        String setScale = bigDecimal.divide(studentBigDecimal, 3, RoundingMode.HALF_UP).multiply(new BigDecimal("100"))
+                .setScale(1, RoundingMode.HALF_UP)+"%";
+
 
 
         YearMessageVo.setAnnualTotalExpenditure(Expenditure);
@@ -184,6 +197,8 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         YearMessageVo.setTotalStudentslastYear(s);
         YearMessageVo.setProfitMargin(yearNetProfit);
         YearMessageVo.setProfitMarginlastYear(subtract1);
+        YearMessageVo.setCompletedTraining(bigDecimal.toString());
+        YearMessageVo.setCompletedTrainingFinsh((setScale));
         return YearMessageVo;
     }
 

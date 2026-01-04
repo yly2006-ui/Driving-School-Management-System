@@ -5,14 +5,10 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.IdType;
 
 @Data
-public class DrivingCourseRecord {
+public class DrivingAttributeUserid {
 
     @TableId(type = IdType.AUTO)
-    private Long recordId;
+    private Long attributeId;
     private Long userId;
-    private Long contentId;
-    private String finishedHours;
     private String status;
-    private String delFlag;
-    private Long studentId;
 }

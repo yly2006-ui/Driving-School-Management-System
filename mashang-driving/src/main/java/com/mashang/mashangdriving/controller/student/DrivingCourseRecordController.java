@@ -1,12 +1,16 @@
 package com.mashang.mashangdriving.controller.student;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.mashang.mashangdriving.domain.entity.DrivingAttributeUserid;
 import com.mashang.mashangdriving.domain.entity.DrivingContent;
 import com.mashang.mashangdriving.domain.entity.DrivingCourseRecord;
+import com.mashang.mashangdriving.domain.entity.DrivingStudent;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingCourseQuery;
 import com.mashang.mashangdriving.domain.param.student.update.DrivingCourseRecordQuery;
+import com.mashang.mashangdriving.service.student.IDrivingAttributeUseridService;
 import com.mashang.mashangdriving.service.student.IDrivingContentService;
 import com.mashang.mashangdriving.service.student.IDrivingCourseRecordService;
+import com.mashang.mashangdriving.service.student.IDrivingStudentService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.utils.SecurityUtils;
@@ -23,6 +27,11 @@ public class DrivingCourseRecordController extends BaseController {
     private IDrivingCourseRecordService drivingCourseRecordService;
     @Autowired
     private IDrivingContentService drivingContentService;
+    @Autowired
+    private IDrivingStudentService drivingStudentService;
+    @Autowired
+    private IDrivingAttributeUseridService drivingAttributeUseridService;
+
 
     @ApiOperation("新增学习记录")
     @PostMapping("/CourseRecord/save")
@@ -31,6 +40,10 @@ public class DrivingCourseRecordController extends BaseController {
         lambdaQueryWrapper.eq(DrivingCourseRecord::getUserId, SecurityUtils.getUserId());
         lambdaQueryWrapper.eq(DrivingCourseRecord::getContentId,ContentId);
         DrivingCourseRecord one = drivingCourseRecordService.getOne(lambdaQueryWrapper);
+
+        LambdaQueryWrapper<DrivingStudent>studentLambdaQueryWrapper=new LambdaQueryWrapper<>();
+        studentLambdaQueryWrapper.eq(DrivingStudent::getUserId,SecurityUtils.getUserId());
+        DrivingStudent Student = drivingStudentService.getOne(studentLambdaQueryWrapper);
         if (one==null){
             DrivingCourseRecord drivingCourseRecord=new DrivingCourseRecord();
             drivingCourseRecord.setContentId(ContentId);
@@ -38,6 +51,7 @@ public class DrivingCourseRecordController extends BaseController {
             drivingCourseRecord.setDelFlag("0");
             drivingCourseRecord.setFinishedHours("0");
             drivingCourseRecord.setUserId(SecurityUtils.getUserId());
+            drivingCourseRecord.setStudentId(Student.getStudentId());
             boolean save = drivingCourseRecordService.save(drivingCourseRecord);
             return toR(save);
         }
@@ -60,7 +74,7 @@ public class DrivingCourseRecordController extends BaseController {
         String finishedHours = one.getFinishedHours();
         int i = Integer.parseInt(finishedHours);
         int i1 = Integer.parseInt(contentTime);
-        if (i==i1){
+        if (i>=i1){
             DrivingCourseRecord drivingCourseRecord=new DrivingCourseRecord();
             drivingCourseRecord.setRecordId(one.getRecordId());
             drivingCourseRecord.setContentId(drivingCourseRecordQuery.getContentId());
@@ -69,14 +83,29 @@ public class DrivingCourseRecordController extends BaseController {
             drivingCourseRecord.setFinishedHours(drivingCourseRecordQuery.getViewTime());
             drivingCourseRecord.setUserId(SecurityUtils.getUserId());
             boolean b = drivingCourseRecordService.updateById(drivingCourseRecord);
+            Long attributeId = drivingAttributeUseridService.selectAttributeId(drivingCourseRecordQuery.getContentId(),
+                    SecurityUtils.getUserId());
+            drivingCourseRecordService.insertRecord(attributeId,SecurityUtils.getUserId());
+
+            Long total = drivingAttributeUseridService.selectCourseTotal();
+            Long finishedCourse = drivingAttributeUseridService.selectFinishedCourse(SecurityUtils.getUserId());
+
+            if (total<=finishedCourse){
+                LambdaQueryWrapper<DrivingStudent>studentLambdaQueryWrapper=new LambdaQueryWrapper<>();
+                studentLambdaQueryWrapper.eq(DrivingStudent::getUserId,SecurityUtils.getUserId());
+                DrivingStudent studentServiceOne = drivingStudentService.getOne(studentLambdaQueryWrapper);
+                studentServiceOne.setStatus("1");
+                boolean updated = drivingStudentService.updateById(studentServiceOne);
+                if (!updated){
+                    return R.fail("学生状态修改失败");
+                }
+            }
             return toR(b);
-        }if (i<i1){
+        }else {
             return R.fail("还未观看达标");
-
         }
-
-
-        return null;
     }
+
+
 
 }

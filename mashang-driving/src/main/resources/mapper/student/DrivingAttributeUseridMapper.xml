@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mashang.mashangdriving.mapper.student.DrivingAttributeUseridMapper">
+    <select id="selectAttributeId" resultType="java.lang.Long">
+        SELECT a.attribute_id attributeId
+        FROM driving_course_attribute a
+                 JOIN driving_lable l
+                      ON a.attribute_id=l.attribute_id
+                 JOIN driving_content c
+                      ON l.lable_id=c.lable_id
+                 JOIN driving_course_record r
+                      ON r.content_id=c.content_id
+        WHERE c.content_id=#{contentId} and r.user_id=#{userId}
+    </select>
+    <select id="selectFinishedCourse" resultType="java.lang.Long">
+        select COUNT(r.user_id) finished  from driving_attribute_userid r
+        WHERE r.user_id=#{userId} and r.`status`=1
+    </select>
+    <select id="selectCourseTotal" resultType="java.lang.Long">
+
+        select COUNT(*) total FROM driving_course_attribute
+    </select>
+</mapper>

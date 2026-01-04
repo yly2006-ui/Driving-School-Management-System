@@ -33,9 +33,6 @@ public interface DrivingBillRecordMapper extends BaseMapper<DrivingBillRecord> {
     //查询学员总数
     DrivingBillYearMessageVo queryAllStudentCount(@Param(Constants.WRAPPER) Wrapper<DrivingBillRecord> wrapper);
 
-    Long finished(@Param("userId")Long userId);
-
-
     //查询月度收入
     DrivingBillMonthMessageVo queryMonthTotalIncome(@Param(Constants.WRAPPER) Wrapper<DrivingBillRecord> wrapper);
 
@@ -52,4 +49,7 @@ public interface DrivingBillRecordMapper extends BaseMapper<DrivingBillRecord> {
     //每个月
     List<DrivingGroupMonthVo> queryIncomeByYearGroupByMonth(@Param("ew") QueryWrapper<DrivingBillRecord> queryWrapper);
 
+
+    //完成培训学生
+    Long finishedStudent(@Param(Constants.WRAPPER) Wrapper<DrivingBillRecord> wrapper);
 }

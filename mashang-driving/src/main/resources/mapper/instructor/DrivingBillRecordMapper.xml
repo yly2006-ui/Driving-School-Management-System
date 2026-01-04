@@ -157,8 +157,12 @@
             GROUP BY DATE_FORMAT(b.create_time, '%Y-%m') -- 按年月分组
             ORDER BY month ASC -- 按月份升序排列
     </select>
-    <select id="finished" resultType="java.lang.Long">
 
+    <select id="finishedStudent" resultType="java.lang.Long">
+        SELECT COUNT(*) total_students
+        FROM driving_student s
+        <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
+        ${ew.customSqlSegment}
     </select>
 
 
