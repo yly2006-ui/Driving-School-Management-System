@@ -1,27 +1,16 @@
 package com.ruoyi.common.utils.poi;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.ArrayUtils;
@@ -544,6 +533,37 @@ public class ExcelUtil<T>
     }
 
     /**
+     * 导出单个对象到 Excel（返回 AjaxResult）
+     *
+     * @param singleObject 单个对象
+     * @param sheetName    工作表名称
+     * @param title        标题
+     * @return 结果
+     */
+    public AjaxResult exportExcel(T singleObject, String sheetName, String title) {
+        if (singleObject == null) {
+            throw new IllegalArgumentException("导出对象不能为 null");
+        }
+        List<T> list = Collections.singletonList(singleObject);
+        return this.exportExcel(list, sheetName, title);
+    }
+
+    /**
+     * 导出单个对象到 Excel（通过 HttpServletResponse 输出）
+     *
+     * @param response     响应
+     * @param singleObject 单个对象
+     * @param sheetName    工作表名称
+     * @param title        标题
+     */
+    public void exportExcel(HttpServletResponse response, T singleObject, String sheetName, String title) {
+        if (singleObject == null) {
+            throw new IllegalArgumentException("导出对象不能为 null");
+        }
+        List<T> list = Collections.singletonList(singleObject);
+        this.exportExcel(response, list, sheetName, title);
+    }
+    /**
      * 对list数据源将其里面的数据导入到excel表单
      * 
      * @param response 返回数据
@@ -554,12 +574,24 @@ public class ExcelUtil<T>
      */
     public void exportExcel(HttpServletResponse response, List<T> list, String sheetName, String title)
     {
+        try {
+            // 新增：设置响应头，解决中文文件名乱码
+            String fileName = sheetName;
+            if (!fileName.endsWith(".xlsx")) {
+                fileName += ".xlsx";
+            }
+            // 中文文件名编码（兼容所有浏览器）
+            String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name());
+            response.setHeader("Content-Disposition", "attachment;filename=\"" + encodedFileName + "\";filename*=UTF-8''" + encodedFileName);
+        } catch (UnsupportedEncodingException e) {
+            log.error("设置文件名编码异常", e);
+        }
+
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
         this.init(list, sheetName, title, Type.EXPORT);
         exportExcel(response);
     }
-
     /**
      * 对list数据源将其里面的数据导入到excel表单
      * 
@@ -1394,11 +1426,13 @@ public class ExcelUtil<T>
     }
 
     /**
-     * 编码文件名
+     * 编码文件名（修改后：直接使用传入的名称，不再拼接UUID）
      */
-    public String encodingFilename(String filename)
-    {
-        filename = UUID.randomUUID() + "_" + filename + ".xlsx";
+    public String encodingFilename(String filename) {
+        // 去掉UUID，直接使用自定义名称 + .xlsx后缀
+        if (!filename.endsWith(".xlsx")) {
+            filename = filename + ".xlsx";
+        }
         return filename;
     }
 
