@@ -7,6 +7,7 @@ import com.mashang.mashangdriving.domain.param.manager.query.DrivingCoachTimeSch
 import com.mashang.mashangdriving.domain.vo.manager.DrivingCoachTimeScheduleVo;
 import com.mashang.mashangdriving.mapping.manager.DrivingCoachTimeScheduleMapping;
 import com.mashang.mashangdriving.service.manager.IDrivingCoachTimeScheduleService;
+import com.mashang.mashangdriving.service.manager.IDrivingInstructorService;
 import com.mashang.mashangdriving.service.manager.IInstructorService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
@@ -34,7 +35,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     @Autowired
     private IDrivingCoachTimeScheduleService drivingCoachTimeScheduleService;
     @Autowired
-    private IInstructorService drivingInstructorService;
+    private IDrivingInstructorService drivingInstructorService;
 
 
     @GetMapping("/list")
