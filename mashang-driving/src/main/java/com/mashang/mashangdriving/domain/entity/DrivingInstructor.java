@@ -11,7 +11,7 @@ import java.util.Date;
 @Data
 public class DrivingInstructor {
 
-    @TableId(type = IdType.AUTO)
+  @TableId(type = IdType.AUTO)
   private Long instructorId;
   private Long userId;
   private String instructorName;
