@@ -1,14 +1,13 @@
 package com.mashang.mashangdriving.controller.manager;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.mashang.mashangdriving.domain.entity.DrivingCoachTimeSchedule;
 import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingCoachTimeScheduleCreate;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingCoachTimeScheduleVo;
 import com.mashang.mashangdriving.mapping.manager.DrivingCoachTimeScheduleMapping;
 import com.mashang.mashangdriving.service.manager.IDrivingCoachTimeScheduleService;
-import com.mashang.mashangdriving.service.manager.IDrivingInstructorService;
+import com.mashang.mashangdriving.service.manager.IInstructorService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.utils.SecurityUtils;
@@ -20,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,7 +34,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     @Autowired
     private IDrivingCoachTimeScheduleService drivingCoachTimeScheduleService;
     @Autowired
-    private IDrivingInstructorService drivingInstructorService;
+    private IInstructorService drivingInstructorService;
 
 
     @GetMapping("/list")
