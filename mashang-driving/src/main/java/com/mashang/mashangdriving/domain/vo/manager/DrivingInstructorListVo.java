@@ -1,23 +1,24 @@
-package com.mashang.mashangdriving.domain.entity;
+package com.mashang.mashangdriving.domain.vo.manager;
 
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.mashang.mashangdriving.domain.entity.DrivingCar;
+import com.mashang.mashangdriving.domain.entity.DrivingInstructorStudentComment;
+import com.mashang.mashangdriving.domain.entity.DrivingRating;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class DrivingInstructor {
+public class DrivingInstructorListVo {
 
   @TableId(type = IdType.AUTO)
   @ApiModelProperty(value = "教练ID")
   private Long instructorId;
-  @ApiModelProperty(value = "用户ID")
-  private Long userId;
   @ApiModelProperty(value = "教练名字")
   private String instructorName;
   @ApiModelProperty(value = "教练电话")
@@ -27,21 +28,13 @@ public class DrivingInstructor {
   @ApiModelProperty(value = "入职时间")
   private Date entryDate;
   @ApiModelProperty(value = "教练证号")
-  private String instructorNo;
+  private Long instructorNo;
   @ApiModelProperty(value = "教练状态")
   private String status;
   @ApiModelProperty(value = "教学年限")
   private String teachingYears;
   @ApiModelProperty(value = "擅长科目")
   private String goodSubject;
-  @ApiModelProperty(value = "可预约开始时间")
-  private Date schedulableTimeStart;
-  @ApiModelProperty(value = "可预约结束时间")
-  private Date schedulableTimeEnd;
-  @ApiModelProperty(value = "可预约开始时间")
-  private Date noTimeStart;
-  @ApiModelProperty(value = "不可预约开始时间")
-  private Date noTimeEnd;
   @ApiModelProperty(value = "教练照片")
   private String photo;
   @ApiModelProperty(value = "教练证件")
@@ -50,12 +43,8 @@ public class DrivingInstructor {
   private String delFlag;
   @ApiModelProperty(value = "教练评分")
   private Double score;
-  @ApiModelProperty(value = "评价内容")
-  private String content;
-  @TableField(exist = false)
   @ApiModelProperty(value = "学员评价")
-  private DrivingRating rating;
-  @TableField(exist = false)
+  private DrivingRating drivingRating;
   @ApiModelProperty(value = "车辆信息")
   private DrivingCar drivingCar;
 

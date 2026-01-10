@@ -75,7 +75,7 @@ public class DrivingStudentManagerController extends BaseController {
     public R updateStudent(DrivingStudentManagerUpdate dto) {
         DrivingStudentListVo drivingStudentListVo = drivingStudentManagerService.updateStudent(dto);
         if (drivingStudentListVo == null) {
-            return R.fail("新增失败");
+            return R.fail("修改失败");
         }
         return R.ok(drivingStudentListVo);
     }

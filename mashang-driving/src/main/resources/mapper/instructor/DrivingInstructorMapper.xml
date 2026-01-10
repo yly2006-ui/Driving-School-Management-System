@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mashang.mashangdriving.mapper.manager.DrivingInstructorMapper">
+
+    <resultMap id="DrivingInstructorListVo" type="com.mashang.mashangdriving.domain.vo.manager.DrivingInstructorListVo">
+        <id column="instructor_id" property="instructorId" />
+        <result column="instructor_name" property="instructorName" />
+        <result column="phone" property="phone" />
+        <result column="id_number" property="idNumber" />
+        <result column="entry_date" property="entryDate" />
+        <result column="instructor_no" property="instructorNo" />
+        <result column="status" property="status" />
+        <result column="teaching_years" property="teachingYears" />
+        <result column="good_subject" property="goodSubject" />
+        <result column="photo" property="photo" />
+        <result column="certificate" property="certificate" />
+        <result column="del_flag" property="delFlag" />
+        <result column="score" property="score" />
+        <association property="drivingInstructorStudentComment" javaType="com.mashang.mashangdriving.domain.entity.DrivingInstructorStudentComment">
+            <id column="comment_id" property="commentId" />
+            <result column="student_id" property="studentId" />
+            <result column="instructor_id" property="instructorId" />
+            <result column="evaluation_content" property="evaluationContent" />
+            <result column="score" property="score" />
+            <result column="comment_date" property="commentDate" />
+        </association>
+        <association property="drivingCar" javaType="com.mashang.mashangdriving.domain.entity.DrivingCar">
+            <result column="car_id" property="carId" />
+            <result column="instructor_id" property="instructorId" />
+            <result column="car_name" property="carName" />
+            <result column="car_color" property="carColor" />
+            <result column="car_brand" property="carBrand" />
+            <result column="buy_date" property="buyDate" />
+            <result column="transmission_type" property="transmissionType" />
+            <result column="ein" property="ein" />
+            <result column="vin" property="vin" />
+            <result column="mot_expires" property="motExpires" />
+            <result column="full_persion" property="fullPersion" />
+            <result column="plate_number" property="plateNumber" />
+            <result column="status" property="status" />
+            <result column="del_flag" property="delFlag" />
+        </association>
+    </resultMap>
+
+    <select id="getList" resultMap="DrivingInstructorListVo">
+        SELECT di.instructor_id, user_id, instructor_name, phone, id_number,
+               entry_date, instructor_no, di.status, teaching_years, schedulable_time_start,
+               schedulable_time_end, no_time_start, no_time_end, photo, good_subject,
+               score, content, certificate, di.del_flag,dc.plate_number
+            FROM ms_stu_pro339.driving_instructor di
+        LEFT JOIN ms_stu_pro339.driving_car dc ON di.instructor_id = dc.instructor_id
+        WHERE di.status = '0'
+    </select>
+    <select id="getByName" resultMap="DrivingInstructorListVo">
+        SELECT di.instructor_id, user_id, instructor_name, phone, id_number,
+               entry_date, instructor_no, di.status, teaching_years, schedulable_time_start,
+               schedulable_time_end, no_time_start, no_time_end, photo, good_subject,
+               score, content, certificate, di.del_flag,dc.plate_number,dc.car_type,dc.mot_expires
+            FROM ms_stu_pro339.driving_instructor di
+        LEFT JOIN ms_stu_pro339.driving_car dc ON di.instructor_id = dc.instructor_id
+        where di.instructor_name LIKE CONCAT('%',#{instructorName},'%')
+        AND di.status = '0'
+
+
+    </select>
+</mapper>
