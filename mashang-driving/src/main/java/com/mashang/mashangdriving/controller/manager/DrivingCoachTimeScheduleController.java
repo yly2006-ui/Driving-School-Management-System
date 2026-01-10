@@ -3,12 +3,15 @@ package com.mashang.mashangdriving.controller.manager;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.mashang.mashangdriving.domain.entity.DrivingCoachTimeSchedule;
+import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingCoachTimeScheduleCreate;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingCoachTimeScheduleVo;
 import com.mashang.mashangdriving.mapping.manager.DrivingCoachTimeScheduleMapping;
 import com.mashang.mashangdriving.service.manager.IDrivingCoachTimeScheduleService;
+import com.mashang.mashangdriving.service.manager.IDrivingInstructorService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
+import com.ruoyi.common.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -27,8 +31,12 @@ import java.util.regex.Pattern;
 public class DrivingCoachTimeScheduleController extends BaseController {
 
     private static final Pattern YEAR_MONTH = Pattern.compile("^(\\d{4})年(\\d{1,2})月$");
+
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     @Autowired
     private IDrivingCoachTimeScheduleService drivingCoachTimeScheduleService;
+    @Autowired
+    private IDrivingInstructorService drivingInstructorService;
 
 
     @GetMapping("/list")
@@ -63,16 +71,11 @@ public class DrivingCoachTimeScheduleController extends BaseController {
         // 1. 获取指定年月的YearMonth对象
         YearMonth yearMonth = YearMonth.of(year, month);
 
-        // 2. 拼接当月开始时间：年月的第一天 00:00:00
-        LocalDateTime monthStartTime = LocalDateTime.of(year, month, 1, // 年、月、日（固定为1）
-                0, 0, 0         // 时、分、秒（固定为00:00:00）
-        );
+        // 2. 获取当月开始时间：年月的第一天 00:00:00
+        LocalDateTime monthStartTime = yearMonth.atDay(1).atStartOfDay();
 
-        // 3. 拼接当月结束时间：年月的最后一天 23:59:59
-        int lastDayOfMonth = yearMonth.lengthOfMonth(); // 获取当月最后一天（自动适配平/闰年）
-        LocalDateTime monthEndTime = LocalDateTime.of(year, month, lastDayOfMonth, // 年、月、当月最后一天
-                23, 59, 59                   // 时、分、秒（固定为23:59:59）
-        );
+        // 3. 获取当月结束时间：年月的最后一天 23:59:59
+        LocalDateTime monthEndTime = yearMonth.atEndOfMonth().plusDays(1).atStartOfDay().minusSeconds(1);
 
 
         LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -88,20 +91,31 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     @ApiOperation("批量新增教练时间安排")
     public R batchAddSchedule(@RequestBody List<DrivingCoachTimeScheduleCreate> scheduleList) {
 
+        LambdaQueryWrapper<DrivingInstructor>lqw=new LambdaQueryWrapper<>();
+        lqw.eq(DrivingInstructor::getUserId,SecurityUtils.getUserId());
+        DrivingInstructor instructor = drivingInstructorService.getOne(lqw);
+        Long instructorId = instructor.getInstructorId();
+
         List<DrivingCoachTimeSchedule> create = DrivingCoachTimeScheduleMapping.INSTANCE.toCreate(scheduleList);
+        for (DrivingCoachTimeSchedule drivingCoachTimeSchedule : create) {
+            drivingCoachTimeSchedule.setInstructorId(String.valueOf(instructorId));
+            drivingCoachTimeSchedule.setUserId(SecurityUtils.getUserId());
+        }
         for (DrivingCoachTimeScheduleCreate drivingCoachTimeScheduleCreate : scheduleList) {
-            Date startTime = drivingCoachTimeScheduleCreate.getStartTime();
-            Date endTime = drivingCoachTimeScheduleCreate.getEndTime();
+            LocalDateTime startTime = drivingCoachTimeScheduleCreate.getStartTime();
+            LocalDateTime endTime = drivingCoachTimeScheduleCreate.getEndTime();
+
             LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper =
                     new LambdaQueryWrapper<>();
             lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getStartTime, startTime);
             lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getEndTime, endTime);
-            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getInstructorId, drivingCoachTimeScheduleCreate.getInstructorId());
+            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId, SecurityUtils.getUserId());
             lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getDelFlag,0);
             DrivingCoachTimeSchedule one = drivingCoachTimeScheduleService.getOne(lambdaQueryWrapper);
             if (one != null) {
-                return R.fail("教练Id为：" + one.getInstructorId() + "的教练已设置"+one.getStartTime()+"开始至"
-                        +one.getEndTime()+"为可预约时段");
+                return R.fail("教练Id为：" + one.getInstructorId() + "的教练已设置"
+                        + DATE_TIME_FORMATTER.format(one.getStartTime()) + "开始至"
+                        + DATE_TIME_FORMATTER.format(one.getEndTime()) + "为可预约时段");
             }
 
         }
