@@ -16,13 +16,13 @@
         <result column="certificate" property="certificate" />
         <result column="del_flag" property="delFlag" />
         <result column="score" property="score" />
-        <association property="drivingInstructorStudentComment" javaType="com.mashang.mashangdriving.domain.entity.DrivingInstructorStudentComment">
-            <id column="comment_id" property="commentId" />
-            <result column="student_id" property="studentId" />
+        <result column="total_count" property="total"/>
+        <association property="drivingRating" javaType="com.mashang.mashangdriving.domain.entity.DrivingRating">
+            <result column="rating_id" property="ratingId" />
             <result column="instructor_id" property="instructorId" />
-            <result column="evaluation_content" property="evaluationContent" />
+            <result column="student_id" property="studentId" />
+            <result column="contanct" property="contanct" />
             <result column="score" property="score" />
-            <result column="comment_date" property="commentDate" />
         </association>
         <association property="drivingCar" javaType="com.mashang.mashangdriving.domain.entity.DrivingCar">
             <result column="car_id" property="carId" />
@@ -41,14 +41,25 @@
             <result column="del_flag" property="delFlag" />
         </association>
     </resultMap>
+    
+    <resultMap id="DrivingRatingMap" type="com.mashang.mashangdriving.domain.entity.DrivingRating">
+        <id column="rating_id" property="ratingId"/>
+        <result column="instructor_id" property="instructorId"/>
+        <result column="student_id" property="studentId"/>
+        <result column="contanct" property="contanct"/>
+        <result column="score" property="score"/>
+    </resultMap>
 
     <select id="getList" resultMap="DrivingInstructorListVo">
         SELECT di.instructor_id, user_id, instructor_name, phone, id_number,
                entry_date, instructor_no, di.status, teaching_years, schedulable_time_start,
                schedulable_time_end, no_time_start, no_time_end, photo, good_subject,
-               score, content, certificate, di.del_flag,dc.plate_number
+               di.score, content, certificate, di.del_flag,dc.plate_number,
+               dr.rating_id, dr.instructor_id, student_id, contanct, dr.score,
+               COUNT(*) OVER() as total_count
             FROM ms_stu_pro339.driving_instructor di
         LEFT JOIN ms_stu_pro339.driving_car dc ON di.instructor_id = dc.instructor_id
+        LEFT JOIN ms_stu_pro339.driving_rating dr ON dr.instructor_id = di.instructor_id
         WHERE di.status = '0'
     </select>
     <select id="getByName" resultMap="DrivingInstructorListVo">
@@ -63,4 +74,9 @@
 
 
     </select>
+<!--    <select id="getRating" resultMap="DrivingRatingMap">-->
+<!--        SELECT dr.rating_id, instructor_id, student_id, contanct, score-->
+<!--            FROM ms_stu_pro339.driving_rating dr-->
+<!--        WHERE dr.instructor_id = #{instructorId}-->
+<!--    </select>-->
 </mapper>

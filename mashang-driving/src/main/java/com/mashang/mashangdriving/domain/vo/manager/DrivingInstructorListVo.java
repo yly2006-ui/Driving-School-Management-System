@@ -3,6 +3,7 @@ package com.mashang.mashangdriving.domain.vo.manager;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mashang.mashangdriving.domain.entity.DrivingCar;
 import com.mashang.mashangdriving.domain.entity.DrivingInstructorStudentComment;
@@ -28,7 +29,7 @@ public class DrivingInstructorListVo {
   @ApiModelProperty(value = "入职时间")
   private Date entryDate;
   @ApiModelProperty(value = "教练证号")
-  private Long instructorNo;
+  private String instructorNo;
   @ApiModelProperty(value = "教练状态")
   private String status;
   @ApiModelProperty(value = "教学年限")
@@ -47,6 +48,8 @@ public class DrivingInstructorListVo {
   private DrivingRating drivingRating;
   @ApiModelProperty(value = "车辆信息")
   private DrivingCar drivingCar;
+  @ApiModelProperty(value = "总记录数")
+  private Long total;
 
 
 }

@@ -1,16 +1,19 @@
 package com.mashang.mashangdriving.service.impl.manager;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.yulichang.query.MPJLambdaQueryWrapper;
 import com.mashang.mashangdriving.domain.entity.DrivingCar;
 import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
+import com.mashang.mashangdriving.domain.entity.DrivingRating;
 import com.mashang.mashangdriving.domain.param.manager.create.DrivingInstructorCreate;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingInstructorUpdate;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingInstructorListVo;
 import com.mashang.mashangdriving.mapper.manager.DrivingCarMapper;
 import com.mashang.mashangdriving.mapper.manager.DrivingInstructorMapper;
+import com.mashang.mashangdriving.mapper.manager.DrivingRatingMapper;
 import com.mashang.mashangdriving.service.manager.IDrivingInstructorService;
 import com.ruoyi.common.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,15 +21,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorMapper, DrivingInstructor> implements IDrivingInstructorService {
+
     @Autowired
-    private DrivingCarMapper drivingCarMapper;
+    private DrivingRatingMapper drivingRatingMapper;
 
     @Override
     public Page<DrivingInstructorListVo> getList(Page<DrivingInstructorListVo> page) {
-        return baseMapper.getList(page);
+        Page<DrivingInstructorListVo> list = baseMapper.getList(page);
+        List<DrivingInstructorListVo> records = list.getRecords();
+        for (DrivingInstructorListVo record : records) {
+            record.setTotal(null);
+        }
+        return list;
     }
 
     @Override
@@ -107,6 +117,19 @@ public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorM
         }
         return getDrivingInstructorVo(instructor);
     }
+
+    @Override
+    public List<DrivingRating> getRating(Long instructorId) {
+        DrivingInstructor instructor = baseMapper.selectById(instructorId);
+        if (instructor == null) {
+            throw new RuntimeException("教练不存在");
+        }
+        return drivingRatingMapper.selectList(
+                new LambdaQueryWrapper<DrivingRating>()
+                        .eq(DrivingRating::getInstructorId, instructorId)
+        );
+    }
+
 
     private static DrivingInstructorListVo getDrivingInstructorVo(DrivingInstructor drivingInstructor) {
         DrivingInstructorListVo drivingInstructorListVo = new DrivingInstructorListVo();

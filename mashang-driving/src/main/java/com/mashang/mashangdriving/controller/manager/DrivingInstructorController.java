@@ -2,6 +2,7 @@ package com.mashang.mashangdriving.controller.manager;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
+import com.mashang.mashangdriving.domain.entity.DrivingRating;
 import com.mashang.mashangdriving.domain.param.manager.create.DrivingInstructorCreate;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingInstructorUpdate;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingInstructorListVo;
@@ -16,6 +17,8 @@ import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @Api(tags = "管理端--教练管理")
@@ -42,6 +45,16 @@ public class DrivingInstructorController extends BaseController {
         }
         return R.ok(instructor);
     }
+    @GetMapping("/getRating")
+    @ApiOperation("查看教练评论")
+     public R getRating(@RequestParam("instructorId") Long instructorId){
+        List<DrivingRating> rating = drivingInstructorService.getRating(instructorId);
+        if (rating == null)  {
+            return R.fail("评论不存在");
+        }
+        return R.ok(rating);
+    }
+
 
     @PostMapping("/createInstructor")
     @ApiOperation("新增教练")
