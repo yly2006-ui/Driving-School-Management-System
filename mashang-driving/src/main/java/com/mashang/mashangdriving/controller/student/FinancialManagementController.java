@@ -8,7 +8,10 @@ import com.mashang.mashangdriving.domain.entity.DrivingBillRecord;
 import com.mashang.mashangdriving.domain.entity.DrivingChargeLtem;
 import com.mashang.mashangdriving.domain.entity.DrivingPay;
 import com.mashang.mashangdriving.domain.param.manager.query.PayRequest;
+import com.mashang.mashangdriving.domain.vo.student.BillRecordDtlVo;
+import com.mashang.mashangdriving.domain.vo.student.BillRecordListVo;
 import com.mashang.mashangdriving.handler.AlipayTemplate;
+import com.mashang.mashangdriving.service.manager.IBillRecordService;
 import com.mashang.mashangdriving.service.manager.IDrivingBillRecordService;
 import com.mashang.mashangdriving.service.student.IDrivingChargeLtemService;
 import com.mashang.mashangdriving.service.student.IPayService;
@@ -46,6 +49,9 @@ public class FinancialManagementController extends BaseController {
 
     @Autowired
     private IDrivingBillRecordService billRecordService;
+
+    @Autowired
+    private IBillRecordService billRecordServiceImpl;
 
     @PostMapping(value = "/pay", produces = "text/html")
     @ApiOperation("支付接口")
@@ -168,13 +174,18 @@ public class FinancialManagementController extends BaseController {
 
     @ApiOperation("缴费记录")
     @GetMapping("/payment/record")
-    public R paymentRecord() {
+    public R<BillRecordListVo> paymentRecord() {
 
-        return null;
+        return R.ok(billRecordServiceImpl.billRecordListVo());
     }
 
+    @ApiOperation("缴费记录")
+    @GetMapping("/payment/{payId}")
+    @ApiImplicitParam(name = "payId",value = "支付id")
+    public R<BillRecordDtlVo> paymentDtl(@PathVariable Long payId) {
 
-
+        return R.ok(billRecordServiceImpl.paymentDtl(payId));
+    }
 
 
 

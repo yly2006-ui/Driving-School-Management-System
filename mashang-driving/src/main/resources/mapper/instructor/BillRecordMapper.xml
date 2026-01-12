@@ -25,8 +25,25 @@
                            ON p.charge_ltem_id = c.charge_ltem_id
     </select>
 
+    <select id="paymentRecord" resultType="double">
+        SELECT
+            SUM(item.amount) AS total_amount
+        FROM driving_pay AS pay
+                 LEFT JOIN driving_charge_ltem AS item
+                           ON item.charge_ltem_id = pay.charge_ltem_id
+        WHERE pay.user_id = #{userId}
+          AND pay.`status` = '0';
+    </select>
 
-
+    <select id="paymentCount" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM driving_pay AS pay
+                 LEFT JOIN driving_charge_ltem AS item
+                           ON item.charge_ltem_id = pay.charge_ltem_id
+        WHERE pay.user_id = #{userId}
+          AND pay.`status` = '0';
+    </select>
 
 
 

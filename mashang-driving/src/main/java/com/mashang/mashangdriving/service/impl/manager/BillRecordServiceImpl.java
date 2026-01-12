@@ -2,8 +2,12 @@ package com.mashang.mashangdriving.service.impl.manager;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mashang.mashangdriving.domain.entity.DrivingBillRecord;
+import com.mashang.mashangdriving.domain.vo.student.BillRecordDtlVo;
+import com.mashang.mashangdriving.domain.vo.student.BillRecordListVo;
 import com.mashang.mashangdriving.mapper.manager.BillRecordMapper;
+import com.mashang.mashangdriving.mapper.student.PayMapper;
 import com.mashang.mashangdriving.service.manager.IBillRecordService;
+import com.ruoyi.common.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +19,9 @@ public class BillRecordServiceImpl extends ServiceImpl<BillRecordMapper, Driving
 
     @Autowired
     private BillRecordMapper billRecordMapper;
+
+    @Autowired
+    private PayMapper payMapper;
 
     /**
      * 查询上个月的总收入
@@ -43,5 +50,21 @@ public class BillRecordServiceImpl extends ServiceImpl<BillRecordMapper, Driving
     @Override
     public double selectOnMonthTotalIncome() {
         return billRecordMapper.selectOnMonthTotalIncome();
+    }
+
+    @Override
+    public BillRecordListVo billRecordListVo() {
+
+        BillRecordListVo billRecordListVo = new BillRecordListVo();
+        billRecordListVo.setTotalPaymentAmount(billRecordMapper.paymentCount(SecurityUtils.getUserId()));
+        billRecordListVo.setPaymentCount(billRecordMapper.paymentCount(SecurityUtils.getUserId()));
+        billRecordListVo.setPayDtlVoList(payMapper.payListVo(SecurityUtils.getUserId()));
+
+        return billRecordListVo;
+    }
+
+    @Override
+    public BillRecordDtlVo paymentDtl(Long payId) {
+        return payMapper.paymentDtl(payId);
     }
 }

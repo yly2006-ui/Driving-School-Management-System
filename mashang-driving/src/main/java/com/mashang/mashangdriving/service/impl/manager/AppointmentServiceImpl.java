@@ -1,5 +1,6 @@
 package com.mashang.mashangdriving.service.impl.manager;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -24,6 +25,8 @@ import com.mashang.mashangdriving.mapper.student.StudentMapper;
 import com.mashang.mashangdriving.mapping.student.CreateAppointmentMapping;
 import com.mashang.mashangdriving.service.impl.student.AppointmentPeakVO;
 import com.mashang.mashangdriving.service.manager.IAppointmentService;
+import com.openai.models.chat.completions.ChatCompletion;
+import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.ruoyi.common.constant.AppointmentConstants;
 import com.ruoyi.common.constant.InstructorConstants;
 import com.ruoyi.common.core.page.PageQuery;
@@ -38,6 +41,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.openai.client.OpenAIClient;
+import com.openai.client.okhttp.OpenAIOkHttpClient;
+import com.openai.models.chat.completions.ChatCompletion;
+import com.openai.models.chat.completions.ChatCompletionCreateParams;
+
 
 @Service
 public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, DrivingAppointment> implements IAppointmentService {
@@ -419,6 +427,60 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
                 })
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<AppointmentPeakVO> getNextWeeklyAppointmentPeaks() {
+
+        // 1. 本周真实统计
+        List<AppointmentPeakVO> thisWeekPeaks = getWeeklyAppointmentPeaks();
+
+        OpenAIClient client = OpenAIOkHttpClient.builder()
+                .apiKey(System.getenv("sk-5ff2e4ff2fde44119d68cb8dce3f9e5b"))
+                .baseUrl("https://dashscope.aliyuncs.com/compatible-mode/v1")
+                .build();
+
+        String prompt = """
+    以下是基于历史数据预测的【下周预约次数】：
+
+    %s
+
+    请根据常见预约规律进行微调：
+    1. 只能调整 count
+    2. count 必须是正整数
+    3. 不允许新增或删除时间段
+    4. 每个 count 调整幅度不超过 ±20%%
+    5. 只返回 JSON 数组，不要任何解释
+    """.formatted(JSON.toJSONString(thisWeekPeaks));
+
+        ChatCompletionCreateParams params =
+                ChatCompletionCreateParams.builder()
+                        .model("qwen-plus")
+                        .addUserMessage(prompt)
+                        .build();
+
+        ChatCompletion completion =
+                client.chat().completions().create(params);
+
+        String content = completion.choices()
+                .get(0)
+                .message()
+                .content()
+                .orElse("[]");
+
+        // 清洗 ```json
+        content = content.replaceAll("```json", "")
+                .replaceAll("```", "")
+                .trim();
+        try {
+            ChatCompletion chatCompletion = client.chat().completions().create(params);
+            System.out.println(chatCompletion);
+        } catch (Exception e) {
+            System.err.println("Error occurred: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return JSON.parseArray(content, AppointmentPeakVO.class);
+    }
+
 
     @Override
     public Page<ManagerAppointmentListVo> page(PageQuery pageQuery, ManagerAppointmentQuery query) {

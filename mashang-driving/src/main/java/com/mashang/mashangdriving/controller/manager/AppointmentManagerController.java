@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mashang.mashangdriving.domain.entity.DrivingCourse;
 import com.mashang.mashangdriving.domain.param.manager.query.ManagerAppointmentQuery;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingCourseUpdate;
+import com.mashang.mashangdriving.domain.param.student.create.AddRating;
 import com.mashang.mashangdriving.domain.vo.manager.ManagerAppointmentListVo;
 import com.mashang.mashangdriving.domain.vo.manager.ManagerDataOverviewDtlVo;
 import com.mashang.mashangdriving.domain.vo.student.AllInstructorListVo;
@@ -78,7 +79,7 @@ public class AppointmentManagerController extends BaseController {
         return getDataTable(page.getRecords(), page.getTotal());
     }
 
-    @ApiOperation("本周预约高峰统计结果")
+    @ApiOperation(value = "本周预约高峰统计结果",notes = "count ≥ 10  → 高峰" + "5 ≤ count < 10 → 中峰" + "count < 5 → 低峰")
     @GetMapping("/weeklyPeak")
     public R weeklyPeak() {
 
@@ -128,4 +129,10 @@ public class AppointmentManagerController extends BaseController {
         return toR(appointmentService.managerDeleteAppointment(appointmentId));
     }
 
+    @ApiOperation(value = "Ai下周预测",notes = "count ≥ 10  → 高峰" + "5 ≤ count < 10 → 中峰" + "count < 5 → 低峰")
+    @PostMapping("/chat/appointment")
+    public R chatAppointment() {
+
+        return R.ok(appointmentService.getNextWeeklyAppointmentPeaks());
+    }
 }

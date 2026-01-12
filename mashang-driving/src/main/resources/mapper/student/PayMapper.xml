@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mashang.mashangdriving.mapper.student.PayMapper">
+
+    <select id="payListVo" resultType="PayDtlVo">
+        SELECT
+            pay.pay_no,
+            pay.create_time,
+            pay.`status`,
+            pay.pay_type,
+            item.charge_ltem_id,
+            item.amount,
+            item.charge_ltem_name,
+            pay.pay_id
+        FROM
+            driving_pay AS pay
+                LEFT JOIN
+            driving_charge_ltem AS item
+            ON
+                item.charge_ltem_id = pay.charge_ltem_id
+        WHERE pay.user_id = #{userId}
+    </select>
+
+    <select id="paymentDtl" resultType="BillRecordDtlVo">
+        SELECT
+            pay.pay_no,
+            pay.create_time,
+            pay.`status`,
+            pay.pay_type,
+            item.charge_ltem_id,
+            item.amount,
+            item.charge_ltem_name,
+            pay.pay_id,
+            pay.detailed_explanation
+        FROM
+            driving_pay AS pay
+                LEFT JOIN
+            driving_charge_ltem AS item
+            ON
+                item.charge_ltem_id = pay.charge_ltem_id
+        WHERE pay.pay_id = #{payId}
+    </select>
+
+</mapper>

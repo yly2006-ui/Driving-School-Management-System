@@ -81,5 +81,5 @@ public interface IAppointmentService extends IService<DrivingAppointment> {
     //管理员拒绝预约(删除预约)
     int managerDeleteAppointment(Long appointmentId);
 
-
+    List<AppointmentPeakVO> getNextWeeklyAppointmentPeaks();
 }

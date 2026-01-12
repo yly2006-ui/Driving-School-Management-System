@@ -7,10 +7,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class PayDtlVo {
-
-    @ApiModelProperty("缴费项目id")
-    private Long chargeLtemId;
+public class BillRecordDtlVo {
 
     @ApiModelProperty("缴费项目名称")
     private String chargeLtemName;
@@ -34,6 +31,6 @@ public class PayDtlVo {
     @ApiModelProperty("支付状态(0 支付成功 1 未支付)")
     private String status;
 
-//    @ApiModelProperty("详细说明")
-//    private String detailedExplanation;
+    @ApiModelProperty("详细说明")
+    private String detailedExplanation;
 }
