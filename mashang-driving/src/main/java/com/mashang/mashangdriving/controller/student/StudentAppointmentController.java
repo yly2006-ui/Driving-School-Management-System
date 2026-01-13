@@ -113,9 +113,10 @@ public class StudentAppointmentController extends BaseController {
     /**
      * ⭐ 根据选中的时间段推荐教练
      */
+    //todo 传多个时段过来
     @ApiOperation("ai教练推荐")
     @PostMapping("/ai/instructor")
-    public R recommendInstructor(@RequestBody TimeSlotVO timeSlot) {
+    public R recommendInstructor(@RequestBody List<TimeSlotVO> timeSlot) {
         return R.ok(
                 appointmentService.recommendInstructor(timeSlot)
         );

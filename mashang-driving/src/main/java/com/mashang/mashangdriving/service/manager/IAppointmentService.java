@@ -93,5 +93,5 @@ public interface IAppointmentService extends IService<DrivingAppointment> {
     List<TimeSlotVO> aiRecommendLowPeakTimeSlots(Date date);
 
     //ai低时段推荐教练
-    AiInstructorRecommendVO recommendInstructor(TimeSlotVO timeSlot);
+    AiInstructorRecommendVO recommendInstructor(List<TimeSlotVO> timeSlot);
 }

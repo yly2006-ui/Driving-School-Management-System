@@ -620,37 +620,57 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
     }
 
     @Override
-    public AiInstructorRecommendVO recommendInstructor(TimeSlotVO timeSlot) {
-        // 1️⃣ 查询该时间段未被预约的教练
-        List<DrivingInstructor> instructors =
-                instructorMapper.selectAvailableInstructor(
-                        timeSlot.getStartTime(),
-                        timeSlot.getEndTime()
-                );
+    public AiInstructorRecommendVO recommendInstructor(List<TimeSlotVO> slots) {
 
-        if (instructors.isEmpty()) {
+        // 1️⃣ 参数兜底，防止空指针
+        if (slots == null || slots.isEmpty()) {
             return null;
         }
 
-        // 2️⃣ 按评分排序
-        DrivingInstructor best = instructors.stream()
-                .sorted(Comparator.comparing(
-                        DrivingInstructor::getScore,
-                        Comparator.nullsLast(Comparator.reverseOrder())
-                ))
-                .findFirst()
-                .orElse(instructors.get(0));
+        AiInstructorRecommendVO bestResult = null;
+        double bestScore = -1;
 
-        // 3️⃣ 返回结果
-        AiInstructorRecommendVO vo = new AiInstructorRecommendVO();
-        vo.setInstructorName(best.getInstructorName());
-        vo.setScore(best.getScore());
-        vo.setGoodSubject(best.getGoodSubject());
-        vo.setDate(new SimpleDateFormat("yyyy-MM-dd")
-                .format(timeSlot.getStartTime()));
-        vo.setTimeSlot(timeSlot.getTimeSlot());
-        vo.setInstructorId(best.getInstructorId());
-        return vo;
+        // 2️⃣ 遍历前端选择 / AI 生成的所有时间段
+        for (TimeSlotVO timeSlot : slots) {
+
+            // 3️⃣ 查询该时间段【可预约】的教练（SQL 已验证是 OK 的）
+            List<DrivingInstructor> instructors =
+                    instructorMapper.selectAvailableInstructor(
+                            timeSlot.getStartTime(),
+                            timeSlot.getEndTime()
+                    );
+
+            // 4️⃣ 如果这个时间段没有教练，直接跳过
+            if (instructors == null || instructors.isEmpty()) {
+                continue;
+            }
+
+            // 5️⃣ 因为 SQL 已按 score DESC + LIMIT 1
+            DrivingInstructor instructor = instructors.get(0);
+
+            // 6️⃣ 取评分，避免 null
+            double score = instructor.getScore() == null ? 0 : instructor.getScore();
+
+            // 7️⃣ 保留评分最高的“时间段 + 教练”组合
+            if (bestResult == null || score > bestScore) {
+
+                bestScore = score;
+
+                AiInstructorRecommendVO vo = new AiInstructorRecommendVO();
+                vo.setInstructorId(instructor.getInstructorId());
+                vo.setInstructorName(instructor.getInstructorName());
+                vo.setScore(instructor.getScore());
+                vo.setGoodSubject(instructor.getGoodSubject());
+                vo.setDate(new SimpleDateFormat("yyyy-MM-dd")
+                        .format(timeSlot.getStartTime()));
+                vo.setTimeSlot(timeSlot.getTimeSlot());
+
+                bestResult = vo;
+            }
+        }
+
+        // 8️⃣ 返回最终最优推荐（可能为 null，前端需兜底）
+        return bestResult;
     }
 
     /**
