@@ -7,13 +7,12 @@ import com.mashang.mashangdriving.domain.param.manager.create.CreateStudentAppoi
 import com.mashang.mashangdriving.domain.param.manager.query.ManagerAppointmentQuery;
 import com.mashang.mashangdriving.domain.param.student.create.AddRating;
 import com.mashang.mashangdriving.domain.vo.manager.ManagerAppointmentListVo;
-import com.mashang.mashangdriving.domain.vo.student.ContactInstructorVo;
-import com.mashang.mashangdriving.domain.vo.student.MyAppointmentDtlVo;
-import com.mashang.mashangdriving.domain.vo.student.StudentAppointmentVo;
+import com.mashang.mashangdriving.domain.vo.student.*;
 import com.mashang.mashangdriving.service.impl.student.AppointmentPeakVO;
 import com.ruoyi.common.core.page.PageQuery;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.Date;
 import java.util.List;
 
 public interface IAppointmentService extends IService<DrivingAppointment> {
@@ -81,5 +80,18 @@ public interface IAppointmentService extends IService<DrivingAppointment> {
     //管理员拒绝预约(删除预约)
     int managerDeleteAppointment(Long appointmentId);
 
+    //ai下周预测
     List<AppointmentPeakVO> getNextWeeklyAppointmentPeaks();
+
+    //ai智能体推荐
+    String smartAnalysis();
+
+    //ai智能生成低峰时段
+    /**
+     * AI 判断低峰时段
+     */
+    List<TimeSlotVO> aiRecommendLowPeakTimeSlots(Date date);
+
+    //ai低时段推荐教练
+    AiInstructorRecommendVO recommendInstructor(TimeSlotVO timeSlot);
 }

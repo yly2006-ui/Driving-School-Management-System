@@ -6,6 +6,7 @@ import com.mashang.mashangdriving.domain.param.manager.create.CreateStudentAppoi
 import com.mashang.mashangdriving.domain.vo.manager.ReservationSlot;
 import com.mashang.mashangdriving.domain.vo.student.AllInstructorListVo;
 import com.mashang.mashangdriving.domain.vo.student.StudentAppointmentVo;
+import com.mashang.mashangdriving.domain.vo.student.TimeSlotVO;
 import com.mashang.mashangdriving.mapping.manager.InstructorMapping;
 import com.mashang.mashangdriving.service.manager.IAppointmentService;
 import com.mashang.mashangdriving.service.manager.IInstructorService;
@@ -17,9 +18,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @Api(tags = "学员端--预约")
@@ -80,4 +83,42 @@ public class StudentAppointmentController extends BaseController {
 
         return R.ok(slot);
     }
+
+    /**
+     * 前端传日期 Date
+     *    ↓
+     * 查询该日期的历史预约数据（startTime / endTime）
+     *    ↓
+     * 后端整理成 AI 可理解的 JSON
+     *    ↓
+     * AI 分析哪些时段预约少（低峰）
+     *    ↓
+     * AI 只返回低峰时间段 JSON
+     *    ↓
+     * 后端解析 → 返回给前端
+     * @param date
+     * @return
+     */
+    @ApiOperation("ai智能生成低峰时段")
+    @GetMapping("/ai/low/peak/time")
+    @ApiImplicitParam(name = "Date",value = "预约日期",example = "yyyy-MM-dd")
+    public R lowPeakTimeSlots(
+            @RequestParam
+            @DateTimeFormat(pattern = "yyyy-MM-dd")
+            Date date
+    ) {
+        return R.ok(appointmentService.aiRecommendLowPeakTimeSlots(date));
+    }
+
+    /**
+     * ⭐ 根据选中的时间段推荐教练
+     */
+    @ApiOperation("ai教练推荐")
+    @PostMapping("/ai/instructor")
+    public R recommendInstructor(@RequestBody TimeSlotVO timeSlot) {
+        return R.ok(
+                appointmentService.recommendInstructor(timeSlot)
+        );
+    }
+
  }

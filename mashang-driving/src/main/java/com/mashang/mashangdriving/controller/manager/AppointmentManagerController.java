@@ -135,4 +135,11 @@ public class AppointmentManagerController extends BaseController {
 
         return R.ok(appointmentService.getNextWeeklyAppointmentPeaks());
     }
+
+    @ApiOperation(value = "Ai智能分析")
+    @PostMapping("/smart/analysis")
+    public R smartAnalysis() {
+
+        return R.ok(appointmentService.smartAnalysis());
+    }
 }

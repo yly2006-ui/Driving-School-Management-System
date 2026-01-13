@@ -62,5 +62,11 @@ public class MyAppointmentController extends BaseController {
         return toR(appointmentService.createRating(addRating));
     }
 
+    @ApiOperation(value = "Ai智能分析")
+    @PostMapping("/smart/analysis")
+    public R smartAnalysis() {
+
+        return R.ok(appointmentService.smartAnalysis());
+    }
 
 }

@@ -10,6 +10,8 @@ import com.mashang.mashangdriving.domain.vo.student.StudentAppointmentVo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.Date;
+
 public interface AppointmentMapper extends BaseMapper<DrivingAppointment> {
 
     StudentAppointmentVo appointmento();
@@ -22,4 +24,12 @@ public interface AppointmentMapper extends BaseMapper<DrivingAppointment> {
                                         @Param("ew") Wrapper<ManagerAppointmentListVo> wrapper);
 
     ManagerAppointmentListVo appointmentDtl(Long appointmentId);
+
+    /**
+     * 统计某时间段的预约数量
+     */
+    int countByTimeRange(
+            @Param("startTime") Date startTime,
+            @Param("endTime") Date endTime
+    );
 }

@@ -119,4 +119,12 @@
         where app.appointment_id = #{appointmentId}
     </select>
 
+    <select id="countByTimeRange" resultType="int">
+        SELECT COUNT(*)
+        FROM driving_appointment
+        WHERE del_flag = '0'
+        AND status = 'APPROVED'
+        AND start_time &lt; #{endTime}
+        AND end_time &gt; #{startTime}
+    </select>
 </mapper>

@@ -29,4 +29,21 @@
         WHERE
             tor.`status` = '0'
     </select>
+
+    <select id="selectAvailableInstructor" resultType="drivingInstructor">
+        SELECT *
+        FROM driving_instructor i
+        WHERE i.del_flag = '0'
+        AND i.status = '0'
+        AND NOT EXISTS (
+        SELECT 1
+        FROM driving_appointment a
+        WHERE a.instructor_id = i.instructor_id
+        AND a.del_flag = '0'
+        AND a.start_time &lt; #{endTime}
+        AND a.end_time &gt; #{startTime}
+        )
+        ORDER BY i.score DESC
+        LIMIT 1
+    </select>
 </mapper>

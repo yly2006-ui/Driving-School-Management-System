@@ -12,9 +12,7 @@ import com.mashang.mashangdriving.domain.param.manager.create.CreateStudentAppoi
 import com.mashang.mashangdriving.domain.param.manager.query.ManagerAppointmentQuery;
 import com.mashang.mashangdriving.domain.param.student.create.AddRating;
 import com.mashang.mashangdriving.domain.vo.manager.ManagerAppointmentListVo;
-import com.mashang.mashangdriving.domain.vo.student.ContactInstructorVo;
-import com.mashang.mashangdriving.domain.vo.student.MyAppointmentDtlVo;
-import com.mashang.mashangdriving.domain.vo.student.StudentAppointmentVo;
+import com.mashang.mashangdriving.domain.vo.student.*;
 import com.mashang.mashangdriving.mapper.manager.AppointmentMapper;
 import com.mashang.mashangdriving.mapper.manager.DrivingLocationMapper;
 import com.mashang.mashangdriving.mapper.manager.InstructorMapper;
@@ -34,6 +32,8 @@ import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 
 import java.time.DayOfWeek;
@@ -435,7 +435,7 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
         List<AppointmentPeakVO> thisWeekPeaks = getWeeklyAppointmentPeaks();
 
         OpenAIClient client = OpenAIOkHttpClient.builder()
-                .apiKey(System.getenv("sk-5ff2e4ff2fde44119d68cb8dce3f9e5b"))
+                .apiKey("sk-5ff2e4ff2fde44119d68cb8dce3f9e5b")
                 .baseUrl("https://dashscope.aliyuncs.com/compatible-mode/v1")
                 .build();
 
@@ -481,6 +481,220 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
         return JSON.parseArray(content, AppointmentPeakVO.class);
     }
 
+    @Override
+    public String smartAnalysis() {
+        // 1. 本周真实数据
+        List<AppointmentPeakVO> thisWeekPeaks = getWeeklyAppointmentPeaks();
+
+        // 2. AI 客户端（建议后面抽成 Bean）
+        OpenAIClient client = OpenAIOkHttpClient.builder()
+                .apiKey("sk-5ff2e4ff2fde44119d68cb8dce3f9e5b")
+                .baseUrl("https://dashscope.aliyuncs.com/compatible-mode/v1")
+                .build();
+
+        // 3. Prompt
+        String prompt = """
+你是一个驾校预约系统的运营分析助手。
+
+以下是【本周每天各时间段的预约次数统计数据】（JSON 数组）：
+%s
+
+请基于这些历史数据，从【运营管理角度】给出下周的智能建议，要求：
+1. 用自然语言输出，不要 JSON
+2. 重点关注：高峰时段、低峰时段、排班与价格策略
+3. 建议必须具体、可执行
+4. 建议条数不超过 3 条
+5. 直接以“基于历史数据分析，建议：”开头
+""".formatted(JSON.toJSONString(thisWeekPeaks));
+
+        // 4. 请求参数
+        ChatCompletionCreateParams params =
+                ChatCompletionCreateParams.builder()
+                        .model("qwen-plus")
+                        .addUserMessage(prompt)
+                        .build();
+
+        // 5. 调用 AI
+        ChatCompletion completion =
+                client.chat().completions().create(params);
+
+        // 6. 返回给前端直接展示
+        return completion.choices()
+                .get(0)
+                .message()
+                .content()
+                .orElse("暂无智能建议");
+    }
+
+    @Override
+    public List<TimeSlotVO> aiRecommendLowPeakTimeSlots(Date date) {
+        // ================================
+        // 1️⃣ 生成当天所有 2 小时时段
+        // ================================
+        List<TimeSlotVO> allSlots = generateTwoHourSlots(date);
+
+        // ================================
+        // 2️⃣ 统计每个时间段的预约数量
+        //    → 这是 AI 判断的“依据数据”
+        // ================================
+        List<TimeSlotStatVO> statList = new ArrayList<>();
+
+        for (TimeSlotVO slot : allSlots) {
+            int count = appointmentMapper.countByTimeRange(
+                    slot.getStartTime(),
+                    slot.getEndTime()
+            );
+
+            TimeSlotStatVO stat = new TimeSlotStatVO();
+            stat.setTimeSlot(slot.getTimeSlot());
+            stat.setCount(count);
+            statList.add(stat);
+        }
+
+        // ================================
+        // 3️⃣ 构造 AI Prompt（关键）
+        // ================================
+        String prompt = """
+你是一个驾校预约系统的智能分析助手。
+
+以下是某一天各时间段的预约统计数据（JSON 数组）：
+%s
+
+请你从中判断【低峰预约时段】，规则：
+1. 低峰指预约数量明显低于平均值的时间段
+2. 只允许从已有时间段中选择
+3. 返回 2~3 个最适合预约的时间段
+4. 只返回 JSON 数组，格式如下：
+[
+  { "timeSlot": "09:00-11:00" }
+]
+不要返回任何解释文字。
+""".formatted(JSON.toJSONString(statList));
+
+        // ================================
+        // 4️⃣ 调用 AI（真正让 AI 做判断）
+        // ================================
+        OpenAIClient client = OpenAIOkHttpClient.builder()
+                .apiKey("sk-5ff2e4ff2fde44119d68cb8dce3f9e5b")
+                .baseUrl("https://dashscope.aliyuncs.com/compatible-mode/v1")
+                .build();
+
+        ChatCompletionCreateParams params =
+                ChatCompletionCreateParams.builder()
+                        .model("qwen-plus")
+                        .addUserMessage(prompt)
+                        .build();
+
+        ChatCompletion completion =
+                client.chat().completions().create(params);
+
+        String content = completion.choices()
+                .get(0)
+                .message()
+                .content()
+                .orElse("[]");
+
+        // ================================
+        // 5️⃣ 清洗 AI 返回的 ```json
+        // ================================
+        content = content.replace("```json", "")
+                .replace("```", "")
+                .trim();
+
+        // ================================
+        // 6️⃣ 解析 AI 返回的低峰 timeSlot
+        // ================================
+        List<Map<String, String>> aiResult =
+                JSON.parseObject(content, List.class);
+
+        // ================================
+        // 7️⃣ 将 AI 结果映射回真实 Date 时间
+        // ================================
+        return aiResult.stream()
+                .map(item -> findSlotByTimeSlot(
+                        item.get("timeSlot"),
+                        allSlots
+                ))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public AiInstructorRecommendVO recommendInstructor(TimeSlotVO timeSlot) {
+        // 1️⃣ 查询该时间段未被预约的教练
+        List<DrivingInstructor> instructors =
+                instructorMapper.selectAvailableInstructor(
+                        timeSlot.getStartTime(),
+                        timeSlot.getEndTime()
+                );
+
+        if (instructors.isEmpty()) {
+            return null;
+        }
+
+        // 2️⃣ 按评分排序
+        DrivingInstructor best = instructors.stream()
+                .sorted(Comparator.comparing(
+                        DrivingInstructor::getScore,
+                        Comparator.nullsLast(Comparator.reverseOrder())
+                ))
+                .findFirst()
+                .orElse(instructors.get(0));
+
+        // 3️⃣ 返回结果
+        AiInstructorRecommendVO vo = new AiInstructorRecommendVO();
+        vo.setInstructorName(best.getInstructorName());
+        vo.setScore(best.getScore());
+        vo.setGoodSubject(best.getGoodSubject());
+        vo.setDate(new SimpleDateFormat("yyyy-MM-dd")
+                .format(timeSlot.getStartTime()));
+        vo.setTimeSlot(timeSlot.getTimeSlot());
+        vo.setInstructorId(best.getInstructorId());
+        return vo;
+    }
+
+    /**
+     * 根据 timeSlot 文本找到对应 TimeSlotVO
+     */
+    private TimeSlotVO findSlotByTimeSlot(
+            String timeSlot,
+            List<TimeSlotVO> allSlots
+    ) {
+        return allSlots.stream()
+                .filter(slot -> slot.getTimeSlot().equals(timeSlot))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * 生成当天 2 小时时段（09:00-19:00）
+     */
+    private List<TimeSlotVO> generateTwoHourSlots(Date date) {
+
+        List<TimeSlotVO> list = new ArrayList<>();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, 9);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+
+        for (int i = 0; i < 5; i++) {
+            Date start = cal.getTime();
+            cal.add(Calendar.HOUR_OF_DAY, 2);
+            Date end = cal.getTime();
+
+            TimeSlotVO vo = new TimeSlotVO();
+            vo.setStartTime(start);
+            vo.setEndTime(end);
+            vo.setTimeSlot(
+                    new SimpleDateFormat("HH:mm").format(start)
+                            + "-" +
+                            new SimpleDateFormat("HH:mm").format(end)
+            );
+            list.add(vo);
+        }
+        return list;
+    }
 
     @Override
     public Page<ManagerAppointmentListVo> page(PageQuery pageQuery, ManagerAppointmentQuery query) {
