@@ -179,7 +179,7 @@ public class FinancialManagementController extends BaseController {
         return R.ok(billRecordServiceImpl.billRecordListVo());
     }
 
-    @ApiOperation("缴费记录")
+    @ApiOperation("缴费详情")
     @GetMapping("/payment/{payId}")
     @ApiImplicitParam(name = "payId",value = "支付id")
     public R<BillRecordDtlVo> paymentDtl(@PathVariable Long payId) {

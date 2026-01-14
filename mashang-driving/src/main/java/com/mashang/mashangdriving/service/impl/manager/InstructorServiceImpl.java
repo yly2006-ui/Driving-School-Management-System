@@ -49,6 +49,7 @@ public class InstructorServiceImpl extends ServiceImpl<InstructorMapper, Driving
 
         LambdaQueryWrapper<DrivingStudent> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(DrivingStudent::getUserId,SecurityUtils.getUserId());
+        //得到该学生信息
         DrivingStudent drivingStudent = studentMapper.selectOne(wrapper);
 
         LambdaQueryWrapper<DrivingInstructorStudent> allWrapper = new LambdaQueryWrapper<>();

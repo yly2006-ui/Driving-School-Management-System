@@ -240,6 +240,9 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
         ContactInstructorVo contactInstructorVo = new ContactInstructorVo();
         DrivingAppointment drivingAppointment = appointmentMapper.selectById(appointmentId);
 
+        if (drivingAppointment == null){
+            throw new RuntimeException("该预约不存在");
+        }
         DrivingInstructor drivingInstructor = instructorMapper.selectById(drivingAppointment.getInstructorId());
         contactInstructorVo.setInstructorName(drivingInstructor.getInstructorName());
         contactInstructorVo.setInstructorId(drivingAppointment.getInstructorId());
@@ -799,10 +802,12 @@ public class AppointmentServiceImpl extends ServiceImpl<AppointmentMapper, Drivi
             throw new RuntimeException("当前预约已审批");
         }
 
-        LambdaUpdateWrapper<DrivingAppointment> deleteWrapper = new LambdaUpdateWrapper<>();
-        deleteWrapper.eq(DrivingAppointment::getAppointmentId,appointmentId);
-
-        return appointmentMapper.update(null,deleteWrapper);
+        return appointmentMapper.update(
+                null,
+                Wrappers.<DrivingAppointment>lambdaUpdate()
+                        .set(DrivingAppointment::getDelFlag, "2")
+                        .eq(DrivingAppointment::getAppointmentId, appointmentId)
+        );
     }
 
     /**

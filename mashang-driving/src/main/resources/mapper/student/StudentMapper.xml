@@ -6,16 +6,14 @@
         SELECT
             stu.student_id,
             stu.avatar,
+            stu.student_name,
             sub.subject_id,
-            sub.subject_name,
-            stu.student_name
-        FROM
-            driving_student AS stu
-                LEFT JOIN
-            driving_subject AS sub
-            ON
-                stu.subject_id = sub.subject_id
-        WHERE
-            stu.user_id = #{userId}
+            sub.subject_name
+        FROM driving_student stu
+                 LEFT JOIN driving_student_object ss
+                           ON ss.student_id = stu.student_id
+                 LEFT JOIN driving_subject sub
+                           ON sub.subject_id = ss.subject_id
+        WHERE stu.user_id = #{userId}
     </select>
 </mapper>

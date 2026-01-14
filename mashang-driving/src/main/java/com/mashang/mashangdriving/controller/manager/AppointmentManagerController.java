@@ -72,11 +72,21 @@ public class AppointmentManagerController extends BaseController {
 
     @ApiOperation(value = "预约列表",notes = "可以根据预约状态、学员姓名、手机号进行那个模糊以及根据教练名称和科目名称进行查询")
     @GetMapping("all/approval")
-    public TableDataInfo allApproval(@Validated PageQuery pageQuery, ManagerAppointmentQuery managerAppointmentQuery){
+    /**
+     * TableDataInfo<List<ManagerAppointmentListVo>> 改为 TableDataInfo<ManagerAppointmentListVo>
+     *     rows 本身就是 List<T>
+     *     泛型 T 只作用在 rows 上
+     */
+    public TableDataInfo<ManagerAppointmentListVo> allApproval(@Validated PageQuery pageQuery, ManagerAppointmentQuery managerAppointmentQuery){
 
-        Page<ManagerAppointmentListVo> page = appointmentService.page(pageQuery, managerAppointmentQuery);
+        Page<ManagerAppointmentListVo> page =
+                appointmentService.page(pageQuery, managerAppointmentQuery);
 
-        return getDataTable(page.getRecords(), page.getTotal());
+        TableDataInfo<ManagerAppointmentListVo> rspData = new TableDataInfo<>();
+        rspData.setRows(page.getRecords());
+        rspData.setTotal(page.getTotal());
+        rspData.setCode(200);
+        return rspData;
     }
 
     @ApiOperation(value = "本周预约高峰统计结果",notes = "count ≥ 10  → 高峰" + "5 ≤ count < 10 → 中峰" + "count < 5 → 低峰")

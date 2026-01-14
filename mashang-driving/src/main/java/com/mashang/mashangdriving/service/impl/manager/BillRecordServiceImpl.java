@@ -56,7 +56,7 @@ public class BillRecordServiceImpl extends ServiceImpl<BillRecordMapper, Driving
     public BillRecordListVo billRecordListVo() {
 
         BillRecordListVo billRecordListVo = new BillRecordListVo();
-        billRecordListVo.setTotalPaymentAmount(billRecordMapper.paymentCount(SecurityUtils.getUserId()));
+        billRecordListVo.setTotalPaymentAmount(billRecordMapper.paymentRecord(SecurityUtils.getUserId()));
         billRecordListVo.setPaymentCount(billRecordMapper.paymentCount(SecurityUtils.getUserId()));
         billRecordListVo.setPayDtlVoList(payMapper.payListVo(SecurityUtils.getUserId()));
 
