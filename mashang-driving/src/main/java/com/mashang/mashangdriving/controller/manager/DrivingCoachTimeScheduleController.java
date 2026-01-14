@@ -4,8 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mashang.mashangdriving.domain.entity.DrivingCoachTimeSchedule;
 import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingCoachTimeScheduleCreate;
+import com.mashang.mashangdriving.domain.param.manager.query.DrivingCoachTimeScheduleCreateAndInstructQuery;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingCoachTimeScheduleVo;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingCoahTimeAndInstructorDtlVo;
 import com.mashang.mashangdriving.mapping.manager.DrivingCoachTimeScheduleMapping;
+import com.mashang.mashangdriving.mapping.manager.InstructorMapping;
 import com.mashang.mashangdriving.service.manager.IDrivingCoachTimeScheduleService;
 import com.mashang.mashangdriving.service.manager.IDrivingInstructorService;
 import com.mashang.mashangdriving.service.manager.IInstructorService;
@@ -14,6 +17,8 @@ import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import jakarta.validation.constraints.AssertTrue;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -88,7 +93,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
 
     @PostMapping("/batchAdd")
     @ApiOperation("批量新增教练时间安排")
-    public R batchAddSchedule(@RequestBody List<DrivingCoachTimeScheduleCreate> scheduleList) {
+    public R batchAddSchedule(@RequestBody  List<DrivingCoachTimeScheduleCreate> scheduleList) {
 
         Long userId = SecurityUtils.getUserId();
         LambdaQueryWrapper<DrivingInstructor>lqw=new LambdaQueryWrapper<>();
@@ -117,6 +122,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
         for (DrivingCoachTimeSchedule drivingCoachTimeSchedule : create) {
             drivingCoachTimeSchedule.setInstructorId(String.valueOf(instructorId));
             drivingCoachTimeSchedule.setUserId(userId);
+            drivingCoachTimeSchedule.setPerson("0");
         }
         boolean success = drivingCoachTimeScheduleService.saveBatch(create);
         return success ? R.ok("批量新增成功") : R.fail("批量新增失败");
@@ -128,4 +134,35 @@ public class DrivingCoachTimeScheduleController extends BaseController {
         boolean b = drivingCoachTimeScheduleService.removeById(scheduleId);
         return toR(b);
     }
+
+    @GetMapping("/selectByUserId")
+    @ApiOperation("根据用户名查询教练信息")
+    public  R selectByUserId( DrivingCoachTimeScheduleCreateAndInstructQuery coachTimeScheduleCreateAndInstructQuery){
+        LocalDateTime startTime = coachTimeScheduleCreateAndInstructQuery.getStartTime();
+        LocalDateTime endTime = coachTimeScheduleCreateAndInstructQuery.getEndTime();
+
+        LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper =
+                new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getStartTime, startTime);
+        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getEndTime, endTime);
+        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId,SecurityUtils.getUserId());
+
+        DrivingCoachTimeSchedule one = drivingCoachTimeScheduleService.getOne(lambdaQueryWrapper);
+        String person = one.getPerson();
+        LambdaQueryWrapper<DrivingInstructor>lqw=new LambdaQueryWrapper<>();
+        lqw.eq(DrivingInstructor::getUserId,SecurityUtils.getUserId());
+        DrivingInstructor drivingInstructor = drivingInstructorService.getOne(lqw);
+        DrivingCoahTimeAndInstructorDtlVo DtlVo = DrivingCoachTimeScheduleMapping.INSTANCE.dtlVo(drivingInstructor);
+        DtlVo.setPerson(person);
+        return R.ok(DtlVo);
+
+    }
+
+
+
+
+
+
+
+
 }

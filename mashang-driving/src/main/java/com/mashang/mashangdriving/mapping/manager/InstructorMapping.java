@@ -18,4 +18,11 @@ public interface InstructorMapping {
 
     //实体转可预约响应
     ReservationSlot toSlot(DrivingInstructor instructor);
+
+
+
+
+
+
+
 }

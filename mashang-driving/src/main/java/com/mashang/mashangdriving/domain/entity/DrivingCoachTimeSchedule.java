@@ -22,5 +22,6 @@ public class DrivingCoachTimeSchedule {
     private LocalDateTime endTime;
     private String status;
     private String delFlag;
+    private String person;
 
 }
