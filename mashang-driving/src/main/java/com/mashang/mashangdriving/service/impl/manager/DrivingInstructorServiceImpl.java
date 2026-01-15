@@ -9,6 +9,7 @@ import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
 import com.mashang.mashangdriving.domain.entity.DrivingRating;
 import com.mashang.mashangdriving.domain.param.manager.create.DrivingInstructorCreate;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingInstructorUpdate;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingInstructorDateVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingInstructorListVo;
 import com.mashang.mashangdriving.mapper.manager.DrivingCarMapper;
 import com.mashang.mashangdriving.mapper.manager.DrivingInstructorMapper;
@@ -121,12 +122,26 @@ public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorM
     public List<DrivingRating> getRating(Long instructorId) {
         DrivingInstructor instructor = baseMapper.selectById(instructorId);
         if (instructor == null) {
-            throw new RuntimeException("教练不存在");
+            throw new RuntimeException("教练不存在评论");
         }
         return drivingRatingMapper.selectList(
                 new LambdaQueryWrapper<DrivingRating>()
                         .eq(DrivingRating::getInstructorId, instructorId)
         );
+    }
+
+    @Override
+    public DrivingInstructorDateVo getDate(Long instructorId) {
+        LambdaQueryWrapper<DrivingInstructorDateVo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DrivingInstructorDateVo::getInstructorId,instructorId);
+        DrivingInstructor drivingInstructor = baseMapper.selectById(instructorId);
+        DrivingInstructorDateVo drivingInstructorDateVo = new DrivingInstructorDateVo();
+        drivingInstructorDateVo.setInstructorName(drivingInstructor.getInstructorName());
+        drivingInstructorDateVo.setSchedulableTimeStart(drivingInstructor.getSchedulableTimeStart());
+        drivingInstructorDateVo.setSchedulableTimeEnd(drivingInstructor.getSchedulableTimeEnd());
+        drivingInstructorDateVo.setNoTimeStart(drivingInstructor.getNoTimeStart());
+        drivingInstructorDateVo.setNoTimeEnd(drivingInstructor.getNoTimeEnd());
+        return drivingInstructorDateVo;
     }
 
 

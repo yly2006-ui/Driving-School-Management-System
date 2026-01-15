@@ -5,6 +5,7 @@ import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
 import com.mashang.mashangdriving.domain.entity.DrivingRating;
 import com.mashang.mashangdriving.domain.param.manager.create.DrivingInstructorCreate;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingInstructorUpdate;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingInstructorDateVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingInstructorListVo;
 import com.mashang.mashangdriving.service.manager.IDrivingInstructorService;
 import com.ruoyi.common.core.controller.BaseController;
@@ -73,6 +74,16 @@ public class DrivingInstructorController extends BaseController {
             return R.fail("修改失败");
         }
         return R.ok(update);
+    }
+
+    @GetMapping
+    @ApiOperation("时段安排")
+    public DrivingInstructorDateVo get(@RequestParam("instructorId") Long instructorId) {
+        DrivingInstructorDateVo date = drivingInstructorService.getDate(instructorId);
+        if (date == null) {
+            throw new RuntimeException("查询失败");
+        }
+        return date;
     }
 
 

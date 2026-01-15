@@ -6,6 +6,7 @@ import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
 import com.mashang.mashangdriving.domain.entity.DrivingRating;
 import com.mashang.mashangdriving.domain.param.manager.create.DrivingInstructorCreate;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingInstructorUpdate;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingInstructorDateVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingInstructorListVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public interface IDrivingInstructorService extends IService<DrivingInstructor> {
     DrivingInstructorListVo insert(DrivingInstructorCreate drivingInstructorCreate);
     DrivingInstructorListVo update(DrivingInstructorUpdate drivingInstructorUpdate);
     List<DrivingRating> getRating(@RequestParam("instructorId") Long instructorId);
+    DrivingInstructorDateVo getDate(@RequestParam("instructorId") Long instructorId);
 
 
 }
