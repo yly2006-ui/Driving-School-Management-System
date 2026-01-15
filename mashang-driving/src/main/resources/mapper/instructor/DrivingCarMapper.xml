@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mashang.mashangdriving.mapper.manager.DrivingCarMapper">
+
+    <resultMap id="DrivingCar" type="com.mashang.mashangdriving.domain.entity.DrivingCar">
+        <result column="car_id" property="carId" />
+        <result column="instructor_id" property="instructorId" />
+        <result column="car_name" property="carName" />
+        <result column="car_color" property="carColor" />
+        <result column="car_brand" property="carBrand" />
+        <result column="buy_date" property="buyDate" />
+        <result column="transmission_type" property="transmissionType" />
+        <result column="ein" property="ein" />
+        <result column="vin" property="vin" />
+        <result column="mot_expires" property="motExpires" />
+        <result column="full_persion" property="fullPersion" />
+        <result column="plate_number" property="plateNumber" />
+        <result column="status" property="status" />
+        <result column="del_flag" property="delFlag" />
+        <result column="car_type" property="carType" />
+    </resultMap>
+
+    <resultMap id="DrivingPayRecordVo" type="com.mashang.mashangdriving.domain.vo.manager.DrivingPayRecordVo">
+        <!-- 主键：pay_id -->
+        <id column="pay_id" property="payId" />
+
+        <!-- 支付记录基本信息 -->
+        <result column="pay_no" property="payNo" />
+        <result column="user_id" property="userId" />
+        <result column="car_id" property="carId" />
+        <result column="charge_ltem_id" property="chargeLtemId" />
+        <result column="detailed_explanation" property="detailedExplanation" />
+        <result column="pay_type" property="payType" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="del_flag" property="delFlag" />
+
+        <!-- 关联的车辆信息 -->
+        <result column="car_name" property="carName" />
+        <result column="plate_number" property="plateNumber" />
+
+        <!-- 关联的收费项目信息 -->
+        <result column="charge_ltem_name" property="chargeLtemName" />
+        <result column="amount" property="amount" />
+    </resultMap>
+
+
+    <select id="getDrivingCarByPage" resultMap="DrivingCar">
+        SELECT dc.car_id, dc.instructor_id, car_name, car_brand, car_color, buy_date,
+               transmission_type, ein, vin, mot_expires, full_persion, plate_number,
+               dc.status, dc.del_flag, car_type
+            FROM ms_stu_pro339.driving_car dc
+        LEFT JOIN ms_stu_pro339.driving_instructor di ON dc.instructor_id = di.instructor_id
+    </select>
+
+
+    <select id="getCarPay" resultMap="DrivingPayRecordVo">
+        SELECT dp.pay_id,
+               dp.pay_no,
+               dp.user_id,
+               dp.car_id,
+               dp.charge_ltem_id,
+               dp.detailed_explanation,
+               dp.pay_type,
+               dp.status,
+               dp.create_time,
+               dp.del_flag,
+
+               -- 车辆信息
+               dc.car_name,
+               dc.plate_number,
+
+               -- 收费项目信息
+               dcl.charge_ltem_name,
+               dcl.amount
+            FROM ms_stu_pro339.driving_pay dp
+        INNER JOIN ms_stu_pro339.driving_car dc ON dp.car_id = dc.car_id
+        LEFT JOIN ms_stu_pro339.driving_charge_ltem dcl ON dcl.charge_ltem_id = dp.charge_ltem_id
+        WHERE dp.car_id = #{carId}
+          AND dp.del_flag = '0'
+          AND dc.del_flag = '0'
+    </select>
+
+</mapper>
