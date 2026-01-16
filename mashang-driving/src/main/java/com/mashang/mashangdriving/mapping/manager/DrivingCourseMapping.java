@@ -12,6 +12,9 @@ import java.util.List;
 public interface DrivingCourseMapping {
     DrivingCourseMapping INSTANCE = Mappers.getMapper(DrivingCourseMapping.class);
 
+    // ① 单对象映射（MapStruct 会自动按字段名一一对应）
+    DrivingCourseListVo toListVo(DrivingCourse entity);
+
     List<DrivingCourseListVo> toList(List<DrivingCourse> drivingCourseList);
 
     //新增课程

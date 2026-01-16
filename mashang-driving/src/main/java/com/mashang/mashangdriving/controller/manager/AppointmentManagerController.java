@@ -1,16 +1,15 @@
 package com.mashang.mashangdriving.controller.manager;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.mashang.mashangdriving.domain.entity.DrivingCourse;
+
 import com.mashang.mashangdriving.domain.param.manager.query.ManagerAppointmentQuery;
-import com.mashang.mashangdriving.domain.param.manager.update.DrivingCourseUpdate;
-import com.mashang.mashangdriving.domain.param.student.create.AddRating;
+
+
 import com.mashang.mashangdriving.domain.vo.manager.ManagerAppointmentListVo;
-import com.mashang.mashangdriving.domain.vo.manager.ManagerDataOverviewDtlVo;
+
 import com.mashang.mashangdriving.domain.vo.student.AllInstructorListVo;
 import com.mashang.mashangdriving.domain.vo.student.AllSubjectVo;
-import com.mashang.mashangdriving.mapping.manager.DrivingCourseMapping;
+
 import com.mashang.mashangdriving.service.impl.student.AppointmentPeakVO;
 import com.mashang.mashangdriving.service.manager.IAppointmentService;
 import com.mashang.mashangdriving.service.manager.IInstructorService;
@@ -19,7 +18,6 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.page.PageQuery;
 import com.ruoyi.common.core.page.TableDataInfo;
-import com.ruoyi.common.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;

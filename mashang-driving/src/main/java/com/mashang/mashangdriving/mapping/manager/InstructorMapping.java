@@ -13,6 +13,8 @@ public interface InstructorMapping {
 
     InstructorMapping INSTANCE = Mappers.getMapper(InstructorMapping.class);
 
+    // ① 单对象
+    AllInstructorListVo toListVo(DrivingInstructor entity);
     //教练集合实体转响应集合
     List<AllInstructorListVo> toList(List<DrivingInstructor> instructorList);
 

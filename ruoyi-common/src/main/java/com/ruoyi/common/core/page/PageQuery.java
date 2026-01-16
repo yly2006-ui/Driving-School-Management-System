@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
-
 @Data
 @ApiModel("分页参数")
 public class PageQuery {
@@ -18,5 +17,19 @@ public class PageQuery {
     @NotNull(message = "每页显示记录数不能为空")
     private Integer pageSize;
 
+    public Integer getPageSize() {
+        return pageSize;
+    }
 
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public Integer getPageNum() {
+        return pageNum;
+    }
+
+    public void setPageNum(Integer pageNum) {
+        this.pageNum = pageNum;
+    }
 }

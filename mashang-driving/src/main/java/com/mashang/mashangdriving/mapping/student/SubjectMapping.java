@@ -12,5 +12,8 @@ public interface SubjectMapping {
 
     SubjectMapping INSTANCE = Mappers.getMapper(SubjectMapping.class);
 
+    // ① 单对象映射（MapStruct 会自动按字段名映射）
+    AllSubjectVo toVo(DrivingSubject entity);
+
     List<AllSubjectVo> toDtl(List<DrivingSubject> subjects);
 }

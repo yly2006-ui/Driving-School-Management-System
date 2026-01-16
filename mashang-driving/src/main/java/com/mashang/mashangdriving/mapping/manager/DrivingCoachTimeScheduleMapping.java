@@ -15,12 +15,16 @@ public interface DrivingCoachTimeScheduleMapping {
 
     DrivingCoachTimeScheduleMapping INSTANCE= Mappers.getMapper(DrivingCoachTimeScheduleMapping.class);
 
+    // ① 单对象
+    DrivingCoachTimeScheduleVo toVo(DrivingCoachTimeSchedule entity);
+
     List<DrivingCoachTimeScheduleVo> toListVo(List<DrivingCoachTimeSchedule> drivingCoachTimeSchedules);
 
     List<DrivingCoachTimeSchedule> toCreate(List<DrivingCoachTimeScheduleCreate> drivingCoachTimeScheduleCreates);
 
     DrivingCoahTimeAndInstructorDtlVo dtlVo(DrivingInstructor drivingInstructor);
 
-
+    // ① DTO -> 实体（新增用）
+    DrivingCoachTimeSchedule toEntity(DrivingCoachTimeScheduleCreate dto);
 
 }

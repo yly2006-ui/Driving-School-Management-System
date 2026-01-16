@@ -12,6 +12,7 @@ public interface NoticeMapping {
 
     NoticeMapping INSTANCE = Mappers.getMapper(NoticeMapping.class);
 
+    DataOverviewNoticeDtlVo toDtlVo(DrivingNotice entity);
     //实体集合转响应集合
     List<DataOverviewNoticeDtlVo> toDataOverviewNoticeDtlVo(List<DrivingNotice> listNotice);
 }

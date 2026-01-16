@@ -15,6 +15,8 @@ public interface DrivingDirverLicenseTypeMapping {
 
     DrivingDirverLicenseTypeMapping INSTANCE = Mappers.getMapper(DrivingDirverLicenseTypeMapping.class);
 
+    DrivingDriverLicenseTypeListVo toListVo(DrivingDriverLicenseType entity);
+
     //分页查询驾照类型
     List<DrivingDriverLicenseTypeListVo> toListVo(List<DrivingDriverLicenseType> drivingDriverLicenseTypes);
 
