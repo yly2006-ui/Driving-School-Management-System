@@ -219,11 +219,10 @@
                 <artifactId>ruoyi-common</artifactId>
                 <version>${ruoyi.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.ruoyi</groupId>
-                <artifactId>ruoyi-admin</artifactId>
-                <version>${ruoyi.version}</version>
+                <artifactId>ms-medical</artifactId>
+                <version>3.8.8</version>
             </dependency>
 
         </dependencies>
@@ -236,7 +235,7 @@
         <module>ruoyi-quartz</module>
         <module>ruoyi-generator</module>
         <module>ruoyi-common</module>
-        <module>mashang-driving</module>
+        <module>ruoyi-driving</module>
     </modules>
     <packaging>pom</packaging>
 
