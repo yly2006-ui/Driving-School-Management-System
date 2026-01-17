@@ -3,7 +3,7 @@ package com.mashang.mashangdriving.domain.param.student.create;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
-import jakarta.validation.constraints.NotBlank;
+import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;

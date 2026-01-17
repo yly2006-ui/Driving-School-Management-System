@@ -17,7 +17,7 @@ import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import jakarta.validation.constraints.AssertTrue;
+import javax.validation.constraints.AssertTrue;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;

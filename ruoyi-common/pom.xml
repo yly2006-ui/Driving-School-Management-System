@@ -64,6 +64,11 @@
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.alipay.sdk/alipay-easysdk -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.5.5.Final</version>
+        </dependency>
 
 
 

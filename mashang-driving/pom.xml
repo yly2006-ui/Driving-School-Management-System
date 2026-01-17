@@ -3,61 +3,30 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.1</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <groupId>com.ruoyi</groupId>
+        <artifactId>ruoyi</artifactId>
+        <version>3.8.8</version>
     </parent>
-    <groupId>com.mashang</groupId>
     <artifactId>mashang-driving</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>mashang-driving</name>
-    <description>mashang-driving</description>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webmvc</artifactId>
-        </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-webmvc</artifactId>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>com.ruoyi</groupId>
             <artifactId>ruoyi-common</artifactId>
             <version>3.8.8</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webmvc-test</artifactId>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.30</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>1.4.2.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-            <version>1.4.2.Final</version>
         </dependency>
         <dependency>
             <groupId>com.ruoyi</groupId>
@@ -83,7 +52,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.5.15</version> <!-- 使用合适的版本 -->
+                <version>2.7.6</version> <!-- 使用合适的版本 -->
                 <configuration>
                     <mainClass>com.ruoyi.RuoYiApplication</mainClass> <!-- 确保这是正确的主类路径 -->
                     <fork>true</fork>  <!-- 如果没有此配置，devtools 可能不生效 -->

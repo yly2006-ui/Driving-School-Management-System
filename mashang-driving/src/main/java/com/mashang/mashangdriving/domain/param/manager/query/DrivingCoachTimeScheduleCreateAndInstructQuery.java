@@ -1,7 +1,7 @@
 package com.mashang.mashangdriving.domain.param.manager.query;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.AssertTrue;
+import javax.validation.constraints.AssertTrue;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 

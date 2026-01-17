@@ -16,13 +16,9 @@ import com.ruoyi.common.core.page.PageQuery;
 import com.ruoyi.common.core.page.TableDataInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import jakarta.annotation.Resource;
-import org.apache.ibatis.annotations.Param;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Collections;
-import java.util.List;
 
 @RestController
 @Api(tags = "管理端--学员管理")

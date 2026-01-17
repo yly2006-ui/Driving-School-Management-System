@@ -7,11 +7,11 @@ import com.mashang.mashangdriving.domain.param.manager.create.DrivingStudentCrea
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingStudentQuery;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo;
 import com.ruoyi.common.core.page.PageQuery;
-import org.apache.ibatis.annotations.Mapper;
+
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-@Mapper
+
 public interface DrivingStudentManagerMapper extends BaseMapper<DrivingStudent> {
     Page<DrivingStudentListVo> getList( Page<DrivingStudentListVo> page);
     DrivingStudentListVo selectOne(@Param("drivingStudentQuery") DrivingStudentQuery drivingStudentQuery);

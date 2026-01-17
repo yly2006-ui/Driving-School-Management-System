@@ -3,7 +3,7 @@ package com.mashang.mashangdriving.domain.param.manager.query;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.AssertTrue;
+import javax.validation.constraints.AssertTrue;
 import lombok.Data;
 
 import java.time.LocalDateTime;

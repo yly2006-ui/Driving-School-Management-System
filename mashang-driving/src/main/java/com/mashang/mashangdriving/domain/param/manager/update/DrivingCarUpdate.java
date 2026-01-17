@@ -3,8 +3,8 @@ package com.mashang.mashangdriving.domain.param.manager.update;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.Date;
