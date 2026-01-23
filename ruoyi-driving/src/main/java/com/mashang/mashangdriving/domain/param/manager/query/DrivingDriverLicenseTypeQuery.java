@@ -7,11 +7,14 @@ import lombok.Data;
 @Data
 public class DrivingDriverLicenseTypeQuery {
 
-    @ApiModelProperty(value = "驾驶代码")
-    private String driverLicenseCode;
+//    @ApiModelProperty(value = "驾驶代码")
+//    private String driverLicenseCode;
+//
+//    @ApiModelProperty(value = "驾驶证类型名称")
+//    private String driverLicenseName;
 
-    @ApiModelProperty(value = "驾驶证类型名称")
-    private String driverLicenseName;
+    @ApiModelProperty(value = "驾驶证代码或类型名称")
+    private String driverLicenseCodeOrName;
 
     @ApiModelProperty(value = "状态(0存在,1删除)")
     private String status;

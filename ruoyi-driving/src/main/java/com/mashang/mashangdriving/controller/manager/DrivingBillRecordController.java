@@ -55,7 +55,7 @@ public class DrivingBillRecordController extends BaseController {
 
     @ApiOperation("年度财务汇总")
     @GetMapping("/year/queryAll")
-    public R queryAll(@ApiParam("查询年度财务的时间") @RequestParam String year) {
+    public R<DrivingBillYearMessageVo> queryAll(@ApiParam("查询年度财务的时间") @RequestParam String year) {
 
         DrivingBillYearMessageVo drivingBillYearMessageVo = drivingBillRecordService.queryAll(year);
         if (drivingBillYearMessageVo != null) {
@@ -79,7 +79,7 @@ public class DrivingBillRecordController extends BaseController {
 
     @ApiOperation("月度财务报表")
     @GetMapping("/month/query")
-    public R query(@RequestParam String yearAndMonth) {
+    public R<DrivingBillMonthMessageVo> query(@RequestParam String yearAndMonth) {
 
         DrivingBillMonthMessageVo drivingBillMonthMessageVo = drivingBillRecordService.queryMonthAll(yearAndMonth);
         if (drivingBillMonthMessageVo != null) {

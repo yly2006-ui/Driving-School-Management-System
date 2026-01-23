@@ -1,12 +1,14 @@
 package com.mashang.mashangdriving.domain.vo.manager;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
+@ApiModel(value = "驾照类型列表VO", description = "驾照类型列表VO")
 public class DrivingDriverLicenseTypeListVo {
 
     @ApiModelProperty(value = "驾驶证类型ID")

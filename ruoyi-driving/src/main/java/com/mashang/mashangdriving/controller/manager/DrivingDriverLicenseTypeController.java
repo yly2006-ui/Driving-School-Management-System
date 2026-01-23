@@ -41,11 +41,11 @@ public class DrivingDriverLicenseTypeController extends BaseController {
                                                                     DrivingDriverLicenseTypeQuery driverLicenseTypeQuery){
         LambdaQueryWrapper<DrivingDriverLicenseType> lqw =new LambdaQueryWrapper<>();
         //过滤驾照类型代码
-        lqw.eq(StringUtils.isNotEmpty(driverLicenseTypeQuery.getDriverLicenseCode()),
-                DrivingDriverLicenseType::getDriverLicenseCode,driverLicenseTypeQuery.getDriverLicenseCode());
+        lqw.eq(StringUtils.isNotEmpty(driverLicenseTypeQuery.getDriverLicenseCodeOrName()),
+                DrivingDriverLicenseType::getDriverLicenseCode,driverLicenseTypeQuery.getDriverLicenseCodeOrName());
         //过滤驾照类型名称
-        lqw.like(StringUtils.isNotEmpty(driverLicenseTypeQuery.getDriverLicenseName()),
-                DrivingDriverLicenseType::getDriverLicenseName,driverLicenseTypeQuery.getDriverLicenseName());
+        lqw.like(StringUtils.isNotEmpty(driverLicenseTypeQuery.getDriverLicenseCodeOrName()),
+                DrivingDriverLicenseType::getDriverLicenseName,driverLicenseTypeQuery.getDriverLicenseCodeOrName());
         //过滤驾照难度状态
         lqw.eq(StringUtils.isNotEmpty(driverLicenseTypeQuery.getLearningDifficulty()),
                 DrivingDriverLicenseType::getLearningDifficulty,driverLicenseTypeQuery.getLearningDifficulty());
