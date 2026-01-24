@@ -41,16 +41,16 @@ public class DrivingDriverLicenseTypeController extends BaseController {
                                                                     DrivingDriverLicenseTypeQuery driverLicenseTypeQuery){
         LambdaQueryWrapper<DrivingDriverLicenseType> lqw =new LambdaQueryWrapper<>();
         // 核心逻辑：代码精确匹配 OR 名称模糊匹配（二选一）
-        if (StringUtils.isNotEmpty(driverLicenseTypeQuery.getDriverLicenseCodeOrName())) {
             // 用 and() 包裹 or 条件，确保只在代码/名称之间做或运算，不影响其他条件
-            lqw.and(wrapper -> wrapper
+            lqw.and(StringUtils.isNotEmpty(driverLicenseTypeQuery.getDriverLicenseCodeOrName()),
+                    wrapper -> wrapper
                     // 代码精确匹配
                     .eq(DrivingDriverLicenseType::getDriverLicenseCode, driverLicenseTypeQuery.getDriverLicenseCodeOrName())
-                    // 或 名称模糊匹配（加%通配符）
+                    // 或 名称模糊匹配
                     .or()
-                    .like(DrivingDriverLicenseType::getDriverLicenseName, "%" + driverLicenseTypeQuery.getDriverLicenseCodeOrName() + "%")
+                    .like(DrivingDriverLicenseType::getDriverLicenseName,
+                            driverLicenseTypeQuery.getDriverLicenseCodeOrName())
             );
-        }
         //过滤驾照难度状态
         lqw.eq(StringUtils.isNotEmpty(driverLicenseTypeQuery.getLearningDifficulty()),
                 DrivingDriverLicenseType::getLearningDifficulty,driverLicenseTypeQuery.getLearningDifficulty());

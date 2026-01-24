@@ -75,35 +75,31 @@ public class DrivingLocationController extends BaseController {
     @ApiOperation("分页查询地点")
     @GetMapping("/list")
     public TableDataInfo<List<DrivingLocationListVo>> list(@Validated PageQuery pageQuery,
-                                                           DrivingLocationQuery drivingLocationQuery){
-        LambdaQueryWrapper<DrivingLocation>lqw=new LambdaQueryWrapper<>();
-        lqw.like(StringUtils.isNotEmpty(drivingLocationQuery.getLocationName()),
-                DrivingLocation::getLocationName,drivingLocationQuery.getLocationName());
-        lqw.eq(StringUtils.isNotEmpty(drivingLocationQuery.getAddress()),DrivingLocation::getAddress,
-                drivingLocationQuery.getAddress());
-        lqw.eq(StringUtils.isNotEmpty(drivingLocationQuery.getMaster()),DrivingLocation::getMaster,
-                drivingLocationQuery.getMaster());
-        lqw.eq(StringUtils.isNotEmpty(drivingLocationQuery.getStatus()),DrivingLocation::getStatus,
+                                                           DrivingLocationQuery drivingLocationQuery) {
+        LambdaQueryWrapper<DrivingLocation> lqw = new LambdaQueryWrapper<>();
+
+        // 核心修改：三合一模糊匹配（官方正确写法）
+        String searchKey = drivingLocationQuery.getAddressOrMasterOrLocationName();
+        if (StringUtils.isNotEmpty(searchKey)) {
+            // 用官方推荐的嵌套方式加括号，避免and(true)/and(false)的错误用法
+            lqw.and(wrapper -> wrapper
+                    .like(DrivingLocation::getLocationName,searchKey )
+                    .or()
+                    .like(DrivingLocation::getAddress, searchKey)
+                    .or()
+                    .like(DrivingLocation::getMaster, searchKey)
+            );
+        }
+
+        // 以下代码保持不变
+        lqw.eq(StringUtils.isNotEmpty(drivingLocationQuery.getStatus()), DrivingLocation::getStatus,
                 drivingLocationQuery.getStatus());
-        lqw.eq(DrivingLocation::getDelFlag,0);
+        lqw.eq(DrivingLocation::getDelFlag, 0);
         lqw.orderByDesc(DrivingLocation::getLocationId);
+
         Page<DrivingLocationListVo> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
         Page<DrivingLocationListVo> query = drivingLocationService.query(page, lqw);
-//        List<DrivingLocationListVo> records = query.getRecords();
-//        for (DrivingLocationListVo record : records) {
-//            String county = record.getCounty();
-//            String city = record.getCity();
-//            String province = record.getProvince();
-//            if ("北京市".equals(city) ||
-//                    "上海市".equals(city) ||
-//                    "天津市".equals(city) ||
-//                    "重庆市".equals(city)){
-//                String area=city+county;
-//                record.setArea(area);
-//            }else {
-//            String areas=province+city+county;
-//            record.setArea(areas);}
-//        }
+
         return getDataTable(query.getRecords(), query.getTotal());
     }
 
