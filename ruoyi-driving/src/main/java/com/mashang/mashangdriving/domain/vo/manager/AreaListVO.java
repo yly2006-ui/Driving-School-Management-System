@@ -10,5 +10,4 @@ public class AreaListVO {
 
     private Long id;
     private String name;
-    private List<Area> areaList;
 }

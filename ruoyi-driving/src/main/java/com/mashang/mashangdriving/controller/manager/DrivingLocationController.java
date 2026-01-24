@@ -1,7 +1,9 @@
 package com.mashang.mashangdriving.controller.manager;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mashang.mashangdriving.domain.entity.Area;
 import com.mashang.mashangdriving.domain.entity.DrivingLocation;
 import com.mashang.mashangdriving.domain.param.manager.create.DrivingLocationCreate;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingLocationQuery;
@@ -9,6 +11,7 @@ import com.mashang.mashangdriving.domain.param.manager.update.DrivingLocationUpd
 import com.mashang.mashangdriving.domain.vo.manager.AreaListVO;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingLocationDtlVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingLocationListVo;
+import com.mashang.mashangdriving.mapping.manager.AreaMapping;
 import com.mashang.mashangdriving.mapping.manager.DrivingLocationMapping;
 import com.mashang.mashangdriving.service.manager.IAreaService;
 import com.mashang.mashangdriving.service.manager.IDrivingLocationService;
@@ -20,6 +23,7 @@ import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.service.ISysDictDataService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -126,11 +130,50 @@ public class DrivingLocationController extends BaseController {
     }
 
 
-    @ApiOperation("嵌套查询所有省市县对应关系")
+    @ApiOperation("查询所有省")
     @GetMapping("area/select")
-    public TableDataInfo<List<AreaListVO> >select(){
-        List<AreaListVO> select = areaService.select();
-        return getDataTable(select);
+    public R<List<AreaListVO>>select(){
+        LambdaQueryWrapper<Area>areaLambdaQueryWrapper=new LambdaQueryWrapper<>();
+        areaLambdaQueryWrapper.eq(Area::getLevel,"1");
+        List<Area> list = areaService.list(areaLambdaQueryWrapper);
+
+        if (CollectionUtils.isEmpty(list)){
+            return R.fail("未查询到省份");
+        }
+        return R.ok(AreaMapping.INSTANCE.tolist(list));
+
+    }
+
+    @ApiOperation("查询所有市")
+    @GetMapping("city/select")
+    public R<List<AreaListVO>>selectCity(@ApiParam("省id") Long parentId){
+
+        LambdaQueryWrapper<Area>areaLambdaQueryWrapper=new LambdaQueryWrapper<>();
+        areaLambdaQueryWrapper.eq(Area::getLevel,"2");
+        areaLambdaQueryWrapper.eq(Area::getParentId,parentId);
+        List<Area> list = areaService.list(areaLambdaQueryWrapper);
+
+        if (CollectionUtils.isEmpty(list)){
+            return R.fail("未查询到地级市");
+        }
+        return R.ok(AreaMapping.INSTANCE.tolist(list));
+
+    }
+
+    @ApiOperation("查询所有县")
+    @GetMapping("county/select")
+    public R<List<AreaListVO>>selectcounty(@ApiParam("市id") Long parentId){
+
+        LambdaQueryWrapper<Area>areaLambdaQueryWrapper=new LambdaQueryWrapper<>();
+        areaLambdaQueryWrapper.eq(Area::getLevel,"3");
+        areaLambdaQueryWrapper.eq(Area::getParentId,parentId);
+        List<Area> list = areaService.list(areaLambdaQueryWrapper);
+
+        if (CollectionUtils.isEmpty(list)){
+            return R.fail("未查询到区县");
+        }
+        return R.ok(AreaMapping.INSTANCE.tolist(list));
+
     }
 
 }
