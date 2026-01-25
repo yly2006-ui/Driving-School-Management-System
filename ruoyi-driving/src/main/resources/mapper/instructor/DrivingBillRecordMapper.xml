@@ -59,7 +59,7 @@
             resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillYearMessageVo">
         -- 这是查询收入
         SELECT
-            SUM( c.amount) annual_total_income
+        IFNULL(SUM(c.amount), 0) annual_total_income
         FROM driving_charge_ltem c
                  LEFT JOIN driving_bill_record b
                            ON c.charge_ltem_id=b.charge_ltem_id
@@ -74,7 +74,7 @@
             resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillYearMessageVo">
         -- 支出
         SELECT
-            SUM( c.amount) annual_total_expenditure
+        IFNULL(SUM(c.amount), 0) annual_total_expenditure
         FROM driving_charge_ltem c
                  LEFT JOIN driving_bill_record b
                            ON c.charge_ltem_id=b.charge_ltem_id
@@ -100,7 +100,7 @@
             resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillMonthMessageVo">
         -- 这是查询月收入
         SELECT
-        SUM( c.amount) total_income
+        IFNULL(SUM(c.amount), 0) total_income
         FROM driving_charge_ltem c
         LEFT JOIN driving_bill_record b
         ON c.charge_ltem_id=b.charge_ltem_id
@@ -113,7 +113,7 @@
             resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillMonthMessageVo">
         -- 月支出
         SELECT
-        SUM( c.amount) total_expense
+        IFNULL(SUM(c.amount), 0) total_expense
         FROM driving_charge_ltem c
         LEFT JOIN driving_bill_record b
         ON c.charge_ltem_id=b.charge_ltem_id
@@ -125,7 +125,7 @@
     <select id="queryStudentTotalIncome"
             resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillMonthMessageVo">
         SELECT
-        SUM( c.amount) studentPayment
+        IFNULL(SUM(c.amount), 0) studentPayment
         FROM driving_charge_ltem c
         LEFT JOIN driving_bill_record b
         ON c.charge_ltem_id=b.charge_ltem_id
@@ -137,19 +137,20 @@
     <select id="queryNotStudentTotalIncome"
             resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillMonthMessageVo">
         SELECT
-            SUM( c.amount) otherIncome
+            IFNULL(SUM(c.amount), 0) otherIncome
         FROM driving_charge_ltem c
                  LEFT JOIN driving_bill_record b
                            ON c.charge_ltem_id=b.charge_ltem_id
                  LEFT JOIN driving_pay p
                            ON p.pay_id=b.pay_id
+            ${ew.customSqlSegment}
     </select>
     <select id="queryIncomeByYearGroupByMonth"
             resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingGroupMonthVo">
         <!-- 新增：按年+月分组查询月收入 -->
             SELECT
                 DATE_FORMAT(b.create_time, '%Y-%m') AS month, -- 提取年月（如2025-01）
-        SUM(c.amount) AS monthIncome -- 统计当月收入
+        IFNULL(SUM(c.amount), 0) AS monthIncome -- 统计当月收入
             FROM driving_charge_ltem c
                 LEFT JOIN driving_bill_record b ON c.charge_ltem_id = b.charge_ltem_id
                 LEFT JOIN driving_pay p ON p.pay_id = b.pay_id

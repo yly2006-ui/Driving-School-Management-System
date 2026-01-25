@@ -40,9 +40,14 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         // 1. 基本条件
         queryWrapper.like(StringUtils.isNotEmpty(query.getUserName()),
                 "driving_student.student_name", query.getUserName());
-        queryWrapper.eq(StringUtils.isNotNull(query.getRoleId()), "role.role_id", query.getRoleId());
+        String roleId = query.getRoleId();
+        if ("0".equals(roleId)) {
+            queryWrapper.eq(StringUtils.isNotNull(query.getPaymentMethod()), "pay.pay_type", query.getPaymentMethod());
+            queryWrapper.orderByDesc("pay.create_time");
+        }else {
+        queryWrapper.eq(StringUtils.isNotNull(query.getRoleId()), "role.role_id", roleId);
         queryWrapper.eq(StringUtils.isNotNull(query.getPaymentMethod()), "pay.pay_type", query.getPaymentMethod());
-        queryWrapper.orderByDesc("pay.create_time");
+        queryWrapper.orderByDesc("pay.create_time");}
 
         // 2. 处理时间条件
         handleTimeCondition(query, queryWrapper);
@@ -463,13 +468,11 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
 
     @Override
     public DrivingBillMonthMessageVo queryMonthAll(String yearAndMonth) {
-
         String yearStr = yearAndMonth.substring(0, 4);
         String monthStr = yearAndMonth.substring(5, yearAndMonth.length() - 1);
 
         int month = Integer.parseInt(monthStr);
         String formattedMonth = String.format("%02d", month);
-
         String standardYearMonth = yearStr + "-" + formattedMonth;
 
         String startDate = standardYearMonth + "-01 00:00:00";
@@ -477,58 +480,82 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         LocalDate lastDay = firstDay.plusMonths(1).minusDays(1);
         String endDate = lastDay + " 23:59:59";
 
+        // 1. 查询本月收入
         QueryWrapper<DrivingBillRecord> queryWrapper = new QueryWrapper<>();
         queryWrapper.between("b.create_time", startDate, endDate);
         queryWrapper.eq("b.role_id", 102);
         DrivingBillMonthMessageVo drivingBillMonthMessageVo = drivingBillRecordMapper.queryMonthTotalIncome(queryWrapper);
-        if (drivingBillMonthMessageVo.getTotalIncome() == null) {
-            throw new RuntimeException("不存在本月的收入信息");
+
+        // 防止NPE
+        if (drivingBillMonthMessageVo == null) {
+            drivingBillMonthMessageVo = new DrivingBillMonthMessageVo();
+            drivingBillMonthMessageVo.setTotalIncome("0");
+        } else if (StringUtils.isEmpty(drivingBillMonthMessageVo.getTotalIncome())) {
+            drivingBillMonthMessageVo.setTotalIncome("0");
         }
+
         BigDecimal MonthTotalIncome = new BigDecimal(drivingBillMonthMessageVo.getTotalIncome());
 
+        // 2. 查询本月支出
         QueryWrapper<DrivingBillRecord> wrapper = new QueryWrapper<>();
         wrapper.between("b.create_time", startDate, endDate);
         wrapper.eq("b.role_id", 101);
         DrivingBillMonthMessageVo queried = drivingBillRecordMapper.queryMonthTotalExpenditure(wrapper);
-        if (queried.getTotalExpense() == null) {
-            throw new RuntimeException("不存在本月份的支出信息");
-        }
-        BigDecimal MonthTotalExpenditure = new BigDecimal(queried.getTotalExpense());
 
+        if (queried == null) {
+            queried = new DrivingBillMonthMessageVo();
+            queried.setTotalExpense("0");
+        } else if (StringUtils.isEmpty(queried.getTotalExpense())) {
+            queried.setTotalExpense("0");
+        }
+
+        BigDecimal MonthTotalExpenditure = new BigDecimal(queried.getTotalExpense());
         BigDecimal subtract = MonthTotalIncome.subtract(MonthTotalExpenditure);
 
+        // 3. 查询本月学员缴费
         QueryWrapper<DrivingBillRecord> qw = new QueryWrapper<>();
         qw.between("b.create_time", startDate, endDate);
         qw.eq("b.role_id", 102);
         qw.eq("b.charge_ltem_id", 1);
         DrivingBillMonthMessageVo vo = drivingBillRecordMapper.queryStudentTotalIncome(qw);
-        if (vo.getStudentPayment() == null) {
-            throw new RuntimeException("不存在本月学员缴费");
+
+        if (vo == null || StringUtils.isEmpty(vo.getStudentPayment())) {
+            vo = new DrivingBillMonthMessageVo();
+            vo.setStudentPayment("0");
         }
         BigDecimal StudentTotalIncome = new BigDecimal(vo.getStudentPayment());
 
+        // 4. 查询本月其他收入
         QueryWrapper<DrivingBillRecord> qwr = new QueryWrapper<>();
         qwr.between("b.create_time", startDate, endDate);
         qwr.eq("b.role_id", 102);
         qwr.ne("b.charge_ltem_id", 1);
         DrivingBillMonthMessageVo vos = drivingBillRecordMapper.queryNotStudentTotalIncome(qwr);
-        if (vos.getOtherIncome() == null) {
-            throw new RuntimeException("不存在其他收入");
+
+        if (vos == null || StringUtils.isEmpty(vos.getOtherIncome())) {
+            vos = new DrivingBillMonthMessageVo();
+            vos.setOtherIncome("0");
         }
         BigDecimal noStudentTotalIncome = new BigDecimal(vos.getOtherIncome());
 
+        // 5. 查询本月学生数量
         QueryWrapper<DrivingBillRecord> wrappered = new QueryWrapper<>();
         wrappered.between("s.create_time", startDate, endDate);
         DrivingBillYearMessageVo allStudentCount = drivingBillRecordMapper.queryAllStudentCount(wrappered);
-        if (allStudentCount.getTotalStudents() == null) {
-            throw new RuntimeException("本月无学生");
+
+        if (allStudentCount == null || StringUtils.isEmpty(allStudentCount.getTotalStudents())) {
+            allStudentCount = new DrivingBillYearMessageVo();
+            allStudentCount.setTotalStudents("0");
         }
         BigDecimal student = new BigDecimal(allStudentCount.getTotalStudents());
 
-        // 客单价修复：移除多余multiply("100")
-        BigDecimal scale = StudentTotalIncome.divide(student, 1, RoundingMode.HALF_UP);
+        // 6. 计算客单价（防止除零）
+        BigDecimal scale = BigDecimal.ZERO;
+        if (student.compareTo(BigDecimal.ZERO) > 0) {
+            scale = StudentTotalIncome.divide(student, 1, RoundingMode.HALF_UP);
+        }
 
-        // 上个月时间修复：自动跨年度
+        // 7. 查询上个月数据
         LocalDate lastMonthFirstDay = firstDay.minusMonths(1);
         String lastYearStr = String.valueOf(lastMonthFirstDay.getYear());
         String lastMonthFormatted = String.format("%02d", lastMonthFirstDay.getMonthValue());
@@ -538,79 +565,133 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         LocalDate lastmonthDay = lastFirstDay.plusMonths(1).minusDays(1);
         String end = lastmonthDay + " 23:59:59";
 
+        // 7.1 查询上月收入
         QueryWrapper<DrivingBillRecord> lastmonth = new QueryWrapper<>();
         lastmonth.between("b.create_time", lm, end);
         lastmonth.eq("b.role_id", 102);
         DrivingBillMonthMessageVo drivingBillMonthMessageVo3 = drivingBillRecordMapper.queryMonthTotalIncome(lastmonth);
-        System.out.println("本月收入" + drivingBillMonthMessageVo3.getTotalIncome());
-        if (drivingBillMonthMessageVo3.getTotalIncome() == null) {
+
+        if (drivingBillMonthMessageVo3 == null || StringUtils.isEmpty(drivingBillMonthMessageVo3.getTotalIncome())) {
+            // 上个月没有数据，抛出自定义异常
             throw new RuntimeException("不存在上个月的收入信息");
         }
         BigDecimal lastMonthTotalIncome = new BigDecimal(drivingBillMonthMessageVo3.getTotalIncome());
 
-        String divide = MonthTotalIncome.subtract(lastMonthTotalIncome).divide(lastMonthTotalIncome, 3,
-                RoundingMode.HALF_UP).multiply(new BigDecimal("100")).setScale(1, RoundingMode.HALF_UP) + "%";
-
+        // 7.2 查询上月支出
         QueryWrapper<DrivingBillRecord> qqq = new QueryWrapper<>();
         qqq.between("b.create_time", lm, end);
         qqq.eq("b.role_id", 101);
         DrivingBillMonthMessageVo lastMonthExpenditure = drivingBillRecordMapper.queryMonthTotalExpenditure(qqq);
-        System.out.println("上月支出" + lastMonthExpenditure.getTotalExpense());
-        if (queried.getTotalExpense() == null) {
-            throw new RuntimeException("不存在上个月份的支出信息");
+
+        if (lastMonthExpenditure == null || StringUtils.isEmpty(lastMonthExpenditure.getTotalExpense())) {
+            // 上个月没有支出数据
+            throw new RuntimeException("不存在上个月的支出信息");
         }
         BigDecimal lastTotalExpense = new BigDecimal(lastMonthExpenditure.getTotalExpense());
 
-        String string = MonthTotalExpenditure.subtract(lastTotalExpense).divide(lastTotalExpense, 3,
-                RoundingMode.HALF_UP).multiply(new BigDecimal("100")).setScale(1, RoundingMode.HALF_UP) + "%";
+        // 8. 计算增长率（防止除零）
+        String divide = "0%";
+        if (lastMonthTotalIncome.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal growth = MonthTotalIncome.subtract(lastMonthTotalIncome)
+                    .divide(lastMonthTotalIncome, 3, RoundingMode.HALF_UP)
+                    .multiply(new BigDecimal("100"))
+                    .setScale(1, RoundingMode.HALF_UP);
+            divide = growth + "%";
+        }
 
-        BigDecimal decimal = lastMonthTotalIncome.subtract(lastTotalExpense);
+        // 9. 计算支出增长率
+        String string = "0%";
+        if (lastTotalExpense.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal expenseGrowth = MonthTotalExpenditure.subtract(lastTotalExpense)
+                    .divide(lastTotalExpense, 3, RoundingMode.HALF_UP)
+                    .multiply(new BigDecimal("100"))
+                    .setScale(1, RoundingMode.HALF_UP);
+            string = expenseGrowth + "%";
+        }
 
-        String s = subtract.subtract(decimal).divide(decimal, 3, RoundingMode.HALF_UP).multiply(new BigDecimal("100"))
-                .setScale(1, RoundingMode.HALF_UP) + "%";
+        BigDecimal lastMonthNetProfit = lastMonthTotalIncome.subtract(lastTotalExpense);
 
+        // 10. 计算净利润增长率
+        String s = "0%";
+        if (lastMonthNetProfit.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal profitGrowth = subtract.subtract(lastMonthNetProfit)
+                    .divide(lastMonthNetProfit, 3, RoundingMode.HALF_UP)
+                    .multiply(new BigDecimal("100"))
+                    .setScale(1, RoundingMode.HALF_UP);
+            s = profitGrowth + "%";
+        }
+
+        // 11. 查询上月学员缴费
         QueryWrapper<DrivingBillRecord> stupay = new QueryWrapper<>();
         stupay.between("b.create_time", lm, end);
         stupay.eq("b.role_id", 102);
         stupay.eq("b.charge_ltem_id", 1);
         DrivingBillMonthMessageVo stupayVo = drivingBillRecordMapper.queryStudentTotalIncome(stupay);
-        System.out.println("上月学员缴费" + stupayVo.getStudentPayment());
-        if (stupayVo.getStudentPayment() == null) {
+
+        if (stupayVo == null || StringUtils.isEmpty(stupayVo.getStudentPayment())) {
             throw new RuntimeException("不存在上月学员缴费");
         }
         BigDecimal lastMonthStudentPay = new BigDecimal(stupayVo.getStudentPayment());
 
-        String string1 = StudentTotalIncome.subtract(lastMonthStudentPay).divide(lastMonthStudentPay, 3, RoundingMode.HALF_UP)
-                .multiply(new BigDecimal("100")).setScale(1, RoundingMode.HALF_UP) + "%";
+        // 12. 计算学员缴费增长率
+        String string1 = "0%";
+        if (lastMonthStudentPay.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal studentPaymentGrowth = StudentTotalIncome.subtract(lastMonthStudentPay)
+                    .divide(lastMonthStudentPay, 3, RoundingMode.HALF_UP)
+                    .multiply(new BigDecimal("100"))
+                    .setScale(1, RoundingMode.HALF_UP);
+            string1 = studentPaymentGrowth + "%";
+        }
 
+        // 13. 查询上月其他收入
         QueryWrapper<DrivingBillRecord> other = new QueryWrapper<>();
         other.between("b.create_time", lm, end);
         other.eq("b.role_id", 102);
         other.ne("b.charge_ltem_id", 1);
         DrivingBillMonthMessageVo studentPay = drivingBillRecordMapper.queryNotStudentTotalIncome(other);
-        System.out.println("上月其他收入" + studentPay.getOtherIncome());
-        if (studentPay.getOtherIncome() == null) {
+
+        if (studentPay == null || StringUtils.isEmpty(studentPay.getOtherIncome())) {
             throw new RuntimeException("不存在上月其他收入");
         }
         BigDecimal notStudentTotalIncome = new BigDecimal(studentPay.getOtherIncome());
 
-        String string2 = noStudentTotalIncome.subtract(notStudentTotalIncome).divide(noStudentTotalIncome, 3, RoundingMode.HALF_UP)
-                .multiply(new BigDecimal("100")).setScale(1, RoundingMode.HALF_UP) + "%";
+        // 14. 计算其他收入增长率
+        String string2 = "0%";
+        if (notStudentTotalIncome.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal otherIncomeGrowth = noStudentTotalIncome.subtract(notStudentTotalIncome)
+                    .divide(notStudentTotalIncome, 3, RoundingMode.HALF_UP)
+                    .multiply(new BigDecimal("100"))
+                    .setScale(1, RoundingMode.HALF_UP);
+            string2 = otherIncomeGrowth + "%";
+        }
 
+        // 15. 查询上月学生数量
         QueryWrapper<DrivingBillRecord> count = new QueryWrapper<>();
         count.between("s.create_time", lm, end);
         DrivingBillYearMessageVo lastStudentCount = drivingBillRecordMapper.queryAllStudentCount(count);
-        System.out.println("shang月学生数" + lastStudentCount.getTotalStudents());
-        if (lastStudentCount.getTotalStudents() == null) {
-            throw new RuntimeException("shang月无学生");
+
+        if (lastStudentCount == null || StringUtils.isEmpty(lastStudentCount.getTotalStudents())) {
+            throw new RuntimeException("上月无学生");
         }
-        BigDecimal lastCount = new BigDecimal(allStudentCount.getTotalStudents());
+        BigDecimal lastCount = new BigDecimal(lastStudentCount.getTotalStudents());
 
-        BigDecimal lastScale = lastMonthStudentPay.divide(lastCount, 1, RoundingMode.HALF_UP);
+        // 16. 计算上月客单价
+        BigDecimal lastScale = BigDecimal.ZERO;
+        if (lastCount.compareTo(BigDecimal.ZERO) > 0) {
+            lastScale = lastMonthStudentPay.divide(lastCount, 1, RoundingMode.HALF_UP);
+        }
 
-        String string3 = scale.subtract(lastScale).divide(lastScale, 3, RoundingMode.HALF_UP).multiply(new BigDecimal("100"))
-                .setScale(1, RoundingMode.HALF_UP) + "%";
+        // 17. 计算客单价增长率
+        String string3 = "0%";
+        if (lastScale.compareTo(BigDecimal.ZERO) > 0 && scale.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal priceGrowth = scale.subtract(lastScale)
+                    .divide(lastScale, 3, RoundingMode.HALF_UP)
+                    .multiply(new BigDecimal("100"))
+                    .setScale(1, RoundingMode.HALF_UP);
+            string3 = priceGrowth + "%";
+        }
 
+        // 18. 构造返回结果
         DrivingBillMonthMessageVo drivingBillMonthMessageVo1 = new DrivingBillMonthMessageVo();
         drivingBillMonthMessageVo1.setTotalIncome(MonthTotalIncome.toString());
         drivingBillMonthMessageVo1.setIncomeGrowth(divide);
@@ -627,7 +708,6 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
 
         return drivingBillMonthMessageVo1;
     }
-
     @Override
     public List<DrivingGroupMonthVo> queryIncomeTrendByYear(String year) {
         String yearNumber = year.replaceAll("[^0-9]", "");

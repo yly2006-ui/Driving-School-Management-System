@@ -1,16 +1,22 @@
 package com.mashang.mashangdriving.controller.manager;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mashang.mashangdriving.domain.entity.DrivingBillRecord;
+import com.mashang.mashangdriving.domain.entity.DrivingPay;
+import com.mashang.mashangdriving.domain.entity.MashangSysRole;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingBillRecordQuery;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingBillMonthMessageVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingBillRecordListVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingBillYearMessageVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingGroupMonthVo;
 import com.mashang.mashangdriving.service.manager.IDrivingBillRecordService;
+import com.mashang.mashangdriving.service.manager.IMashangSysRoleService;
+import com.mashang.mashangdriving.service.student.IPayService;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
+import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.page.PageQuery;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
@@ -21,16 +27,14 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 
@@ -42,6 +46,13 @@ public class DrivingBillRecordController extends BaseController {
 
     @Autowired
     private IDrivingBillRecordService drivingBillRecordService;
+
+    @Autowired
+    private IPayService payService;
+    @Autowired
+    private IMashangSysRoleService mashangSysRoleService;
+
+
 
     @ApiOperation("分页查询财务信息")
     @GetMapping("/list")
@@ -120,6 +131,48 @@ public class DrivingBillRecordController extends BaseController {
     public TableDataInfo<List<DrivingGroupMonthVo>> queryIncomeTrend(@RequestParam String year) {
         List<DrivingGroupMonthVo> trendList = drivingBillRecordService.queryIncomeTrendByYear(year);
         return getDataTable(trendList);
+    }
+
+
+    @ApiOperation("查询支付记录")
+    @GetMapping("select/pay")
+    public TableDataInfo<DrivingPay>select(@Validated PageQuery pageQuery){
+        Page<DrivingPay>page=new Page<>(pageQuery.getPageNum(),pageQuery.getPageSize());
+        LambdaQueryWrapper<DrivingPay>drivingPayLambdaQueryWrapper=new LambdaQueryWrapper<>();
+        drivingPayLambdaQueryWrapper.eq(DrivingPay::getBillStatus,"0");
+        drivingPayLambdaQueryWrapper.orderByDesc(DrivingPay::getCreateTime);
+        Page<DrivingPay> payPage = payService.page(page,drivingPayLambdaQueryWrapper);
+        return getDataTable(payPage.getRecords(), payPage.getTotal());
+    }
+
+
+
+    @PostMapping("/save/{payId}")
+    @ApiOperation("添加账单记录")
+    public R save(@PathVariable Long payId){
+        DrivingPay pay = payService.getById(payId);
+        Long payPayId = pay.getPayId();
+        Long userId = pay.getUserId();
+        Long chargeLtemId = pay.getChargeLtemId();
+        MashangSysRole role = mashangSysRoleService.getById(userId);
+        Long roleId = role.getRoleId();
+        DrivingBillRecord drivingBillRecord=new DrivingBillRecord();
+        drivingBillRecord.setUserId(userId);
+        drivingBillRecord.setChargeLtemId(chargeLtemId);
+        drivingBillRecord.setCreateTime(new Date());
+        drivingBillRecord.setDelFlag("0");
+        drivingBillRecord.setRoleId(roleId);
+        drivingBillRecord.setPayId(payPayId);
+        LambdaQueryWrapper<DrivingBillRecord>lambdaQueryWrapper=new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(DrivingBillRecord::getPayId,payId);
+        DrivingBillRecord one = drivingBillRecordService.getOne(lambdaQueryWrapper);
+        if (one!=null){
+           return R.fail("支付记录为"+payId+"已经加入账单记录");
+        }
+
+        boolean save = drivingBillRecordService.save(drivingBillRecord);
+        return toR(save);
+
     }
 
 }

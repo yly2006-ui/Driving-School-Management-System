@@ -19,4 +19,5 @@ public class DrivingPay {
   private Date createTime;
   private String payNo;
   private String status;
+  private String billStatus;
 }
