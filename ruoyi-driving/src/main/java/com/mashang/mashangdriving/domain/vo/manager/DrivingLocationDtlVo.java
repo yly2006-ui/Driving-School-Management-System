@@ -19,6 +19,8 @@ public class DrivingLocationDtlVo {
     @ApiModelProperty(value = "地区ID", example = "110000", notes = "关联地区表")
     private Long areaId;
 
+    private String areaName;
+
     @ApiModelProperty(value = "地点类型ID", example = "1", notes = "关联字典表")
     private String locationTypeId;
     @ApiModelProperty(value = "地点类型名称",example = "体育场")

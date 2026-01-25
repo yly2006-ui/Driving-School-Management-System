@@ -1,6 +1,7 @@
 package com.mashang.mashangdriving.service.impl.manager;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mashang.mashangdriving.domain.entity.DrivingBillRecord;
@@ -22,6 +23,8 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordMapper, DrivingBillRecord> implements IDrivingBillRecordService {
@@ -30,50 +33,183 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
     @Autowired
     private DrivingCourseAttributeMapper drivingCourseAttributeMapper;
 
-    @Override
     public Page<DrivingBillRecordListVo> queryBillRecord(Page<DrivingBillRecordListVo> page,
                                                          @Param("query") DrivingBillRecordQuery query) {
-        String endTime = query.getEndTime();
-        String beginTime = query.getBeginTime();
-        String s3 = endTime.replaceAll("[^0-9]", "-");
-        String s4 = beginTime.replaceAll("[^0-9]", "-");
         QueryWrapper<DrivingBillRecord> queryWrapper = new QueryWrapper<>();
+
+        // 1. 基本条件
         queryWrapper.like(StringUtils.isNotEmpty(query.getUserName()),
                 "driving_student.student_name", query.getUserName());
         queryWrapper.eq(StringUtils.isNotNull(query.getRoleId()), "role.role_id", query.getRoleId());
         queryWrapper.eq(StringUtils.isNotNull(query.getPaymentMethod()), "pay.pay_type", query.getPaymentMethod());
         queryWrapper.orderByDesc("pay.create_time");
-        if (StringUtils.isNotEmpty(s4) && StringUtils.isNotEmpty(s3)) {
-            String s1 = s4 + " 00:00:00";
-            String s2 = s3 + " 23:59:59";
-            queryWrapper.between("pay.create_time", s1, s2);
-        } else if (StringUtils.isNotEmpty(s3)) {
-            String s = s3 + " 00:00:00";
-            String e = s3 + " 23:59:59";
-            queryWrapper.between("pay.create_time", s, e);
-        } else if (StringUtils.isNotEmpty(s4)) {
-            String s = s4 + " 00:00:00";
-            String e = s4 + " 23:59:59";
-            queryWrapper.between("pay.create_time", s, e);
-        } else {
-            System.out.println("查全部");
-        }
 
+        // 2. 处理时间条件
+        handleTimeCondition(query, queryWrapper);
+
+        // 3. 执行查询
         Page<DrivingBillRecordListVo> queried = drivingBillRecordMapper.queryBillRecord(page, queryWrapper);
-        for (DrivingBillRecordListVo record : queried.getRecords()) {
-            if (record.getRoleName().equals("教练")) {
-                String s = "-" + record.getAmount();
-                record.setFinalAmount(s);
-            } else {
-                if (record.getRoleName().equals("学员")) {
-                    String s = "+" + record.getAmount();
-                    record.setFinalAmount(s);
+
+        // 4. 处理金额格式
+        if (queried != null && CollectionUtils.isNotEmpty(queried.getRecords())) {
+            for (DrivingBillRecordListVo record : queried.getRecords()) {
+                if ("教练".equals(record.getRoleName())) {
+                    record.setFinalAmount("-" + record.getAmount());
+                } else if ("学员".equals(record.getRoleName())) {
+                    record.setFinalAmount("+" + record.getAmount());
                 }
             }
         }
+
         return queried;
     }
 
+    /**
+     * 处理时间条件
+     * 逻辑：
+     * 1. 都没传时间 → 查全部
+     * 2. 只有开始时间 → 查开始时间之后的所有记录
+     * 3. 只有结束时间 → 查结束时间之前的所有记录
+     * 4. 都有 → 查时间段内的记录
+     */
+    private void handleTimeCondition(DrivingBillRecordQuery query, QueryWrapper<DrivingBillRecord> queryWrapper) {
+        String endTime = query.getEndTime();
+        String beginTime = query.getBeginTime();
+
+        // 1. 都有：查询时间段内的记录
+        if (StringUtils.isNotEmpty(beginTime) && StringUtils.isNotEmpty(endTime)) {
+            String startDate = parseDate(beginTime) + " 00:00:00";
+            String endDate = parseDate(endTime) + " 23:59:59";
+            queryWrapper.between("pay.create_time", startDate, endDate);
+        }
+        // 2. 只有结束时间：查询结束时间之前的所有记录
+        else if (StringUtils.isNotEmpty(endTime)) {
+            String endDate = parseDate(endTime) + " 23:59:59";
+            queryWrapper.le("pay.create_time", endDate);  // create_time <= endDate
+        }
+        // 3. 只有开始时间：查询开始时间之后的所有记录
+        else if (StringUtils.isNotEmpty(beginTime)) {
+            String startDate = parseDate(beginTime) + " 00:00:00";
+            queryWrapper.ge("pay.create_time", startDate);  // create_time >= startDate
+        }
+        // 4. 都没传：不加时间条件，查全部
+    }
+
+    /**
+     * 解析日期字符串，统一格式为yyyy-MM-dd，并自动补零
+     * 支持格式：
+     * 1. yyyy-MM-dd (2024-01-05)
+     * 2. yyyy/MM/dd (2024/1/5)
+     * 3. yyyy年MM月dd日 (2024年1月5日)
+     * 4. yyyyMMdd (20240105)
+     */
+    private String parseDate(String dateStr) {
+        if (StringUtils.isEmpty(dateStr)) {
+            return "";
+        }
+
+        try {
+            // 清理所有非数字字符
+            String cleanDate = dateStr.replaceAll("[^0-9]", "");
+
+            if (cleanDate.length() >= 8) {
+                // 格式化为 yyyy-MM-dd，自动补零
+                String year = cleanDate.substring(0, 4);
+
+                // 处理月份（可能需要补零）
+                String month = cleanDate.substring(4, 6);
+                if (month.length() == 1) {
+                    month = "0" + month;
+                } else if (month.startsWith("0")) {
+                    // 如果已经是两位数，但第一个是0，确保格式正确
+                    month = String.format("%02d", Integer.parseInt(month));
+                }
+
+                // 处理日期（可能需要补零）
+                String day = cleanDate.substring(6, 8);
+                if (day.length() == 1) {
+                    day = "0" + day;
+                } else if (day.startsWith("0")) {
+                    // 如果已经是两位数，但第一个是0，确保格式正确
+                    day = String.format("%02d", Integer.parseInt(day));
+                }
+
+                return year + "-" + month + "-" + day;
+            } else if (cleanDate.length() == 7) {
+                // 处理类似 2024015 这种格式（2024年1月5日去掉非数字后）
+                String year = cleanDate.substring(0, 4);
+
+                // 处理月份和日期（单个数字）
+                String monthPart = cleanDate.substring(4, 5);
+                String dayPart = cleanDate.substring(5);
+
+                // 自动补零
+                String month = String.format("%02d", Integer.parseInt(monthPart));
+                String day = String.format("%02d", Integer.parseInt(dayPart));
+
+                return year + "-" + month + "-" + day;
+            } else if (cleanDate.length() == 6) {
+                // 处理类似 240105 这种短格式
+                if (cleanDate.startsWith("2")) {
+                    // 假设是 20240105 缺少了两位
+                    String year = "20" + cleanDate.substring(0, 2);
+                    String month = String.format("%02d", Integer.parseInt(cleanDate.substring(2, 4)));
+                    String day = String.format("%02d", Integer.parseInt(cleanDate.substring(4)));
+                    return year + "-" + month + "-" + day;
+                }
+            }
+        } catch (Exception e) {
+            log.error("日期解析错误: {}");
+            // 如果解析失败，尝试其他方式
+            return tryOtherDateFormat(dateStr);
+        }
+
+        return dateStr; // 如果都不匹配，返回原字符串
+    }
+
+    /**
+     * 尝试其他日期格式解析
+     */
+    private String tryOtherDateFormat(String dateStr) {
+        try {
+            // 尝试解析常见格式
+            if (dateStr.contains("年") && dateStr.contains("月") && dateStr.contains("日")) {
+                // 处理中文格式：2024年1月5日
+                Pattern pattern = Pattern.compile("(\\d{4})年(\\d{1,2})月(\\d{1,2})日");
+                Matcher matcher = pattern.matcher(dateStr);
+                if (matcher.find()) {
+                    String year = matcher.group(1);
+                    String month = String.format("%02d", Integer.parseInt(matcher.group(2)));
+                    String day = String.format("%02d", Integer.parseInt(matcher.group(3)));
+                    return year + "-" + month + "-" + day;
+                }
+            } else if (dateStr.contains("-")) {
+                // 处理 2024-1-5 这种格式
+                String[] parts = dateStr.split("-");
+                if (parts.length == 3) {
+                    String year = parts[0];
+                    String month = String.format("%02d", Integer.parseInt(parts[1]));
+                    String day = String.format("%02d", Integer.parseInt(parts[2]));
+                    return year + "-" + month + "-" + day;
+                }
+            } else if (dateStr.contains("/")) {
+                // 处理 2024/1/5 这种格式
+                String[] parts = dateStr.split("/");
+                if (parts.length == 3) {
+                    String year = parts[0];
+                    String month = String.format("%02d", Integer.parseInt(parts[1]));
+                    String day = String.format("%02d", Integer.parseInt(parts[2]));
+                    return year + "-" + month + "-" + day;
+                }
+            }
+        } catch (Exception e) {
+            log.error("其他日期格式解析错误: {}");
+        }
+
+        // 如果所有解析都失败，返回原字符串，但记录警告
+        log.warn("无法解析的日期格式: {}");
+        return dateStr;
+    }
     //年报表
     @Override
     public DrivingBillYearMessageVo queryAll(String year) {

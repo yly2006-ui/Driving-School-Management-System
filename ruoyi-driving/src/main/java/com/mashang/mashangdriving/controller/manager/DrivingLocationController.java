@@ -98,7 +98,11 @@ public class DrivingLocationController extends BaseController {
         // 以下代码保持不变
         lqw.eq(StringUtils.isNotEmpty(drivingLocationQuery.getStatus()), DrivingLocation::getStatus,
                 drivingLocationQuery.getStatus());
+        String locationTypeId = drivingLocationQuery.getLocationTypeId();
+        lqw.eq(StringUtils.isNotEmpty(locationTypeId),DrivingLocation::getLocationTypeId,locationTypeId);
         lqw.eq(DrivingLocation::getDelFlag, 0);
+
+
         lqw.orderByDesc(DrivingLocation::getLocationId);
 
         Page<DrivingLocationListVo> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
@@ -118,35 +122,62 @@ public class DrivingLocationController extends BaseController {
     @GetMapping("dtl/{locationId}")
     public  R dtl(@PathVariable Long locationId){
         DrivingLocation byId = drivingLocationService.getById(locationId);
-        DrivingLocationDtlVo dtl = DrivingLocationMapping.INSTANCE.toDtl(byId);
 
-        if (dtl!=null){
-            String s = dictDataService.selectDictLabel("place_status", dtl.getStatus());
-            dtl.setStatusName(s);
-            String typeName = dictDataService.selectDictLabel("place_type", dtl.getLocationTypeId());
-            dtl.setLocationTypeName(typeName);
+
+        DrivingLocationDtlVo dtl = DrivingLocationMapping.INSTANCE.toDtl(byId);
+        Long areaId = byId.getAreaId();
+        // 1. 检查县级区域
+        Area county = areaService.getById(areaId);
+        if (county == null) {
+            dtl.setAreaName("未知区域");
             return R.ok(dtl);
-        }return R.fail();
+        }
+
+        // 2. 检查市级区域
+        Long parentId = county.getParentId();
+        Area city = null;
+        if (parentId != null && parentId != 0) {
+            city = areaService.getById(parentId);
+        }
+        // 3. 检查省级区域
+        Area area = null;
+        if (city != null && city.getParentId() != null && city.getParentId() != 0) {
+            area = areaService.getById(city.getParentId());
+        }
+        if (city!=null&&area!=null){
+        dtl.setAreaName(area.getName()+city.getName()+county.getName());
+        }else if (city!=null){
+            dtl.setAreaName(city.getName()+county.getName());
+        }else {
+            dtl.setAreaName(county.getName());
+        }
+
+
+        String s = dictDataService.selectDictLabel("place_status", dtl.getStatus());
+        dtl.setStatusName(s);
+        String typeName = dictDataService.selectDictLabel("place_type", dtl.getLocationTypeId());
+        dtl.setLocationTypeName(typeName);
+        return R.ok(dtl);
     }
 
 
-    @ApiOperation("查询所有省")
-    @GetMapping("area/select")
-    public R<List<AreaListVO>>select(){
+    @ApiOperation("查询所有省或市或县")
+    @GetMapping("area/select/{level}")
+    public R<List<AreaListVO>>select(@ApiParam("行政级别：1是省级，2是市级，3是县级")@PathVariable Long level){
         LambdaQueryWrapper<Area>areaLambdaQueryWrapper=new LambdaQueryWrapper<>();
-        areaLambdaQueryWrapper.eq(Area::getLevel,"1");
+        areaLambdaQueryWrapper.eq(Area::getLevel,level);
         List<Area> list = areaService.list(areaLambdaQueryWrapper);
 
         if (CollectionUtils.isEmpty(list)){
-            return R.fail("未查询到省份");
+            return R.fail("未查询到省份或市或县");
         }
         return R.ok(AreaMapping.INSTANCE.tolist(list));
 
     }
 
     @ApiOperation("查询所有市")
-    @GetMapping("city/select")
-    public R<List<AreaListVO>>selectCity(@ApiParam("省id") Long parentId){
+    @GetMapping("city/select/{parentId}")
+    public R<List<AreaListVO>>selectCity(@ApiParam("省id")@PathVariable Long parentId){
 
         LambdaQueryWrapper<Area>areaLambdaQueryWrapper=new LambdaQueryWrapper<>();
         areaLambdaQueryWrapper.eq(Area::getLevel,"2");
@@ -161,8 +192,8 @@ public class DrivingLocationController extends BaseController {
     }
 
     @ApiOperation("查询所有县")
-    @GetMapping("county/select")
-    public R<List<AreaListVO>>selectcounty(@ApiParam("市id") Long parentId){
+    @GetMapping("county/select/{parentId}")
+    public R<List<AreaListVO>>selectcounty(@ApiParam("市id")@PathVariable Long parentId){
 
         LambdaQueryWrapper<Area>areaLambdaQueryWrapper=new LambdaQueryWrapper<>();
         areaLambdaQueryWrapper.eq(Area::getLevel,"3");

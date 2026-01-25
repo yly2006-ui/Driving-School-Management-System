@@ -18,7 +18,7 @@ public class DrivingBillRecordQuery {
 //    private Date endTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd ")
-    @ApiModelProperty(value = "开始时间", example = "2024-01-10")
+    @ApiModelProperty(value = "开始时间，应当传递标准时间格式", example = "2024-01-10")
     private String beginTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd ")
