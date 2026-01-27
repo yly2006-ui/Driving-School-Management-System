@@ -1,7 +1,7 @@
 pipeline {
     agent any
     tools {
-        jdk 'jdk8'
+        jdk 'jdk17'
     }
     environment {
         APP_NAME = 'server-339' // 修改APP名字
