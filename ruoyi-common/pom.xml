@@ -64,14 +64,21 @@
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.alipay.sdk/alipay-easysdk -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.5.5.Final</version>
+        </dependency>
 
 
 
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
             <scope>provided</scope>
         </dependency>
+
         <!-- 自定义验证注解 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mashang.mashangdriving.mapper.manager.DrivingBillRecordMapper">
+    <resultMap id="DrivingBillRecordListVo" type="com.mashang.mashangdriving.domain.vo.manager.DrivingBillRecordListVo">
+        <id property="recordId" column="record_id"/>
+        <result property="userName" column="student_name"/>
+        <result property="chargeItem" column="charge_ltem_name"/>
+        <result property="amount" column="amount"/>
+        <result property="roleName" column="role_name"/>
+        <result property="paymentMethod" column="pay_type"/>
+        <result property="paymentTime" column="create_time"/>
+
+    </resultMap>
+    <select id="queryBillRecord" resultMap="DrivingBillRecordListVo">
+
+        SELECT  r.record_id,
+        driving_student.student_name,
+        l.charge_ltem_name,
+        role.role_name,
+        l.amount ,
+        pay.pay_type,
+        pay.create_time
+        FROM `driving_bill_record` r
+        LEFT JOIN driving_charge_ltem l
+        ON r.charge_ltem_id=l.charge_ltem_id
+        LEFT JOIN sys_role role
+        ON r.role_id=role.role_id
+        LEFT JOIN driving_pay pay
+        ON pay.pay_id=r.pay_id
+        LEFT JOIN driving_student
+        ON r.user_id=driving_student.user_id
+        <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
+        ${ew.customSqlSegment}
+<!--        &lt;!&ndash; 动态条件构造（等同于 QueryWrapper 的功能） &ndash;&gt;-->
+<!--        <where>-->
+<!--            &lt;!&ndash; 学员姓名：非空才拼接条件，支持模糊查询 &ndash;&gt;-->
+<!--            <if test="query.userName != null and query.userName != ''">-->
+<!--                AND driving_student.student_name LIKE CONCAT('%', #{query.userName}, '%')-->
+<!--            </if>-->
+<!--            &lt;!&ndash; 角色名称id：精确匹配 &ndash;&gt;-->
+<!--            <if test="query.roleId != null and query.roleId!= 0">-->
+<!--                AND role.role_id = #{query.roleId}-->
+<!--            </if>-->
+<!--            &lt;!&ndash; 支付方式：精确匹配 &ndash;&gt;-->
+<!--            <if test="query.paymentMethod != null and query.paymentMethod != ''">-->
+<!--                AND pay.pay_type = #{query.paymentMethod}-->
+<!--            </if>-->
+
+<!--            &lt;!&ndash; 支付时间：范围查询（替换原LIKE逻辑） &ndash;&gt;-->
+<!--            <if test="query.beginTime != null and query.endTime != null">-->
+<!--                AND pay.create_time BETWEEN #{query.beginTime} AND #{query.endTime}-->
+<!--            </if>-->
+<!--        </where>-->
+    </select>
+
+
+    <select id="queryAnnualTotalIncome"
+            resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillYearMessageVo">
+        -- 这是查询收入
+        SELECT
+        IFNULL(SUM(c.amount), 0) annual_total_income
+        FROM driving_charge_ltem c
+                 LEFT JOIN driving_bill_record b
+                           ON c.charge_ltem_id=b.charge_ltem_id
+                 LEFT JOIN driving_pay p
+                           ON p.pay_id=b.pay_id
+        <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
+        ${ew.customSqlSegment}
+--         WHERE
+--             b.role_id = 102
+    </select>
+    <select id="queryAnnualTotalExpenditure"
+            resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillYearMessageVo">
+        -- 支出
+        SELECT
+        IFNULL(SUM(c.amount), 0) annual_total_expenditure
+        FROM driving_charge_ltem c
+                 LEFT JOIN driving_bill_record b
+                           ON c.charge_ltem_id=b.charge_ltem_id
+                 LEFT JOIN driving_pay p
+                           ON p.pay_id=b.pay_id
+        <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
+        ${ew.customSqlSegment}
+--         WHERE
+--             b.role_id = 101
+    </select>
+    <select id="queryAllStudentCount"
+            resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillYearMessageVo">
+        SELECT COUNT(*) total_students
+        FROM driving_student s
+--         LEFT JOIN driving_bill_record b
+--         ON b.user_id=s.user_id
+        <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
+        ${ew.customSqlSegment}
+    </select>
+
+
+    <select id="queryMonthTotalIncome"
+            resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillMonthMessageVo">
+        -- 这是查询月收入
+        SELECT
+        IFNULL(SUM(c.amount), 0) total_income
+        FROM driving_charge_ltem c
+        LEFT JOIN driving_bill_record b
+        ON c.charge_ltem_id=b.charge_ltem_id
+        LEFT JOIN driving_pay p
+        ON p.pay_id=b.pay_id
+        <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
+        ${ew.customSqlSegment}
+    </select>
+    <select id="queryMonthTotalExpenditure"
+            resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillMonthMessageVo">
+        -- 月支出
+        SELECT
+        IFNULL(SUM(c.amount), 0) total_expense
+        FROM driving_charge_ltem c
+        LEFT JOIN driving_bill_record b
+        ON c.charge_ltem_id=b.charge_ltem_id
+        LEFT JOIN driving_pay p
+        ON p.pay_id=b.pay_id
+        <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
+        ${ew.customSqlSegment}
+    </select>
+    <select id="queryStudentTotalIncome"
+            resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillMonthMessageVo">
+        SELECT
+        IFNULL(SUM(c.amount), 0) studentPayment
+        FROM driving_charge_ltem c
+        LEFT JOIN driving_bill_record b
+        ON c.charge_ltem_id=b.charge_ltem_id
+        LEFT JOIN driving_pay p
+        ON p.pay_id=b.pay_id
+        <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
+        ${ew.customSqlSegment}
+    </select>
+    <select id="queryNotStudentTotalIncome"
+            resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingBillMonthMessageVo">
+        SELECT
+            IFNULL(SUM(c.amount), 0) otherIncome
+        FROM driving_charge_ltem c
+                 LEFT JOIN driving_bill_record b
+                           ON c.charge_ltem_id=b.charge_ltem_id
+                 LEFT JOIN driving_pay p
+                           ON p.pay_id=b.pay_id
+            ${ew.customSqlSegment}
+    </select>
+    <select id="queryIncomeByYearGroupByMonth"
+            resultType="com.mashang.mashangdriving.domain.vo.manager.DrivingGroupMonthVo">
+        <!-- 新增：按年+月分组查询月收入 -->
+            SELECT
+                DATE_FORMAT(b.create_time, '%Y-%m') AS month, -- 提取年月（如2025-01）
+        IFNULL(SUM(c.amount), 0) AS monthIncome -- 统计当月收入
+            FROM driving_charge_ltem c
+                LEFT JOIN driving_bill_record b ON c.charge_ltem_id = b.charge_ltem_id
+                LEFT JOIN driving_pay p ON p.pay_id = b.pay_id
+                ${ew.customSqlSegment} -- 接收年份范围、role_id等条件
+            GROUP BY DATE_FORMAT(b.create_time, '%Y-%m') -- 按年月分组
+            ORDER BY month ASC -- 按月份升序排列
+    </select>
+
+    <select id="finishedStudent" resultType="java.lang.Long">
+        SELECT COUNT(*) total_students
+        FROM driving_student s
+        <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
+        ${ew.customSqlSegment}
+    </select>
+
+
+</mapper>

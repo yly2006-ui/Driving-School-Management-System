@@ -1,5 +1,5 @@
 # 若依需要用jdk8来运行
-FROM adoptopenjdk/openjdk8:jre8u-nightly
+FROM eclipse-temurin:17-jre
 # 解决时区问题
 ENV TZ=Asia/Shanghai
 # 将jar包添加到容器中

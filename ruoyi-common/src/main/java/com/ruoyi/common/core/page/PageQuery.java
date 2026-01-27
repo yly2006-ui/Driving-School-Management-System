@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
-
 @Data
 @ApiModel("分页参数")
 public class PageQuery {
