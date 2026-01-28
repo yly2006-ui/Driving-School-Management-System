@@ -10,8 +10,12 @@ public class DrivingCarQuery {
 
   @ApiModelProperty(value = "车辆名字")
   private String carName;
-    @ApiModelProperty(value = "车牌号")
+  @ApiModelProperty(value = "车牌号")
   private String plateNumber;
+  @ApiModelProperty(value = "车辆型号")
+  private String carType;
+  @ApiModelProperty(value = "车辆状态")
+  private String status;
 
 
 }

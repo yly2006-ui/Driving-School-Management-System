@@ -10,15 +10,19 @@ import com.mashang.mashangdriving.domain.param.manager.create.DrivingCarCreate;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingCarQuery;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingCarUpdate;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingCarListVo;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingCarListVo1;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingPayRecordVo;
 import com.mashang.mashangdriving.mapper.manager.DrivingCarMapper;
 import com.mashang.mashangdriving.service.manager.IDrivingCarService;
 import com.ruoyi.common.utils.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class DrivingCarServiceImpl extends ServiceImpl<DrivingCarMapper,DrivingCar> implements IDrivingCarService {
@@ -26,6 +30,27 @@ public class DrivingCarServiceImpl extends ServiceImpl<DrivingCarMapper,DrivingC
     @Override
     public Page<DrivingCarListVo> getDrivingCarByPage(Page<DrivingCarListVo> page) {
         return baseMapper.getDrivingCarByPage(page);
+    }
+
+    @Override
+    public Map<String,Object> getCarStats(){
+        return baseMapper.getCarStatistics();
+    }
+
+    @Override
+    public DrivingCarListVo1 getOneCar(Long carId) {
+        if (carId == null) {
+            return null;
+        }
+        DrivingCarListVo1 drivingCarListVo1 = new DrivingCarListVo1();
+        LambdaQueryWrapper<DrivingCar> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DrivingCar::getCarId,carId);
+        DrivingCar drivingCar = baseMapper.selectOne(wrapper);
+        if (drivingCar == null) {
+            throw new RuntimeException("车辆不存在");
+        }
+        BeanUtils.copyProperties(drivingCar,drivingCarListVo1);
+        return drivingCarListVo1;
     }
 
     @Override
@@ -37,6 +62,12 @@ public class DrivingCarServiceImpl extends ServiceImpl<DrivingCarMapper,DrivingC
 
         if (StringUtils.hasText(drivingCarQuery.getCarName())) {
             wrapper.eq(DrivingCar::getCarName, drivingCarQuery.getCarName());
+        }
+        if (StringUtils.hasText(drivingCarQuery.getCarType())){
+            wrapper.eq(DrivingCar::getCarType, drivingCarQuery.getCarType());
+        }
+        if(StringUtils.hasText(drivingCarQuery.getStatus())){
+            wrapper.eq(DrivingCar::getStatus, drivingCarQuery.getStatus());
         }
 
         return baseMapper.selectList(wrapper);
@@ -117,13 +148,14 @@ public class DrivingCarServiceImpl extends ServiceImpl<DrivingCarMapper,DrivingC
     }
 
     @Override
-    public List<DrivingPayRecordVo> getCarPay(Long carId) {
-        List<DrivingPayRecordVo> carPay = baseMapper.getCarPay(carId);
+    public Page<DrivingPayRecordVo> getCarPay(Long carId, Page<DrivingPayRecordVo> page) {
+        Page<DrivingPayRecordVo> carPay = baseMapper.getCarPay(carId,page);
         if (carPay == null) {
             throw new RuntimeException("支付记录不存在");
         }
         return carPay;
     }
+
 
     private static DrivingCar getDrivingCar(DrivingCarCreate drivingCarCreate) {
         DrivingCar car = new DrivingCar();

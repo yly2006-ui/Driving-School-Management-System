@@ -81,4 +81,16 @@
           AND dc.del_flag = '0'
     </select>
 
+
+    <select id="getCarStatistics" resultType="java.util.Map">
+        SELECT
+            COUNT(*) as total,
+            SUM(CASE WHEN status = '0' THEN 1 ELSE 0 END) as available,
+            SUM(CASE WHEN status = '1' THEN 1 ELSE 0 END) as repair,
+            SUM(CASE WHEN status = '2' THEN 1 ELSE 0 END) as maintenance
+        FROM ms_stu_pro339.driving_car
+        WHERE del_flag = '0'
+    </select>
+
+
 </mapper>

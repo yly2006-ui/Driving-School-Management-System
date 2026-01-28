@@ -6,6 +6,7 @@ import com.mashang.mashangdriving.domain.param.manager.create.DrivingCarCreate;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingCarQuery;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingCarUpdate;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingCarListVo;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingCarListVo1;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingPayRecordVo;
 import com.mashang.mashangdriving.service.manager.IDrivingCarService;
 import com.ruoyi.common.core.controller.BaseController;
@@ -15,9 +16,11 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -35,6 +38,12 @@ public class DrivingCarController extends BaseController {
         return getDataTable(drivingCarByPage.getRecords(), drivingCarByPage.getTotal());
     }
 
+    @GetMapping("/getStats")
+    @ApiOperation("查询所有车辆状态")
+    public Map<String,Object> getCarStats(){
+        return drivingCarService.getCarStats();
+    }
+
     @GetMapping("/getCarList")
     @ApiOperation("查询车辆")
     public R getCarList(DrivingCarQuery  drivingCarQuery) {
@@ -43,6 +52,15 @@ public class DrivingCarController extends BaseController {
             return R.ok(list);
         }
         return R.fail("查询失败");
+    }
+
+    @GetMapping("/getCarOne")
+    @ApiOperation("查询车辆详情")
+    public R getOneCar(Long carId) {
+        if (Objects.isNull(carId)) {
+            return R.fail("carID不能为空");
+        }
+        return R.ok(drivingCarService.getOneCar(carId));
     }
 
     @PostMapping("/createCar")
@@ -67,15 +85,18 @@ public class DrivingCarController extends BaseController {
 
     @GetMapping
     @ApiOperation("查询车辆维修/保养记录")
-    public TableDataInfo getCar(Long carId) {
+    public TableDataInfo<DrivingPayRecordVo> getCar(Long carId,PageQuery pageQuery) {
         if (Objects.isNull(carId)) {
             throw new RuntimeException("ID不存在");
         }
-        List<DrivingPayRecordVo> carPay = drivingCarService.getCarPay(carId);
-        if (carPay != null && carPay.size() > 0) {
-            return getDataTable(carPay);
-        }
-        throw new RuntimeException("查询失败");
+        Page<DrivingPayRecordVo> objectPage = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
+        Page<DrivingPayRecordVo> carPay = drivingCarService.getCarPay(carId,objectPage);
+
+        TableDataInfo<DrivingPayRecordVo> dataInfo = new TableDataInfo<>();
+        dataInfo.setRows(carPay.getRecords());
+        dataInfo.setTotal(carPay.getTotal());
+        return dataInfo;
+
     }
 
 }
