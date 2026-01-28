@@ -28,4 +28,5 @@
 <!--        ON city.parent_id=province.id-->
 
 <!--    </select>-->
+    <select id="select" resultType="com.mashang.mashangdriving.domain.vo.manager.AreaListVO"></select>
 </mapper>

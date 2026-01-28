@@ -59,7 +59,6 @@ public class DrivingBillRecordController extends BaseController {
     public TableDataInfo<List<DrivingBillRecordListVo>> select(@Validated PageQuery pageQuery,
                                                                DrivingBillRecordQuery drivingBillRecordQuery) {
         Page<DrivingBillRecordListVo> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
-
         Page<DrivingBillRecordListVo> query = drivingBillRecordService.queryBillRecord(page, drivingBillRecordQuery);
         return getDataTable(query.getRecords(), query.getTotal());
     }
