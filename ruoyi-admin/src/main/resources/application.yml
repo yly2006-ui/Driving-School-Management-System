@@ -33,12 +33,18 @@ server:
       # Tomcat启动初始化的线程数，默认值10
       min-spare: 100
 
-# 日志配置
 logging:
   level:
+    root: info
     com.ruoyi: debug
     org.springframework: warn
-    com.mashang.mashangdriving.mapper: DEBUG  # 你的Mapper接口包路径，开启后会打印SQL
+    # 开启你的整个业务包日志（Controller+Service+Mapper）
+    com.mashang.mashangdriving: debug
+    # 单独开启MyBatis SQL打印（和上面重复，可保留，更保险）
+    com.mashang.mashangdriving.mapper: DEBUG
+    # 可选：开启MyBatis核心日志，确保SQL打印不遗漏
+    org.mybatis: debug
+    tk.mybatis: debug
 
 # 用户配置
 user:
@@ -131,7 +137,7 @@ swagger:
   # 是否开启swagger
   enabled: true
   # 请求前缀
-  pathMapping: /ms_stu_pro339
+  pathMapping: /
 
 # 防止XSS攻击
 xss:

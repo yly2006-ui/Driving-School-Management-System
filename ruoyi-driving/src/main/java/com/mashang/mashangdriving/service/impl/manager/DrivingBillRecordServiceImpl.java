@@ -1,10 +1,12 @@
 package com.mashang.mashangdriving.service.impl.manager;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mashang.mashangdriving.domain.entity.DrivingBillRecord;
+import com.mashang.mashangdriving.domain.entity.DrivingPay;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingBillRecordQuery;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingBillMonthMessageVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingBillRecordListVo;
@@ -12,16 +14,20 @@ import com.mashang.mashangdriving.domain.vo.manager.DrivingBillYearMessageVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingGroupMonthVo;
 import com.mashang.mashangdriving.mapper.manager.DrivingBillRecordMapper;
 import com.mashang.mashangdriving.mapper.student.DrivingCourseAttributeMapper;
+import com.mashang.mashangdriving.mapper.student.PayMapper;
 import com.mashang.mashangdriving.service.manager.IDrivingBillRecordService;
+import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.utils.StringUtils;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,7 +37,7 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
     @Autowired
     private DrivingBillRecordMapper drivingBillRecordMapper;
     @Autowired
-    private DrivingCourseAttributeMapper drivingCourseAttributeMapper;
+    private PayMapper payMapper;
 
     public Page<DrivingBillRecordListVo> queryBillRecord(Page<DrivingBillRecordListVo> page,
                                                          @Param("query") DrivingBillRecordQuery query) {
@@ -41,13 +47,11 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         queryWrapper.like(StringUtils.isNotEmpty(query.getUserName()),
                 "driving_student.student_name", query.getUserName());
         String roleId = query.getRoleId();
-        if ("0".equals(roleId)) {
-            queryWrapper.eq(StringUtils.isNotNull(query.getPaymentMethod()), "pay.pay_type", query.getPaymentMethod());
-            queryWrapper.orderByDesc("pay.create_time");
-        }else {
-        queryWrapper.eq(StringUtils.isNotNull(query.getRoleId()), "role.role_id", roleId);
+        if (!"0".equals(roleId)) {
+            queryWrapper.eq(StringUtils.isNotNull(query.getRoleId()), "role.role_id", roleId);
+        }
         queryWrapper.eq(StringUtils.isNotNull(query.getPaymentMethod()), "pay.pay_type", query.getPaymentMethod());
-        queryWrapper.orderByDesc("pay.create_time");}
+        queryWrapper.orderByDesc("r.create_time");
 
         // 2. 处理时间条件
         handleTimeCondition(query, queryWrapper);
@@ -740,6 +744,48 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         }
 
         return fullMonthList;
+    }
+
+    @Override
+    public Long selectRoleId(Long userId) {
+        return drivingBillRecordMapper.selectRoleId(userId);
+    }
+
+
+    @Transactional(rollbackFor =Exception.class )
+    @Override
+    public int saveDrivingBillRecord(Long payId) {
+        //查询支付表
+        DrivingPay pay = payMapper.selectById(payId);
+        Long payPayId = pay.getPayId();
+        Long userId = pay.getUserId();
+        Long chargeLtemId = pay.getChargeLtemId();
+        //查询roleid
+        Long roleId = drivingBillRecordMapper.selectRoleId(userId);
+        //构建新的账单记录
+        DrivingBillRecord drivingBillRecord = new DrivingBillRecord();
+        drivingBillRecord.setUserId(userId);
+        drivingBillRecord.setChargeLtemId(chargeLtemId);
+        drivingBillRecord.setCreateTime(new Date());
+        drivingBillRecord.setDelFlag("0");
+        drivingBillRecord.setRoleId(roleId);
+        drivingBillRecord.setPayId(payPayId);
+
+        LambdaQueryWrapper<DrivingBillRecord> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(DrivingBillRecord::getPayId, payId);
+        DrivingBillRecord one = drivingBillRecordMapper.selectOne(lambdaQueryWrapper);
+        if (one != null) {
+           throw  new RuntimeException("支付记录为" + payId + "已经加入账单记录");
+        }
+        int save = drivingBillRecordMapper.insert(drivingBillRecord);
+        int b;
+        if (save<0) {
+            throw new RuntimeException("新增失败");
+        } else {
+            pay.setBillStatus("1");
+            b = payMapper.updateById(pay);
+        }
+        return b;
     }
 
 }

@@ -29,6 +29,11 @@ public interface IDrivingBillRecordService extends IService<DrivingBillRecord> {
     //每月收入
     List<DrivingGroupMonthVo> queryIncomeTrendByYear(String year);
 
+    //查询roleid
+    Long selectRoleId(Long userId);
+
+    //新增账单记录
+    int saveDrivingBillRecord(Long payId);
 
 
 

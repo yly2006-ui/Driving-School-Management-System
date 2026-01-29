@@ -51,4 +51,7 @@ public interface DrivingBillRecordMapper extends BaseMapper<DrivingBillRecord> {
 
     //完成培训学生
     Long finishedStudent(@Param(Constants.WRAPPER) Wrapper<DrivingBillRecord> wrapper);
+
+    //查询roleid
+    Long selectRoleId(Long userId);
 }

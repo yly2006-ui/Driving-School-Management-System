@@ -49,8 +49,7 @@ public class DrivingBillRecordController extends BaseController {
 
     @Autowired
     private IPayService payService;
-    @Autowired
-    private IMashangSysRoleService mashangSysRoleService;
+
 
 
 
@@ -148,29 +147,11 @@ public class DrivingBillRecordController extends BaseController {
 
     @PostMapping("/save/{payId}")
     @ApiOperation("添加账单记录")
-    public R save(@PathVariable Long payId){
-        DrivingPay pay = payService.getById(payId);
-        Long payPayId = pay.getPayId();
-        Long userId = pay.getUserId();
-        Long chargeLtemId = pay.getChargeLtemId();
-        MashangSysRole role = mashangSysRoleService.getById(userId);
-        Long roleId = role.getRoleId();
-        DrivingBillRecord drivingBillRecord=new DrivingBillRecord();
-        drivingBillRecord.setUserId(userId);
-        drivingBillRecord.setChargeLtemId(chargeLtemId);
-        drivingBillRecord.setCreateTime(new Date());
-        drivingBillRecord.setDelFlag("0");
-        drivingBillRecord.setRoleId(roleId);
-        drivingBillRecord.setPayId(payPayId);
-        LambdaQueryWrapper<DrivingBillRecord>lambdaQueryWrapper=new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(DrivingBillRecord::getPayId,payId);
-        DrivingBillRecord one = drivingBillRecordService.getOne(lambdaQueryWrapper);
-        if (one!=null){
-           return R.fail("支付记录为"+payId+"已经加入账单记录");
-        }
+    public R save(@PathVariable Long payId) {
 
-        boolean save = drivingBillRecordService.save(drivingBillRecord);
-        return toR(save);
+        int i = drivingBillRecordService.saveDrivingBillRecord(payId);
+
+        return toR(i);
 
     }
 

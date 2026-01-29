@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 public class DrivingBillRecordQuery {
     @ApiModelProperty(value = "用户名称", example = "张三")
@@ -25,7 +27,8 @@ public class DrivingBillRecordQuery {
     @ApiModelProperty(value = "结束时间", example = "2024-01-15 ")
     private String endTime;
 
-    @ApiModelProperty(value = "用户角色id", example = "102")
+    @NotNull(message = "用户角色id不能为空")
+    @ApiModelProperty(value = "用户角色id", required = true,example = "102")
     private String roleId;
 
     @ApiModelProperty(value = "支付方式", example = "0")

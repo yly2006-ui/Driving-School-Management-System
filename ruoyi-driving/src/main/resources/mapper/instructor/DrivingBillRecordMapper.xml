@@ -20,7 +20,7 @@
         role.role_name,
         l.amount ,
         pay.pay_type,
-        pay.create_time
+        r.create_time
         FROM `driving_bill_record` r
         LEFT JOIN driving_charge_ltem l
         ON r.charge_ltem_id=l.charge_ltem_id
@@ -164,6 +164,16 @@
         FROM driving_student s
         <!-- ${ew.customSqlSegment}这个是固定写法一定要加，不然条件就无效了 -->
         ${ew.customSqlSegment}
+    </select>
+    <select id="selectRoleId" resultType="java.lang.Long">
+        SELECT DISTINCT
+            sys_role.role_id
+        FROM
+            sys_role
+                JOIN
+            driving_bill_record r
+            ON r.role_id=sys_role.role_id
+        WHERE r.user_id=1001
     </select>
 
 
