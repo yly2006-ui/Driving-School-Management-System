@@ -1,6 +1,7 @@
 package com.mashang.mashangdriving.controller.manager;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mashang.mashangdriving.domain.entity.DrivingChapter;
 import com.mashang.mashangdriving.domain.entity.DrivingCourse;
@@ -50,14 +51,15 @@ public class DrivingCourseController extends BaseController {
     public TableDataInfo<List<DrivingCourseListVo>> list(@Validated PageQuery pageQuery,
                                                          DrivingCourseQuery drivingCourseQuery) {
         Page<DrivingCourseListVo> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
-        LambdaQueryWrapper<DrivingCourse> lqw = new LambdaQueryWrapper<>();
-        lqw.like(StringUtils.isNotEmpty(drivingCourseQuery.getCourseName()), DrivingCourse::getCourseName,
+        QueryWrapper<DrivingCourse> lqw = new QueryWrapper<>();
+        lqw.like(StringUtils.isNotEmpty(drivingCourseQuery.getCourseName()), "c.course_name",
                 drivingCourseQuery.getCourseName());
         lqw.eq(StringUtils.isNotEmpty(drivingCourseQuery.getType()),
-                DrivingCourse::getType, drivingCourseQuery.getType());
+               "c.type", drivingCourseQuery.getType());
         lqw.eq(StringUtils.isNotEmpty(drivingCourseQuery.getStatus()),
-                DrivingCourse::getStatus, drivingCourseQuery.getStatus());
-        lqw.orderByDesc(DrivingCourse::getCourseId);
+                "c.status", drivingCourseQuery.getStatus());
+        lqw.eq("c.del_flag",0);
+        lqw.orderByDesc("c.course_id");
 
         Page<DrivingCourseListVo> result = drivingCourseService.query(page, lqw);
         return getDataTable(result.getRecords(), result.getTotal());

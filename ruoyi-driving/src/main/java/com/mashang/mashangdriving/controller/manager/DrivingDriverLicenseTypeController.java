@@ -40,9 +40,8 @@ public class DrivingDriverLicenseTypeController extends BaseController {
     public TableDataInfo<List<DrivingDriverLicenseTypeListVo>> list(@Validated PageQuery pageQuery,
                                                                     DrivingDriverLicenseTypeQuery driverLicenseTypeQuery){
         LambdaQueryWrapper<DrivingDriverLicenseType> lqw =new LambdaQueryWrapper<>();
-        // 核心逻辑：代码精确匹配 OR 名称模糊匹配（二选一）
-            // 用 and() 包裹 or 条件，确保只在代码/名称之间做或运算，不影响其他条件
-            lqw.and(StringUtils.isNotEmpty(driverLicenseTypeQuery.getDriverLicenseCodeOrName()),
+            // 用 nested 包裹 or 条件，确保只在代码/名称之间做或运算，不影响其他条件
+            lqw.nested(StringUtils.isNotEmpty(driverLicenseTypeQuery.getDriverLicenseCodeOrName()),
                     wrapper -> wrapper
                     // 代码精确匹配
                     .eq(DrivingDriverLicenseType::getDriverLicenseCode, driverLicenseTypeQuery.getDriverLicenseCodeOrName())
@@ -58,7 +57,7 @@ public class DrivingDriverLicenseTypeController extends BaseController {
         lqw.eq(StringUtils.isNotEmpty(driverLicenseTypeQuery.getStatus()),
                 DrivingDriverLicenseType::getStatus,driverLicenseTypeQuery.getStatus());
         //过滤是否逻辑删除
-        lqw.eq(DrivingDriverLicenseType::getDelFlag, 0);
+//        lqw.eq(DrivingDriverLicenseType::getDelFlag, 0);
         lqw.orderByDesc(DrivingDriverLicenseType::getDriverLicenseId);
 
         Page<DrivingDriverLicenseType>page =new Page<>(pageQuery.getPageNum(),pageQuery.getPageSize());

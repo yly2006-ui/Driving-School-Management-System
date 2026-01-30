@@ -52,7 +52,7 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         }
         queryWrapper.eq(StringUtils.isNotNull(query.getPaymentMethod()), "pay.pay_type", query.getPaymentMethod());
         queryWrapper.orderByDesc("r.create_time");
-
+        queryWrapper.eq("r.del_flag",0);
         // 2. 处理时间条件
         handleTimeCondition(query, queryWrapper);
 
