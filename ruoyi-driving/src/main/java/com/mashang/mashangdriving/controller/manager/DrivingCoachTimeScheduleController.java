@@ -48,7 +48,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     public R selectByUserId(){
         Long userId = SecurityUtils.getUserId();
         ProfileInfoVO profileInfoVO = mySysUserService.selectByuserId(userId);
-        return profileInfoVO != null ? R.ok() : R.fail();
+        return profileInfoVO != null ? R.ok(profileInfoVO) : R.fail();
     }
 
 
