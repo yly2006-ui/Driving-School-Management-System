@@ -11,7 +11,6 @@ import java.util.Date;
 public class DrivingCarUpdate {
     @ApiModelProperty(value = "车辆ID",required = true)
     private Long carId;
-    @NotBlank(message = "车辆名称不能为空")
     @Size(min = 2, max = 50, message = "车辆名称长度2-50")
     @ApiModelProperty(value = "车辆名字")
     private String carName;
@@ -33,5 +32,7 @@ public class DrivingCarUpdate {
     private String plateNumber;
     @ApiModelProperty(value = "车辆类型")
     private String carType;
+    @ApiModelProperty(value = "车辆状态")
+    private String status;
 
 }

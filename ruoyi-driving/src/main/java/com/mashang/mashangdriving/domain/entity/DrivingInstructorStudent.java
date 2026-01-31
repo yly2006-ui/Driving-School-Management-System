@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class DrivingInstructorStudent {
   @ApiModelProperty(value = "教练ID")

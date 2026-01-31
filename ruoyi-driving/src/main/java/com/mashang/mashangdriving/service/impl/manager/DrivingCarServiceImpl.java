@@ -14,6 +14,7 @@ import com.mashang.mashangdriving.domain.vo.manager.DrivingCarListVo1;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingPayRecordVo;
 import com.mashang.mashangdriving.mapper.manager.DrivingCarMapper;
 import com.mashang.mashangdriving.service.manager.IDrivingCarService;
+import com.ruoyi.common.core.page.PageQuery;
 import com.ruoyi.common.utils.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.parameters.P;
@@ -54,23 +55,24 @@ public class DrivingCarServiceImpl extends ServiceImpl<DrivingCarMapper,DrivingC
     }
 
     @Override
-    public List<DrivingCar> selectList(DrivingCarQuery drivingCarQuery) {
+    public Page<DrivingCar> selectList(DrivingCarQuery drivingCarQuery, PageQuery pageQuery) {
         LambdaQueryWrapper<DrivingCar> wrapper = new LambdaQueryWrapper<>();
+        Page<DrivingCar> drivingCarPage = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
         if (StringUtils.hasText(drivingCarQuery.getPlateNumber())) {
             wrapper.eq(DrivingCar::getPlateNumber, drivingCarQuery.getPlateNumber());
         }
 
         if (StringUtils.hasText(drivingCarQuery.getCarName())) {
-            wrapper.eq(DrivingCar::getCarName, drivingCarQuery.getCarName());
+            wrapper.like(DrivingCar::getCarName, drivingCarQuery.getCarName());
         }
         if (StringUtils.hasText(drivingCarQuery.getCarType())){
-            wrapper.eq(DrivingCar::getCarType, drivingCarQuery.getCarType());
+            wrapper.like(DrivingCar::getCarType, drivingCarQuery.getCarType());
         }
         if(StringUtils.hasText(drivingCarQuery.getStatus())){
             wrapper.eq(DrivingCar::getStatus, drivingCarQuery.getStatus());
         }
 
-        return baseMapper.selectList(wrapper);
+        return baseMapper.selectPage(drivingCarPage,wrapper);
     }
 
     @Override
@@ -138,6 +140,9 @@ public class DrivingCarServiceImpl extends ServiceImpl<DrivingCarMapper,DrivingC
         }
         if(StringUtils.hasText(String.valueOf(drivingCarUpdate.getFullPersion()))){
             wrapper.set(DrivingCar::getFullPersion, drivingCarUpdate.getFullPersion());
+        }
+        if(StringUtils.hasText(String.valueOf(drivingCarUpdate.getStatus()))){
+            wrapper.set(DrivingCar::getStatus, drivingCarUpdate.getStatus());
         }
         int update = baseMapper.update(null, wrapper);
         if (update < 0) {

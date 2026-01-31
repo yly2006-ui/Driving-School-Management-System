@@ -15,7 +15,6 @@ import java.util.Date;
  */
 @Data
 @ApiModel(description = "驾校学员信息")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DrivingStudentListVo  {
 
     @TableId(type = IdType.AUTO)

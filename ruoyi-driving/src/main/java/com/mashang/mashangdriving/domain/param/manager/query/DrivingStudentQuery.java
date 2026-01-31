@@ -13,16 +13,13 @@ import lombok.Data;
 @ApiModel(description = "查询学员信息")
 public class DrivingStudentQuery {
 
-    @TableId(type = IdType.AUTO)
-    @ApiModelProperty(value = "学员ID", example = "1")
-    private Long studentId;
 
-    @ApiModelProperty(value = "学员姓名", example = "张三")
+    @ApiModelProperty(value = "学员姓名", example = "张三",required = true)
     private String studentName;
 
-    @ApiModelProperty(value = "手机号码", required = true, example = "13800138000")
+    @ApiModelProperty(value = "手机号码", example = "13800138000")
     private String phone;
 
-    @ApiModelProperty(value = "身份证号", required = true, example = "110101199001011234")
+    @ApiModelProperty(value = "身份证号", example = "110101199001011234")
     private String idNumber;
 }

@@ -6,6 +6,7 @@ import com.mashang.mashangdriving.domain.param.manager.create.DrivingStudentCrea
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingStudentQuery;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingStudentManagerUpdate;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo1;
 import com.mashang.mashangdriving.service.manager.IDrivingStudentManagerService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
@@ -35,19 +36,10 @@ public class DrivingStudentManagerController extends BaseController {
 
     @GetMapping("/selectOne")
     @ApiOperation("查询学员个体")
-    public R selectOne(@RequestParam(value = "studentName", required = false) String studentName,
-                       @RequestParam(value = "phone", required = false) String phone,
-                       @RequestParam(value = "idNumber", required = false) String idNumber) throws BusinessException {
-
-        DrivingStudentQuery query = new DrivingStudentQuery();
-        query.setStudentName(studentName);
-        query.setPhone(phone);
-        query.setIdNumber(idNumber);
-
-        DrivingStudentListVo one = drivingStudentManagerService.selectOne(query);
-
+    public R selectOne(DrivingStudentQuery query )  {
+        DrivingStudentListVo1 one = drivingStudentManagerService.selectOne(query);
         if (one == null) {
-            return R.fail("查询为空");
+            return R.fail("查询数据不存在！");
         }
         return R.ok(one,"查询成功");
     }

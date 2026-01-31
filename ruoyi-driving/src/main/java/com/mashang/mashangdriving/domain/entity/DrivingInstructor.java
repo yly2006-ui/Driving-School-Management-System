@@ -9,7 +9,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class DrivingInstructor {
 
