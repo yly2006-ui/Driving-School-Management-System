@@ -10,6 +10,6 @@ import org.apache.ibatis.annotations.Param;
 
 public interface DrivingStudentManagerMapper extends BaseMapper<DrivingStudent> {
     Page<DrivingStudentListVo> getList( Page<DrivingStudentListVo> page);
-    DrivingStudentListVo1 selectOneStudent(@Param("drivingStudentQuery") DrivingStudentQuery drivingStudentQuery);
+    Page<DrivingStudentListVo1> selectOneStudent(@Param("drivingStudentQuery") DrivingStudentQuery drivingStudentQuery,Page<DrivingStudentListVo1> page);
 
 }

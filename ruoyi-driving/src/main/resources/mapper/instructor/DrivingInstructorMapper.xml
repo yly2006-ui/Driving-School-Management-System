@@ -17,6 +17,9 @@
         <result column="del_flag" property="delFlag" />
         <result column="score" property="score" />
         <result column="total_count" property="total"/>
+        <result column="student_num" property="studentNum"/>
+        <result column="driver_license_code" property="driverLicenseCode"/>
+        <result column="driver_license_name" property="driverLicenseName"/>
         <association property="drivingRating" javaType="com.mashang.mashangdriving.domain.entity.DrivingRating">
             <result column="rating_id" property="ratingId" />
             <result column="instructor_id" property="instructorId" />
@@ -51,17 +54,40 @@
     </resultMap>
 
     <select id="getList" resultMap="DrivingInstructorListVo">
-        SELECT di.instructor_id, user_id, instructor_name, phone, id_number,
+        SELECT  di.instructor_id, user_id, instructor_name, phone, id_number,
                entry_date, instructor_no, di.status, teaching_years, schedulable_time_start,
-               schedulable_time_end, no_time_start, no_time_end, photo, good_subject,
-               di.score, content, certificate, di.del_flag,dc.plate_number,
-               dr.rating_id, dr.instructor_id, student_id, contanct, dr.score,
-               COUNT(*) OVER() as total_count
+               schedulable_time_end, no_time_start, no_time_end, photo, good_subject
+               , content, certificate, di.del_flag,dc.plate_number,
+               dr.rating_id,  student_id, contanct, dr.score,
+                COALESCE((
+                             SELECT GROUP_CONCAT(DISTINCT ddlt2.driver_license_name
+                                                 ORDER BY ddlt2.driver_license_code
+                                                 SEPARATOR ',')
+                             FROM ms_stu_pro339.driving_driver_license_type_instructor ddlti2
+                                      LEFT JOIN ms_stu_pro339.driving_driver_license_type ddlt2
+                                                ON ddlt2.driver_license_id = ddlti2.driver_license_id
+                             WHERE ddlti2.instructor_id = di.instructor_id
+                         ), '') as driver_license_name,
+                COALESCE((
+                             SELECT GROUP_CONCAT(DISTINCT ddlt2.driver_license_code
+                                                 ORDER BY ddlt2.driver_license_code
+                                                 SEPARATOR ',')
+                             FROM ms_stu_pro339.driving_driver_license_type_instructor ddlti2
+                                      LEFT JOIN ms_stu_pro339.driving_driver_license_type ddlt2
+                                                ON ddlt2.driver_license_id = ddlti2.driver_license_id
+                             WHERE ddlti2.instructor_id = di.instructor_id
+                         ), '') as driver_license_code,
+               (select COUNT(*) FROM ms_stu_pro339.driving_instructor_student dis
+                                WHERE di.instructor_id=dis.instructor_id
+                                ) as student_num
+
+#                COUNT(*) OVER() as total_count
             FROM ms_stu_pro339.driving_instructor di
         LEFT JOIN ms_stu_pro339.driving_car dc ON di.instructor_id = dc.instructor_id
         LEFT JOIN ms_stu_pro339.driving_rating dr ON dr.instructor_id = di.instructor_id
         WHERE di.status = '0'
     </select>
+
     <select id="getByName" resultMap="DrivingInstructorListVo">
         SELECT di.instructor_id, user_id, instructor_name, phone, id_number,
                entry_date, instructor_no, di.status, teaching_years, schedulable_time_start,

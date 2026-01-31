@@ -72,7 +72,7 @@
     </resultMap>
 
     <select id="selectOneStudent" resultMap="DrivingStudentListVo1Result">
-        SELECT
+        SELECT DISTINCT
         ds.student_id,
         ds.student_name,
         ds.user_id,
@@ -81,7 +81,10 @@
         ddlt.driver_license_name,
         ds.phone,
         ds.emergency_phone,
-        ds.status,
+        (SELECT status
+        FROM ms_stu_pro339.driving_student
+        WHERE student_id = ds.student_id
+        ORDER BY create_time DESC LIMIT 1) as status,
         ds.id_number,
         ds.id_number_front,
         ds.id_number_back,
@@ -90,7 +93,10 @@
         ds.update_time,
         dsj.subject_id,
         dsj.subject_name,
-        dcr.finished_hours,
+        (SELECT SUM(finished_hours)
+        FROM ms_stu_pro339.driving_course_record
+        WHERE student_id = ds.student_id) as
+        finished_hours,
         dcr.status as study_status,
         di.instructor_id,
         di.instructor_name,
@@ -110,18 +116,22 @@
         ON dis.instructor_id = di.instructor_id
         <where>
             ds.del_flag = '0'
-            <if test="drivingStudentQuery.studentName!=null and drivingStudentQuery.studentName!=''">
-                AND ds.student_name LIKE CONCAT('%',#{drivingStudentQuery.studentName},'%')
-            </if>
-            <if test="drivingStudentQuery.phone!=null and drivingStudentQuery.phone!=''">
-                AND ds.phone =#{drivingStudentQuery.phone}
-            </if>
-            <if test="drivingStudentQuery.idNumber!=null and drivingStudentQuery.idNumber!=''">
-                AND ds.id_number = #{drivingStudentQuery.idNumber}
+        <if test="drivingStudentQuery.keyword!=null and drivingStudentQuery.keyword!=''">
+                AND (
+                ds.phone = #{drivingStudentQuery.keyword}
+                OR ds.id_number = #{drivingStudentQuery.keyword}
+                OR ds.student_name LIKE CONCAT('%', #{drivingStudentQuery.keyword}, '%')
+                )
+
         </if>
+            <if test="drivingStudentQuery.status != null and drivingStudentQuery.status != '' ">
+                AND ds.status = #{drivingStudentQuery.status}
+            </if>
+            <if test="drivingStudentQuery.subjectId != null and drivingStudentQuery.subjectId != '' ">
+                AND dis.subject_id = #{drivingStudentQuery.subjectId}
+            </if>
         </where>
         ORDER BY ds.student_id ASC
-        LIMIT 1
     </select>
 
     <select id="getList" resultMap="DrivingStudentListVoResult">
@@ -131,7 +141,7 @@
                 dcr.finished_hours,dcr.status,di.instructor_name,di.score,dsj.subject_name
             FROM ms_stu_pro339.driving_student ds
         LEFT JOIN ms_stu_pro339.driving_driver_license_type ddlt ON ds.driver_license_id = ddlt.driver_license_id
-            LEFT JOIN ms_stu_pro339.driving_course_record dcr ON dcr.record_id = ds.student_id
+            LEFT JOIN ms_stu_pro339.driving_course_record dcr ON dcr.student_id = ds.student_id
             LEFT JOIN ms_stu_pro339.driving_instructor_student dis ON dis.student_id = ds.student_id
                 LEFT JOIN ms_stu_pro339.driving_subject dsj ON dis.subject_id = dsj.subject_id
             LEFT JOIN ms_stu_pro339.driving_instructor di ON dis.instructor_id = di.instructor_id

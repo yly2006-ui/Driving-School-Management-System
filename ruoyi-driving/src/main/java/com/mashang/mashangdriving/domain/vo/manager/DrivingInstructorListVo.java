@@ -11,7 +11,6 @@ import lombok.Data;
 
 import java.util.Date;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class DrivingInstructorListVo {
 
@@ -48,6 +47,13 @@ public class DrivingInstructorListVo {
   private DrivingCar drivingCar;
   @ApiModelProperty(value = "总记录数")
   private Long total;
+  @ApiModelProperty(value = "学生数量")
+  private Long studentNum;
+  @ApiModelProperty(value = "驾驶代码")
+  private String driverLicenseCode;
+  @ApiModelProperty(value = "驾驶证类型名称")
+  private String driverLicenseName;
+
 
 
 }

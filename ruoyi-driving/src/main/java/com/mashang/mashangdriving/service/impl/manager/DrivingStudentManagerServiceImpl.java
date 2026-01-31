@@ -34,8 +34,8 @@ public class DrivingStudentManagerServiceImpl extends ServiceImpl<DrivingStudent
     }
 
     @Override
-    public DrivingStudentListVo1 selectOne(DrivingStudentQuery query)  {
-        return baseMapper.selectOneStudent(query);
+    public Page<DrivingStudentListVo1> selectOne(DrivingStudentQuery query,Page<DrivingStudentListVo1> page)  {
+        return baseMapper.selectOneStudent(query,page);
     }
 
     @Override

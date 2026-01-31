@@ -170,7 +170,7 @@ public class DrivingCarServiceImpl extends ServiceImpl<DrivingCarMapper,DrivingC
         car.setInstructorId(drivingCarCreate.getInstructorId());
         car.setStatus("0");
         car.setDelFlag("0");
-        car.setBuyDate(new Date());
+        car.setBuyDate(drivingCarCreate.getBuyDate());
         if (drivingCarCreate.getCarColor() != null) {
             car.setCarColor(drivingCarCreate.getCarColor());
         }

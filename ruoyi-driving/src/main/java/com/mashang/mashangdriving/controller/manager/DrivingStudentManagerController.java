@@ -36,12 +36,14 @@ public class DrivingStudentManagerController extends BaseController {
 
     @GetMapping("/selectOne")
     @ApiOperation("查询学员个体")
-    public R selectOne(DrivingStudentQuery query )  {
-        DrivingStudentListVo1 one = drivingStudentManagerService.selectOne(query);
-        if (one == null) {
-            return R.fail("查询数据不存在！");
+    public TableDataInfo<DrivingStudentListVo1> selectOne(DrivingStudentQuery query,PageQuery pageQuery )  {
+        Page<DrivingStudentListVo1> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
+        Page<DrivingStudentListVo1> page1 = drivingStudentManagerService.selectOne(query, page);
+        if (page1.getTotal() <= 0) {
+            return new TableDataInfo<>();
         }
-        return R.ok(one,"查询成功");
+        return getDataTable(page1.getRecords(),page1.getTotal());
+
     }
 
     @PostMapping("/createStudent")

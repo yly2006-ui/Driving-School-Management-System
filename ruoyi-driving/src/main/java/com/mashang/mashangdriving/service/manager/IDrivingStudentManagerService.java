@@ -14,7 +14,7 @@ public interface IDrivingStudentManagerService extends IService<DrivingStudent> 
 
     Page<DrivingStudentListVo> getList( Page<DrivingStudentListVo> page);
 
-    DrivingStudentListVo1 selectOne(DrivingStudentQuery drivingStudentQuery);
+    Page<DrivingStudentListVo1> selectOne(DrivingStudentQuery drivingStudentQuery,Page<DrivingStudentListVo1> page);
 
     DrivingStudentListVo insertStudent(DrivingStudentCreate drivingStudentCreate);
 
