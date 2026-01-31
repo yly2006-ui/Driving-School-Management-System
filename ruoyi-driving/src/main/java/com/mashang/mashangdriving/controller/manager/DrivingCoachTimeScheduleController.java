@@ -7,9 +7,11 @@ import com.mashang.mashangdriving.domain.param.manager.query.DrivingCoachTimeSch
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingCoachTimeScheduleCreateAndInstructQuery;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingCoachTimeScheduleVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingCoahTimeAndInstructorDtlVo;
+import com.mashang.mashangdriving.domain.vo.manager.ProfileInfoVO;
 import com.mashang.mashangdriving.mapping.manager.DrivingCoachTimeScheduleMapping;
 import com.mashang.mashangdriving.service.manager.IDrivingCoachTimeScheduleService;
 import com.mashang.mashangdriving.service.manager.IDrivingInstructorService;
+import com.mashang.mashangdriving.service.manager.IMySysUserService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.utils.SecurityUtils;
@@ -37,6 +39,17 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     private IDrivingCoachTimeScheduleService drivingCoachTimeScheduleService;
     @Autowired
     private IDrivingInstructorService drivingInstructorService;
+
+    @Autowired
+    private IMySysUserService mySysUserService;
+
+    @GetMapping("selectUser")
+    @ApiOperation("查询管理员信息详情")
+    public R selectByUserId(){
+        Long userId = SecurityUtils.getUserId();
+        ProfileInfoVO profileInfoVO = mySysUserService.selectByuserId(userId);
+        return profileInfoVO != null ? R.ok() : R.fail();
+    }
 
 
     @GetMapping("/list")

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="com.mashang.mashangdriving.mapper.manager.MySysUserMapper">
+ <select id="selectByuserId" resultType="com.mashang.mashangdriving.domain.vo.manager.ProfileInfoVO">
+  SELECT
+   `user`.user_id,
+   `user`.user_name,
+   `user`.nick_name,
+   `user`.email,
+   `user`.phonenumber,
+   `user`.avatar,
+   `user`.login_date,
+   role.role_name
+  FROM
+   sys_user AS `user`
+    JOIN
+   sys_user_role AS ur
+   ON user.user_id=ur.user_id
+    JOIN
+   sys_role AS role
+   ON role.role_id=ur.role_id
+  WHERE user.user_id=#{userId}
+ </select>
+</mapper>
