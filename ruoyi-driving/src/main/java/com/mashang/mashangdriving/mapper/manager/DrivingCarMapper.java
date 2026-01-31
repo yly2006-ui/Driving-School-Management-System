@@ -1,5 +1,6 @@
 package com.mashang.mashangdriving.mapper.manager;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mashang.mashangdriving.domain.entity.DrivingCar;
@@ -17,4 +18,5 @@ public interface DrivingCarMapper  extends BaseMapper<DrivingCar> {
     Page<DrivingCarListVo> getDrivingCarByPage(Page<DrivingCarListVo> page);
     Page<DrivingPayRecordVo> getCarPay(@Param("carId")Long carId,Page<DrivingPayRecordVo> page);
     Map<String,Object> getCarStatistics();
+
 }

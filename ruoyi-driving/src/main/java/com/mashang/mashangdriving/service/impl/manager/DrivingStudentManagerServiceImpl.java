@@ -11,6 +11,7 @@ import com.mashang.mashangdriving.domain.param.manager.create.DrivingStudentCrea
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingStudentQuery;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingStudentManagerUpdate;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo1;
 import com.mashang.mashangdriving.mapper.manager.DrivingStudentManagerMapper;
 import com.mashang.mashangdriving.mapper.manager.InstructorStudentManagerMapper;
 import com.mashang.mashangdriving.service.manager.IDrivingStudentManagerService;
@@ -33,16 +34,8 @@ public class DrivingStudentManagerServiceImpl extends ServiceImpl<DrivingStudent
     }
 
     @Override
-    public DrivingStudentListVo selectOne(DrivingStudentQuery query) throws BusinessException {
-        if (query == null ||
-                (query.getStudentId() == null &&
-                        StringUtils.isBlank(query.getStudentName()) &&
-                        StringUtils.isBlank(query.getPhone()) &&
-                        StringUtils.isBlank(query.getIdNumber()))) {
-            throw new BusinessException("请提供查询条件");
-        }
-
-        return baseMapper.selectOne(query);
+    public Page<DrivingStudentListVo1> selectOne(DrivingStudentQuery query,Page<DrivingStudentListVo1> page)  {
+        return baseMapper.selectOneStudent(query,page);
     }
 
     @Override

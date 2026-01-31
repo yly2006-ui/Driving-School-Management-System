@@ -6,6 +6,7 @@ import com.mashang.mashangdriving.domain.param.manager.create.DrivingStudentCrea
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingStudentQuery;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingStudentManagerUpdate;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo1;
 import com.mashang.mashangdriving.service.manager.IDrivingStudentManagerService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
@@ -35,21 +36,14 @@ public class DrivingStudentManagerController extends BaseController {
 
     @GetMapping("/selectOne")
     @ApiOperation("查询学员个体")
-    public R selectOne(@RequestParam(value = "studentName", required = false) String studentName,
-                       @RequestParam(value = "phone", required = false) String phone,
-                       @RequestParam(value = "idNumber", required = false) String idNumber) throws BusinessException {
-
-        DrivingStudentQuery query = new DrivingStudentQuery();
-        query.setStudentName(studentName);
-        query.setPhone(phone);
-        query.setIdNumber(idNumber);
-
-        DrivingStudentListVo one = drivingStudentManagerService.selectOne(query);
-
-        if (one == null) {
-            return R.fail("查询为空");
+    public TableDataInfo<DrivingStudentListVo1> selectOne(DrivingStudentQuery query,PageQuery pageQuery )  {
+        Page<DrivingStudentListVo1> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
+        Page<DrivingStudentListVo1> page1 = drivingStudentManagerService.selectOne(query, page);
+        if (page1.getTotal() <= 0) {
+            return new TableDataInfo<>();
         }
-        return R.ok(one,"查询成功");
+        return getDataTable(page1.getRecords(),page1.getTotal());
+
     }
 
     @PostMapping("/createStudent")

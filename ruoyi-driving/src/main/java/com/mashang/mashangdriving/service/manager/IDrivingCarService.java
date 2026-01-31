@@ -9,13 +9,14 @@ import com.mashang.mashangdriving.domain.param.manager.update.DrivingCarUpdate;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingCarListVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingCarListVo1;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingPayRecordVo;
+import com.ruoyi.common.core.page.PageQuery;
 
 import java.util.List;
 import java.util.Map;
 
 public interface IDrivingCarService extends IService<DrivingCar> {
     Page<DrivingCarListVo> getDrivingCarByPage(Page<DrivingCarListVo> page);
-    List<DrivingCar> selectList(DrivingCarQuery drivingCarQuery);
+    Page<DrivingCar> selectList(DrivingCarQuery drivingCarQuery, PageQuery pageQuery);
     DrivingCarListVo insertCar(DrivingCarCreate drivingCarCreate);
     DrivingCarListVo updateCar(DrivingCarUpdate drivingCarUpdate);
     Page<DrivingPayRecordVo> getCarPay(Long carId,Page<DrivingPayRecordVo> page);

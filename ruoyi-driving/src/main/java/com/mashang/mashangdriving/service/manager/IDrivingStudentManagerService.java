@@ -8,12 +8,13 @@ import com.mashang.mashangdriving.domain.param.manager.create.DrivingStudentCrea
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingStudentQuery;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingStudentManagerUpdate;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo1;
 
 public interface IDrivingStudentManagerService extends IService<DrivingStudent> {
 
     Page<DrivingStudentListVo> getList( Page<DrivingStudentListVo> page);
 
-    DrivingStudentListVo selectOne( DrivingStudentQuery drivingStudentQuery) throws BusinessException;
+    Page<DrivingStudentListVo1> selectOne(DrivingStudentQuery drivingStudentQuery,Page<DrivingStudentListVo1> page);
 
     DrivingStudentListVo insertStudent(DrivingStudentCreate drivingStudentCreate);
 

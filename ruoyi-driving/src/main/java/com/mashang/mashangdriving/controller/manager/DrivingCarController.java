@@ -46,12 +46,14 @@ public class DrivingCarController extends BaseController {
 
     @GetMapping("/getCarList")
     @ApiOperation("查询车辆")
-    public R getCarList(DrivingCarQuery  drivingCarQuery) {
-        List<DrivingCar> list = drivingCarService.selectList(drivingCarQuery);
-        if (list != null && list.size() > 0) {
-            return R.ok(list);
+    public TableDataInfo<DrivingCar> getCarList(DrivingCarQuery  drivingCarQuery,PageQuery pageQuery) {
+
+        Page<DrivingCar> list = drivingCarService.selectList(drivingCarQuery,pageQuery);
+
+        if (Objects.nonNull(list)) {
+            return  getDataTable(list.getRecords(), list.getTotal());
         }
-        return R.fail("查询失败");
+        return null;
     }
 
     @GetMapping("/getCarOne")
