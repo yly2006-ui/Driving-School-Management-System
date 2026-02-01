@@ -5,9 +5,11 @@ import com.mashang.mashangdriving.domain.entity.DrivingCoachTimeSchedule;
 import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingCoachTimeScheduleCreate;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingCoachTimeScheduleCreateAndInstructQuery;
+import com.mashang.mashangdriving.domain.utils.CoachTimeGridUtil;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingCoachTimeScheduleVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingCoahTimeAndInstructorDtlVo;
 import com.mashang.mashangdriving.domain.vo.manager.ProfileInfoVO;
+import com.mashang.mashangdriving.domain.vo.manager.TimeGridVO;
 import com.mashang.mashangdriving.mapping.manager.DrivingCoachTimeScheduleMapping;
 import com.mashang.mashangdriving.service.manager.IDrivingCoachTimeScheduleService;
 import com.mashang.mashangdriving.service.manager.IDrivingInstructorService;
@@ -165,6 +167,26 @@ public class DrivingCoachTimeScheduleController extends BaseController {
         DtlVo.setPerson(person);
         return R.ok(DtlVo);
 
+    }
+    /**
+     * 获取教练月维度时间格子数据
+     * @param year 年（前端传如2026）
+     * @param month 月（前端传如2）
+     * @return R<List<TimeGridVO>> 若依标准返回，前端直接用res.data接收
+     */
+    @ApiOperation("新版查询时间安排")
+    @GetMapping("/month")
+    public R<List<TimeGridVO>> getCoachMonthTimeGrid(
+            @RequestParam Integer year,
+            @RequestParam Integer month) {
+        // 1. 生成4-20点空白模板
+        List<TimeGridVO> template = CoachTimeGridUtil.generateCoachTemplate(year, month);
+        // 2. 查你的数据库数据
+        List<DrivingCoachTimeSchedule> scheduleList = drivingCoachTimeScheduleService.selectCoachTimeByYearAndMonth(year, month);
+        // 3. 填充数据（自动转换status，匹配timeKey）
+        List<TimeGridVO> finalData = CoachTimeGridUtil.fillCoachData(template, scheduleList);
+        // 4. 若依标准返回
+        return R.ok(finalData);
     }
 
 
