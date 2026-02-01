@@ -159,6 +159,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
         lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getStartTime, startTime);
         lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getEndTime, endTime);
         lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId,SecurityUtils.getUserId());
+        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getDelFlag,0);
 
         DrivingCoachTimeSchedule one = drivingCoachTimeScheduleService.getOne(lambdaQueryWrapper);
         String person = one.getPerson();
