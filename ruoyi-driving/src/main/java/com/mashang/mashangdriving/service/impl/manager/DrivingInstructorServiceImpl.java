@@ -4,11 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mashang.mashangdriving.domain.entity.CoachWeeklySchedule;
 import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
 import com.mashang.mashangdriving.domain.entity.DrivingRating;
 import com.mashang.mashangdriving.domain.param.manager.create.DrivingInstructorCreate;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingInstructorUpdate;
-import com.mashang.mashangdriving.domain.vo.manager.DrivingInstructorDateVo;
+import com.mashang.mashangdriving.domain.param.manager.update.DrivingScheduleUpdateDTO;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingInstructorListVo;
 import com.mashang.mashangdriving.mapper.manager.DrivingInstructorMapper;
 import com.mashang.mashangdriving.mapper.manager.DrivingRatingMapper;
@@ -18,14 +19,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorMapper, DrivingInstructor> implements IDrivingInstructorService {
 
     @Autowired
     private DrivingRatingMapper drivingRatingMapper;
+    //4:00-23:00
+    private static final int TOTAL_TIME_SLOTS = 19;
+    //周一到周日
+    private static final int DAYS_OF_WEEK = 7;
 
     @Override
     public Page<DrivingInstructorListVo> getList(Page<DrivingInstructorListVo> page) {
@@ -128,20 +132,43 @@ public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorM
         );
     }
 
+
     @Override
-    public DrivingInstructorDateVo getDate(Long instructorId) {
-        LambdaQueryWrapper<DrivingInstructorDateVo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(DrivingInstructorDateVo::getInstructorId,instructorId);
-        DrivingInstructor drivingInstructor = baseMapper.selectById(instructorId);
-        DrivingInstructorDateVo drivingInstructorDateVo = new DrivingInstructorDateVo();
-        drivingInstructorDateVo.setInstructorName(drivingInstructor.getInstructorName());
-        drivingInstructorDateVo.setSchedulableTimeStart(drivingInstructor.getSchedulableTimeStart());
-        drivingInstructorDateVo.setSchedulableTimeEnd(drivingInstructor.getSchedulableTimeEnd());
-        drivingInstructorDateVo.setNoTimeStart(drivingInstructor.getNoTimeStart());
-        drivingInstructorDateVo.setNoTimeEnd(drivingInstructor.getNoTimeEnd());
-        return drivingInstructorDateVo;
+    public int[][] createScheduleMatrixFromDB(Long instructorId) {
+        List<Map<String, Object>> schedule = baseMapper.findWeeklyScheduleByInstructorId(instructorId);
+        int[][] scheduleMatrix = initializeMatrix();
+        if(schedule!=null&&!schedule.isEmpty()){
+            fillMatrixFromRecords(scheduleMatrix,schedule);
+        }
+        return scheduleMatrix;
     }
 
+
+
+    @Override
+    public void updatePartialSchedule(DrivingScheduleUpdateDTO dto) {
+        List<Integer> timeSlotList = dto.getTimeSlotList();
+        if (timeSlotList == null || timeSlotList.isEmpty()) {
+            throw new RuntimeException("时间段列表不能为空");
+        }
+
+        ArrayList<CoachWeeklySchedule> coachWeeklySchedules = new ArrayList<>();
+        for (Integer timeSlot : timeSlotList) {
+            if (timeSlot == null) {
+                continue;
+            }
+
+            CoachWeeklySchedule coachWeeklySchedule = new CoachWeeklySchedule();
+
+            coachWeeklySchedule.setInstructorId(dto.getInstructorId());
+            coachWeeklySchedule.setWeekDay(dto.getWeekDay());
+            coachWeeklySchedule.setTimeSlot(timeSlot);
+            coachWeeklySchedule.setStatus(dto.getStatus());
+            coachWeeklySchedules.add(coachWeeklySchedule);
+        }
+
+            baseMapper.batchUpsert(coachWeeklySchedules);
+    }
 
     private static DrivingInstructorListVo getDrivingInstructorVo(DrivingInstructor drivingInstructor) {
         DrivingInstructorListVo drivingInstructorListVo = new DrivingInstructorListVo();
@@ -155,5 +182,43 @@ public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorM
         drivingInstructorListVo.setPhoto(drivingInstructor.getPhoto());
         drivingInstructorListVo.setInstructorId(drivingInstructor.getInstructorId());
         return drivingInstructorListVo;
+    }
+
+    private int[][] initializeMatrix() {
+        int[][] matrix = new int[TOTAL_TIME_SLOTS][DAYS_OF_WEEK];
+        for (int i = 0; i < TOTAL_TIME_SLOTS; i++) {
+            Arrays.fill(matrix[i], -1);
+        }
+        return matrix;
+    }
+    private void fillMatrixFromRecords(int[][] matrix, List<Map<String, Object>> records) {
+        for (Map<String, Object> record : records) {
+            Integer weekDay = getIntegerValue(record, "week_day");
+            Integer timeSlot = getIntegerValue(record, "time_slot");
+            Integer status = getIntegerValue(record, "status");
+
+            // 验证数据有效性
+            if (isValidWeekDay(weekDay) && isValidTimeSlot(timeSlot) && status != null) {
+                // week_day: 1=周一, 2=周二, ..., 7=周日
+                // 转换为列索引: 0=周一, 1=周二, ..., 6=周日
+                int columnIndex = weekDay - 1;
+                matrix[timeSlot][columnIndex] = status;
+            }
+        }
+    }
+    private boolean isValidWeekDay(Integer weekDay) {
+        return weekDay != null && weekDay >= 1 && weekDay <= DAYS_OF_WEEK;
+    }
+    private boolean isValidTimeSlot(Integer timeSlot) {
+        return timeSlot != null && timeSlot >= 0 && timeSlot < TOTAL_TIME_SLOTS;
+    }
+    private Integer getIntegerValue(Map<String, Object> map, String key) {
+        Object value = map.get(key);
+        if (value instanceof Integer) {
+            return (Integer) value;
+        } else if (value instanceof Number) {
+            return ((Number) value).intValue();
+        }
+        return null;
     }
 }
