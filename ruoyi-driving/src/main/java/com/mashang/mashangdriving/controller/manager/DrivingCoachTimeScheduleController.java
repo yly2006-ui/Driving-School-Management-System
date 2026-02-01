@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -110,7 +111,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
 
     @PostMapping("/batchAdd")
     @ApiOperation("批量新增教练时间安排")
-    public R batchAddSchedule(@RequestBody @Validated List<DrivingCoachTimeScheduleCreate> scheduleList) {
+    public R batchAddSchedule(@RequestBody @Validated @Valid List<DrivingCoachTimeScheduleCreate> scheduleList) {
 
         Long userId = SecurityUtils.getUserId();
         LambdaQueryWrapper<DrivingInstructor>lqw=new LambdaQueryWrapper<>();
