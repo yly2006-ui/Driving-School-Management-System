@@ -21,5 +21,5 @@ public class TimeGridVO {
     /** 状态【和前端约定】：0-白色(不可预约) 1-绿色(可预约) 2-红色(已预约)，默认0 */
     private Integer status = 0;
     /** 扩展字段：已预约时存预约人/备注，对应数据库person */
-    private String bizData;
+    private String person;
 }
