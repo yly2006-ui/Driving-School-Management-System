@@ -19,6 +19,7 @@ import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -169,17 +170,41 @@ public class DrivingCoachTimeScheduleController extends BaseController {
         return R.ok(DtlVo);
 
     }
-    /**
-     * 获取教练月维度时间格子数据
-     * @param year 年（前端传如2026）
-     * @param month 月（前端传如2）
-     * @return R<List<TimeGridVO>> 若依标准返回，前端直接用res.data接收
-     */
+
+
+
     @ApiOperation("新版查询时间安排")
     @GetMapping("/month")
+// 改为单个参数接收年月，格式和/list接口一致：2026年1月
     public R<List<TimeGridVO>> getCoachMonthTimeGrid(
-            @RequestParam Integer year,
-            @RequestParam Integer month) {
+            @RequestParam @ApiParam(value = "年月，格式：YYYY年M月（例：2026年1月、2026年12月）",
+                    required = true) String yearAndMonth) {
+        // 1. 非空校验
+        if (yearAndMonth == null || yearAndMonth.trim().isEmpty()) {
+            return R.fail(400, "日期字符串不能为空，请传入如「2026年1月」的格式");
+        }
+        // 2. 正则匹配校验格式（复用类中已定义的YEAR_MONTH正则，无需重复定义）
+        Matcher matcher = YEAR_MONTH.matcher(yearAndMonth.trim());
+        if (!matcher.matches()) {
+            return R.fail(400, "日期格式错误，请严格按照「YYYY年M月」格式传入（例：2026年1月）");
+        }
+        // 3. 提取并转换年、月为数字
+        int year, month;
+        try {
+            year = Integer.parseInt(matcher.group(1)); // 提取4位年份
+            month = Integer.parseInt(matcher.group(2)); // 提取1/2位月份
+        } catch (NumberFormatException e) {
+            return R.fail(400, "年份/月份必须为有效数字，请检查输入格式");
+        }
+        // 4. 年、月范围合法性校验
+        if (year < 1970 || year > 2100) {
+            return R.fail(400, "年份范围需在1970-2100之间，请调整后重试");
+        }
+        if (month < 1 || month > 12) {
+            return R.fail(400, "月份需在1-12之间，请检查输入");
+        }
+
+        // 以下是你原有核心业务逻辑，一字不改
         // 1. 生成4-20点空白模板
         List<TimeGridVO> template = CoachTimeGridUtil.generateCoachTemplate(year, month);
         // 2. 查你的数据库数据
@@ -188,6 +213,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
         List<TimeGridVO> finalData = CoachTimeGridUtil.fillCoachData(template, scheduleList);
         // 4. 若依标准返回
         return R.ok(finalData);
+
     }
 
 
