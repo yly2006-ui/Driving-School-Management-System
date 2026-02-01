@@ -52,6 +52,18 @@
         <result column="contanct" property="contanct"/>
         <result column="score" property="score"/>
     </resultMap>
+    <insert id="batchUpsert">
+        INSERT INTO coach_weekly_schedule
+        (instructor_id, week_day, time_slot, status)
+        VALUES
+        <foreach collection="list" item="schedule" separator=",">
+            (#{schedule.instructorId}, #{schedule.weekDay},
+            #{schedule.timeSlot}, #{schedule.status})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        status = VALUES(status),
+        updated_at = CURRENT_TIMESTAMP
+    </insert>
 
     <select id="getList" resultMap="DrivingInstructorListVo">
         SELECT  di.instructor_id, user_id, instructor_name, phone, id_number,
@@ -98,11 +110,22 @@
         where di.instructor_name LIKE CONCAT('%',#{instructorName},'%')
         AND di.status = '0'
 
-
     </select>
-<!--    <select id="getRating" resultMap="DrivingRatingMap">-->
-<!--        SELECT dr.rating_id, instructor_id, student_id, contanct, score-->
-<!--            FROM ms_stu_pro339.driving_rating dr-->
-<!--        WHERE dr.instructor_id = #{instructorId}-->
-<!--    </select>-->
+
+    <select id="findWeeklyScheduleByInstructorId" resultType="java.util.Map">
+    SELECT  week_day, time_slot, status
+        FROM ms_stu_pro339.coach_weekly_schedule
+    WHERE instructor_id = #{instructorId}
+    ORDER BY week_day, time_slot
+    </select>
+
+<!--    <insert id="upsertWeeklySchedule">-->
+<!--        INSERT INTO coach_weekly_schedule-->
+<!--            (instructor_id, week_day, time_slot, status)-->
+<!--        VALUES (#{instructorId}, #{weekDay}, #{timeSlot}, #{status})-->
+<!--        ON DUPLICATE KEY UPDATE-->
+<!--                             status = VALUES(status),-->
+<!--                             updated_at = CURRENT_TIMESTAMP-->
+<!--    </insert>-->
+
 </mapper>
