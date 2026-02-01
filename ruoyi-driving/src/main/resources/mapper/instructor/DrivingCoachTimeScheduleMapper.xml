@@ -4,7 +4,7 @@
 
     <!-- 通用查询列，完全对应你的数据库表 -->
     <sql id="selectCoachTimeVo">
-        schedule_id, coach_id, start_time, end_time,
+        schedule_id, instructor_id, start_time, end_time,
         status, person, create_by, create_time,
         update_by, update_time, del_flag
     </sql>
