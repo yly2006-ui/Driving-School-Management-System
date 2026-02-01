@@ -115,35 +115,39 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     public R batchAddSchedule(@RequestBody  @Valid List<DrivingCoachTimeScheduleCreate> scheduleList) {
 
         Long userId = SecurityUtils.getUserId();
-        LambdaQueryWrapper<DrivingInstructor>lqw=new LambdaQueryWrapper<>();
-        lqw.eq(DrivingInstructor::getUserId,userId);
+        LambdaQueryWrapper<DrivingInstructor> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(DrivingInstructor::getUserId, userId);
         DrivingInstructor instructor = drivingInstructorService.getOne(lqw);
         Long instructorId = instructor.getInstructorId();
 
+        List<DrivingCoachTimeSchedule> create = null;
         for (DrivingCoachTimeScheduleCreate drivingCoachTimeScheduleCreate : scheduleList) {
-            LocalDateTime startTime = drivingCoachTimeScheduleCreate.getStartTime();
-            LocalDateTime endTime = drivingCoachTimeScheduleCreate.getEndTime();
+            LocalDateTime startTime = LocalDateTime.parse(drivingCoachTimeScheduleCreate.getStartTime(), DATE_TIME_FORMATTER);
+            LocalDateTime endTime = LocalDateTime.parse(drivingCoachTimeScheduleCreate.getEndTime(), DATE_TIME_FORMATTER);
 
             LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper =
                     new LambdaQueryWrapper<>();
             lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getStartTime, startTime);
             lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getEndTime, endTime);
             lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId, userId);
-            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getDelFlag,0);
+            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getDelFlag, 0);
             DrivingCoachTimeSchedule one = drivingCoachTimeScheduleService.getOne(lambdaQueryWrapper);
             if (one != null) {
                 return R.fail("教练Id为：" + one.getInstructorId() + "的教练已设置"
                         + DATE_TIME_FORMATTER.format(one.getStartTime()) + "开始至"
                         + DATE_TIME_FORMATTER.format(one.getEndTime()) + "为可预约时段");
             }
+            create = DrivingCoachTimeScheduleMapping.INSTANCE.toCreate(scheduleList);
+            for (DrivingCoachTimeSchedule drivingCoachTimeSchedule : create) {
+                drivingCoachTimeSchedule.setInstructorId(String.valueOf(instructorId));
+                drivingCoachTimeSchedule.setUserId(userId);
+                drivingCoachTimeSchedule.setPerson("0");
+                drivingCoachTimeSchedule.setStatus("1");
+                drivingCoachTimeSchedule.setStartTime(startTime);
+                drivingCoachTimeSchedule.setEndTime(endTime);
+            }
         }
-        List<DrivingCoachTimeSchedule> create = DrivingCoachTimeScheduleMapping.INSTANCE.toCreate(scheduleList);
-        for (DrivingCoachTimeSchedule drivingCoachTimeSchedule : create) {
-            drivingCoachTimeSchedule.setInstructorId(String.valueOf(instructorId));
-            drivingCoachTimeSchedule.setUserId(userId);
-            drivingCoachTimeSchedule.setPerson("0");
-            drivingCoachTimeSchedule.setStatus("1");
-        }
+
         boolean success = drivingCoachTimeScheduleService.saveBatch(create);
         return success ? R.ok("批量新增成功") : R.fail("批量新增失败");
     }
