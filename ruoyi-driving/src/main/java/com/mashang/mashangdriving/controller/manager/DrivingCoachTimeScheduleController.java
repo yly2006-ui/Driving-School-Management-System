@@ -31,7 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+@Validated
 @Api(tags = "管理端-个人中心")
 @RestController
 @RequestMapping("/drivingCoachTimeSchedule")
@@ -111,7 +111,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
 
     @PostMapping("/batchAdd")
     @ApiOperation("批量新增教练时间安排")
-    public R batchAddSchedule(@RequestBody @Validated @Valid List<DrivingCoachTimeScheduleCreate> scheduleList) {
+    public R batchAddSchedule(@RequestBody  @Valid List<DrivingCoachTimeScheduleCreate> scheduleList) {
 
         Long userId = SecurityUtils.getUserId();
         LambdaQueryWrapper<DrivingInstructor>lqw=new LambdaQueryWrapper<>();
