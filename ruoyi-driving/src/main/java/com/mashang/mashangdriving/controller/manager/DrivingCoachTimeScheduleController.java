@@ -18,6 +18,7 @@ import com.mashang.mashangdriving.service.manager.IMySysUserService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.common.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -29,6 +30,7 @@ import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -161,16 +163,18 @@ public class DrivingCoachTimeScheduleController extends BaseController {
 
     @GetMapping("/selectByUserId")
     @ApiOperation("根据安排表查询教练信息")
-    public  R selectByUserId( DrivingCoachTimeScheduleCreateAndInstructQuery coachTimeScheduleCreateAndInstructQuery) {
+    public  R selectByUserId( @Validated DrivingCoachTimeScheduleCreateAndInstructQuery coachTimeScheduleCreateAndInstructQuery) {
         LocalDateTime startTime = coachTimeScheduleCreateAndInstructQuery.getStartTime();
         LocalDateTime endTime = coachTimeScheduleCreateAndInstructQuery.getEndTime();
 
         LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper =
                 new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getStartTime, startTime);
-        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getEndTime, endTime);
+        lambdaQueryWrapper.eq(StringUtils.isNotEmpty(Collections.singleton
+                        (coachTimeScheduleCreateAndInstructQuery.getStartTime())),
+                DrivingCoachTimeSchedule::getStartTime, startTime);
+        lambdaQueryWrapper.eq(StringUtils.isNotEmpty(Collections.singleton(coachTimeScheduleCreateAndInstructQuery.getEndTime())),
+                DrivingCoachTimeSchedule::getEndTime, endTime);
         lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId, SecurityUtils.getUserId());
-        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getDelFlag, 0);
 
         DrivingCoachTimeSchedule one = drivingCoachTimeScheduleService.getOne(lambdaQueryWrapper);
         String person = "0";
