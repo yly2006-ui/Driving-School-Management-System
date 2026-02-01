@@ -110,13 +110,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     @PostMapping("/batchAdd")
     @ApiOperation("批量新增教练时间安排")
     public R batchAddSchedule(@RequestBody List<DrivingCoachTimeScheduleCreate> scheduleList) {
-        for (DrivingCoachTimeScheduleCreate drivingCoachTimeScheduleCreate : scheduleList) {
-            LocalDateTime startTime = drivingCoachTimeScheduleCreate.getStartTime();
-            LocalDateTime endTime = drivingCoachTimeScheduleCreate.getEndTime();
-            if (startTime==null||endTime==null){
-                return R.fail("开始时间和结束时间都要选择");
-            }
-        }
+
         Long userId = SecurityUtils.getUserId();
         LambdaQueryWrapper<DrivingInstructor>lqw=new LambdaQueryWrapper<>();
         lqw.eq(DrivingInstructor::getUserId,userId);
