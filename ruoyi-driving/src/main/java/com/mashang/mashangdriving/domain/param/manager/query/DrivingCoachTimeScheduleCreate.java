@@ -12,6 +12,6 @@ public class DrivingCoachTimeScheduleCreate {
     private LocalDateTime startTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime endTime;
-    private String status;
+//    private String status;
 
 }

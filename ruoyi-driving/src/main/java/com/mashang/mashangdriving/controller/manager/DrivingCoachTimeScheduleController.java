@@ -134,6 +134,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
             drivingCoachTimeSchedule.setInstructorId(String.valueOf(instructorId));
             drivingCoachTimeSchedule.setUserId(userId);
             drivingCoachTimeSchedule.setPerson("0");
+            drivingCoachTimeSchedule.setStatus("1");
         }
         boolean success = drivingCoachTimeScheduleService.saveBatch(create);
         return success ? R.ok("批量新增成功") : R.fail("批量新增失败");
