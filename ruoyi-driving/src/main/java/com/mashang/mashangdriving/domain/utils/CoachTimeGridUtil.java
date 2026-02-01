@@ -75,7 +75,7 @@ public class CoachTimeGridUtil {
             DrivingCoachTimeSchedule schedule = scheduleMap.get(grid.getTimeKey());
             if (schedule != null) {
                 grid.setStatus(1); // 数据库0=可预约→前端1绿色
-                grid.setBizData(schedule.getPerson()); // 预约人放bizData，给前端展示
+                grid.setPerson(schedule.getPerson()); // 预约人放bizData，给前端展示
             }
         }
         return templateList;
