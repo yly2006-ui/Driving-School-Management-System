@@ -107,18 +107,22 @@ public class DrivingStudentManagerServiceImpl extends ServiceImpl<DrivingStudent
             throw new RuntimeException("学生ID不能为空");
         }
 
+        LambdaQueryWrapper<DrivingDriverLicenseType> wrapper = new LambdaQueryWrapper<>();
         LambdaUpdateWrapper<DrivingStudent> drivingStudentLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
         drivingStudentLambdaUpdateWrapper.eq( DrivingStudent::getStudentId, dto.getStudentId());
-        if (dto.getDriverLicenseId() != null) {
-            drivingStudentLambdaUpdateWrapper.set(DrivingStudent::getDriverLicenseId, dto.getDriverLicenseId());
+
+        wrapper.eq(DrivingDriverLicenseType::getDriverLicenseId, dto.getDriverLicenseId());
+        DrivingDriverLicenseType driverLicenseType = drivingDriverLicenseTypeMapper.selectOne(wrapper);
+        if(driverLicenseType != null){
+            drivingStudentLambdaUpdateWrapper.eq(DrivingStudent::getStudentId, dto.getStudentId())
+                    .set(DrivingStudent::getDriverLicenseId, dto.getDriverLicenseId());
         }
 
         if (StringUtils.isNotBlank(dto.getStudentName())) {
             drivingStudentLambdaUpdateWrapper.set(DrivingStudent::getStudentName, dto.getStudentName());
         }
-
-        if (StringUtils.isNotBlank(dto.getPhone())) {
-            drivingStudentLambdaUpdateWrapper.set(DrivingStudent::getPhone, dto.getPhone());
+        if(StringUtils.isNotBlank(dto.getEmergencyPhone())){
+            drivingStudentLambdaUpdateWrapper.set(DrivingStudent::getEmergencyPhone, dto.getEmergencyPhone());
         }
 
         if (StringUtils.isNotBlank(dto.getIdNumber())) {
@@ -176,6 +180,12 @@ public class DrivingStudentManagerServiceImpl extends ServiceImpl<DrivingStudent
         queryWrapper.eq(DrivingInstructorStudent::getStudentId, dto.getStudentId());
         DrivingInstructorStudent drivingInstructorStudent = instructorStudentManagerMapper.selectOne(queryWrapper);
         student.setDrivingInstructorStudent(drivingInstructorStudent);
+        if (driverLicenseType != null) {
+            student.setDriverLicenseName(driverLicenseType.getDriverLicenseName());
+        }
+        if (driverLicenseType != null) {
+            student.setDriverLicenseCode(driverLicenseType.getDriverLicenseCode());
+        }
 
         return getDrivingStudentListVo(student);
     }
@@ -218,6 +228,7 @@ public class DrivingStudentManagerServiceImpl extends ServiceImpl<DrivingStudent
         vo.setDrivingInstructorStudent(studentEntity.getDrivingInstructorStudent());
         vo.setDriverLicenseName(studentEntity.getDriverLicenseName());
         vo.setDriverLicenseCode(studentEntity.getDriverLicenseCode());
+        vo.setEmergencyPhone(studentEntity.getEmergencyPhone());
 
         return vo;
     }

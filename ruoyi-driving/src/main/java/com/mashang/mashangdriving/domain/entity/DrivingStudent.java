@@ -58,8 +58,10 @@ public class DrivingStudent {
     private Date updateTime;
 
     @ApiModelProperty(value = "驾驶证编码",hidden = true)
+    @TableField(exist = false)
     private String driverLicenseCode;
     @ApiModelProperty(value = "驾驶证名字",hidden = true)
+    @TableField(exist = false)
     private String driverLicenseName;
 
 
