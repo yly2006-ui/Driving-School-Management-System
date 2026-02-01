@@ -13,10 +13,10 @@ public class DrivingCoachTimeScheduleCreate {
     @NotNull(message = "开始时间不能为空") // 核心：校验startTime不能为null
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @ApiModelProperty(value = "开始时间",required = true)
-    private String startTime;
+    private LocalDateTime startTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @NotNull(message = "开始时间不能为空") // 核心：校验startTime不能为null
     @ApiModelProperty(value = "结束时间",required = true)
-    private String endTime;
+    private LocalDateTime endTime;
 
 }
