@@ -175,7 +175,6 @@ public class DrivingCoachTimeScheduleController extends BaseController {
 
     @ApiOperation("新版查询时间安排")
     @GetMapping("/month")
-// 改为单个参数接收年月，格式和/list接口一致：2026年1月
     public R<List<TimeGridVO>> getCoachMonthTimeGrid(
             @RequestParam @ApiParam(value = "年月，格式：YYYY年M月（例：2026年1月、2026年12月）",
                     required = true) String yearAndMonth) {
