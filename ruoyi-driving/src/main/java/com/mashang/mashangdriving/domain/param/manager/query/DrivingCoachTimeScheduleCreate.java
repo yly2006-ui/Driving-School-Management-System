@@ -18,6 +18,5 @@ public class DrivingCoachTimeScheduleCreate {
     @NotNull(message = "开始时间不能为空") // 核心：校验startTime不能为null
     @ApiModelProperty(value = "结束时间",required = true)
     private LocalDateTime endTime;
-//    private String status;
 
 }
