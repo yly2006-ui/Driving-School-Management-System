@@ -161,7 +161,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
 
     @GetMapping("/selectByUserId")
     @ApiOperation("根据安排表查询教练信息")
-    public  R selectByUserId( DrivingCoachTimeScheduleCreateAndInstructQuery coachTimeScheduleCreateAndInstructQuery){
+    public  R selectByUserId( DrivingCoachTimeScheduleCreateAndInstructQuery coachTimeScheduleCreateAndInstructQuery) {
         LocalDateTime startTime = coachTimeScheduleCreateAndInstructQuery.getStartTime();
         LocalDateTime endTime = coachTimeScheduleCreateAndInstructQuery.getEndTime();
 
@@ -169,13 +169,16 @@ public class DrivingCoachTimeScheduleController extends BaseController {
                 new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getStartTime, startTime);
         lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getEndTime, endTime);
-        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId,SecurityUtils.getUserId());
-        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getDelFlag,0);
+        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId, SecurityUtils.getUserId());
+        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getDelFlag, 0);
 
         DrivingCoachTimeSchedule one = drivingCoachTimeScheduleService.getOne(lambdaQueryWrapper);
-        String person = one.getPerson();
-        LambdaQueryWrapper<DrivingInstructor>lqw=new LambdaQueryWrapper<>();
-        lqw.eq(DrivingInstructor::getUserId,SecurityUtils.getUserId());
+        String person = null;
+        if (one != null) {
+            person = one.getPerson();
+        }
+        LambdaQueryWrapper<DrivingInstructor> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(DrivingInstructor::getUserId, SecurityUtils.getUserId());
         DrivingInstructor drivingInstructor = drivingInstructorService.getOne(lqw);
         DrivingCoahTimeAndInstructorDtlVo DtlVo = DrivingCoachTimeScheduleMapping.INSTANCE.dtlVo(drivingInstructor);
         DtlVo.setPerson(person);
