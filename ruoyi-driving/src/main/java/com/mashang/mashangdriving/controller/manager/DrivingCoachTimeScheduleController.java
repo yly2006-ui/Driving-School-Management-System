@@ -55,53 +55,53 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     }
 
 
-    @GetMapping("/list")
-    @ApiOperation("查询教练时间安排")
-    public R<List<DrivingCoachTimeScheduleVo>> CoachTimeScheduleSelect(@RequestParam String yearAndMonth) {
-        if (yearAndMonth == null || yearAndMonth.trim().isEmpty()) {
-            return R.fail(400, "日期字符串不能为空，请传入如「2026年1月」的格式");
-        }
-
-        Matcher matcher = YEAR_MONTH.matcher(yearAndMonth.trim());
-        if (!matcher.matches()) {
-            return R.fail(400, "日期格式错误，请严格按照「YYYY年M月」格式传入（例：2026年1月）");
-        }
-
-        int year, month;
-        try {
-            year = Integer.parseInt(matcher.group(1)); // 提取4位年份
-            month = Integer.parseInt(matcher.group(2)); // 提取1/2位月份
-        } catch (NumberFormatException e) {
-            return R.fail(400, "年份/月份必须为有效数字，请检查输入格式");
-        }
-
-        // 年份范围限制（可根据业务调整，比如1970-2100）
-        if (year < 1970 || year > 2100) {
-            return R.fail(400, "年份范围需在1970-2100之间，请调整后重试");
-        }
-        // 月份范围校验（1-12）
-        if (month < 1 || month > 12) {
-            return R.fail(400, "月份需在1-12之间，请检查输入");
-        }
-
-        // 1. 获取指定年月的YearMonth对象
-        YearMonth yearMonth = YearMonth.of(year, month);
-
-        // 2. 获取当月开始时间：年月的第一天 00:00:00
-        LocalDateTime monthStartTime = yearMonth.atDay(1).atStartOfDay();
-
-        // 3. 获取当月结束时间：年月的最后一天 23:59:59
-        LocalDateTime monthEndTime = yearMonth.atEndOfMonth().plusDays(1).atStartOfDay().minusSeconds(1);
-
-
-        LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.ge(DrivingCoachTimeSchedule::getStartTime, monthStartTime);
-        lambdaQueryWrapper.le(DrivingCoachTimeSchedule::getEndTime, monthEndTime);
-
-        List<DrivingCoachTimeSchedule> list = drivingCoachTimeScheduleService.list(lambdaQueryWrapper);
-        List<DrivingCoachTimeScheduleVo> listVo = DrivingCoachTimeScheduleMapping.INSTANCE.toListVo(list);
-        return list != null && !list.isEmpty() ? R.ok(listVo) : R.fail("未查到对应时间安排");
-    }
+//    @GetMapping("/list")
+//    @ApiOperation("查询教练时间安排")
+//    public R<List<DrivingCoachTimeScheduleVo>> CoachTimeScheduleSelect(@RequestParam String yearAndMonth) {
+//        if (yearAndMonth == null || yearAndMonth.trim().isEmpty()) {
+//            return R.fail(400, "日期字符串不能为空，请传入如「2026年1月」的格式");
+//        }
+//
+//        Matcher matcher = YEAR_MONTH.matcher(yearAndMonth.trim());
+//        if (!matcher.matches()) {
+//            return R.fail(400, "日期格式错误，请严格按照「YYYY年M月」格式传入（例：2026年1月）");
+//        }
+//
+//        int year, month;
+//        try {
+//            year = Integer.parseInt(matcher.group(1)); // 提取4位年份
+//            month = Integer.parseInt(matcher.group(2)); // 提取1/2位月份
+//        } catch (NumberFormatException e) {
+//            return R.fail(400, "年份/月份必须为有效数字，请检查输入格式");
+//        }
+//
+//        // 年份范围限制（可根据业务调整，比如1970-2100）
+//        if (year < 1970 || year > 2100) {
+//            return R.fail(400, "年份范围需在1970-2100之间，请调整后重试");
+//        }
+//        // 月份范围校验（1-12）
+//        if (month < 1 || month > 12) {
+//            return R.fail(400, "月份需在1-12之间，请检查输入");
+//        }
+//
+//        // 1. 获取指定年月的YearMonth对象
+//        YearMonth yearMonth = YearMonth.of(year, month);
+//
+//        // 2. 获取当月开始时间：年月的第一天 00:00:00
+//        LocalDateTime monthStartTime = yearMonth.atDay(1).atStartOfDay();
+//
+//        // 3. 获取当月结束时间：年月的最后一天 23:59:59
+//        LocalDateTime monthEndTime = yearMonth.atEndOfMonth().plusDays(1).atStartOfDay().minusSeconds(1);
+//
+//
+//        LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+//        lambdaQueryWrapper.ge(DrivingCoachTimeSchedule::getStartTime, monthStartTime);
+//        lambdaQueryWrapper.le(DrivingCoachTimeSchedule::getEndTime, monthEndTime);
+//
+//        List<DrivingCoachTimeSchedule> list = drivingCoachTimeScheduleService.list(lambdaQueryWrapper);
+//        List<DrivingCoachTimeScheduleVo> listVo = DrivingCoachTimeScheduleMapping.INSTANCE.toListVo(list);
+//        return list != null && !list.isEmpty() ? R.ok(listVo) : R.fail("未查到对应时间安排");
+//    }
 
     @PostMapping("/batchAdd")
     @ApiOperation("批量新增教练时间安排")
@@ -149,7 +149,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     }
 
     @GetMapping("/selectByUserId")
-    @ApiOperation("根据用户名查询教练信息")
+    @ApiOperation("根据安排表查询教练信息")
     public  R selectByUserId( DrivingCoachTimeScheduleCreateAndInstructQuery coachTimeScheduleCreateAndInstructQuery){
         LocalDateTime startTime = coachTimeScheduleCreateAndInstructQuery.getStartTime();
         LocalDateTime endTime = coachTimeScheduleCreateAndInstructQuery.getEndTime();
