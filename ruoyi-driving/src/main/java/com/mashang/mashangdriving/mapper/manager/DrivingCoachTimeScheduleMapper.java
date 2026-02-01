@@ -15,5 +15,5 @@ public interface DrivingCoachTimeScheduleMapper extends BaseMapper<DrivingCoachT
      */
     List<DrivingCoachTimeSchedule> selectCoachTimeByYearAndMonth(
             @Param("year") Integer year,
-            @Param("month") Integer month,@Param("instructor_id")Long instructorId);
+            @Param("month") Integer month,@Param("instructorId")Long instructorId);
 }
