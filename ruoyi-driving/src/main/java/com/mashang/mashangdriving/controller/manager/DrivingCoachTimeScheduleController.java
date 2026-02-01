@@ -148,7 +148,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
         return success ? R.ok("批量新增成功") : R.fail("批量新增失败");
     }
 
-    @DeleteMapping("/delete/{scheduleId}")
+    @DeleteMapping("/delete")
     @ApiOperation("取消可预约时间安排")
     public R deleteById(@RequestBody DrivingCoachTimeScheduleDelete delete) {
         LambdaQueryWrapper<DrivingCoachTimeSchedule>lambdaQueryWrapper=new LambdaQueryWrapper<>();
