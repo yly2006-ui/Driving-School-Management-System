@@ -29,7 +29,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@Validated
 @Api(tags = "管理端--地点管理")
 @RestController
 @RequestMapping("/drivingLocation")
@@ -78,7 +78,7 @@ public class DrivingLocationController extends BaseController {
     }
     @ApiOperation("分页查询地点")
     @GetMapping("/list")
-    public TableDataInfo<List<DrivingLocationListVo>> list(@Validated PageQuery pageQuery,
+    public TableDataInfo<List<DrivingLocationListVo>> list( PageQuery pageQuery,
                                                            DrivingLocationQuery drivingLocationQuery) {
         LambdaQueryWrapper<DrivingLocation> lqw = new LambdaQueryWrapper<>();
 
