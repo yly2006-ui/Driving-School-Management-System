@@ -3,6 +3,7 @@ package com.mashang.mashangdriving.controller.manager;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mashang.mashangdriving.domain.entity.DrivingCoachTimeSchedule;
 import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
+import com.mashang.mashangdriving.domain.param.manager.delete.DrivingCoachTimeScheduleDelete;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingCoachTimeScheduleCreate;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingCoachTimeScheduleCreateAndInstructQuery;
 import com.mashang.mashangdriving.domain.utils.CoachTimeGridUtil;
@@ -147,11 +148,15 @@ public class DrivingCoachTimeScheduleController extends BaseController {
         return success ? R.ok("批量新增成功") : R.fail("批量新增失败");
     }
 
-    @DeleteMapping("/delete/{scheduleId}")
+    @DeleteMapping("/delete")
     @ApiOperation("取消可预约时间安排")
-    public R deleteById(@PathVariable Long scheduleId) {
-        boolean b = drivingCoachTimeScheduleService.removeById(scheduleId);
-        return toR(b);
+    public R deleteById(@RequestBody DrivingCoachTimeScheduleDelete delete) {
+        LambdaQueryWrapper<DrivingCoachTimeSchedule>lambdaQueryWrapper=new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getStartTime,delete.getStartTime());
+        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getEndTime,delete.getEndTime());
+        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId,SecurityUtils.getUserId());
+        boolean remove = drivingCoachTimeScheduleService.remove(lambdaQueryWrapper);
+        return toR(remove);
     }
 
     @GetMapping("/selectByUserId")
