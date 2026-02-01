@@ -16,6 +16,7 @@
         where del_flag = '0'
         and YEAR(start_time) = #{year}
         and MONTH(start_time) = #{month}
+        and instructor_id=#{instructorId}
     </select>
 
 
