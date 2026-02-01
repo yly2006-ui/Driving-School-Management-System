@@ -38,6 +38,10 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     private static final Pattern YEAR_MONTH = Pattern.compile("^(\\d{4})年(\\d{1,2})月$");
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    // 改用LocalDateTime专用的格式化器
+    private static final DateTimeFormatter timeKeyFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH");
+
     @Autowired
     private IDrivingCoachTimeScheduleService drivingCoachTimeScheduleService;
     @Autowired
@@ -219,7 +223,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
             for (DrivingCoachTimeSchedule drivingCoachTimeSchedule : scheduleList) {
                 LocalDateTime startTime = drivingCoachTimeSchedule.getStartTime();
                 String timeKey = timeGridVO.getTimeKey();
-                String format = startTime.format(DATE_TIME_FORMATTER);
+                String format = startTime.format(timeKeyFormatter);
                 if (timeKey.equals(format)){
                     timeGridVO.setStatus(1);
                     timeGridVO.setPerson(drivingCoachTimeSchedule.getPerson());
