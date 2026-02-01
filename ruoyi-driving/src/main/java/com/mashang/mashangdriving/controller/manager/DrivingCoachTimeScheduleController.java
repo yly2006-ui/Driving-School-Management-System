@@ -173,7 +173,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
         lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getDelFlag, 0);
 
         DrivingCoachTimeSchedule one = drivingCoachTimeScheduleService.getOne(lambdaQueryWrapper);
-        String person = null;
+        String person = "0";
         if (one != null) {
             person = one.getPerson();
         }
