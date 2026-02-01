@@ -56,14 +56,11 @@ public class DrivingStudentListVo  {
     private Date createTime;
     @ApiModelProperty(value = "修改时间", example = "2024-01-15 10:30:00")
     private Date updateTime;
-    @ApiModelProperty(value = "驾驶类型")
-    private DrivingDriverLicenseType drivingDriverLicenseType;
-    @ApiModelProperty(value = "课目表")
-    private DrivingSubject drivingSubject;
-    @ApiModelProperty(value = "学员课程表")
-    private DrivingCourseRecord drivingCourseRecord;
+    @ApiModelProperty(value = "驾驶证编码",hidden = true)
+    private String driverLicenseCode;
+    @ApiModelProperty(value = "驾驶证名字",hidden = true)
+    private String driverLicenseName;
     @ApiModelProperty(value = "教练学员表")
     private DrivingInstructorStudent drivingInstructorStudent;
-    @ApiModelProperty(value = "教练表")
-    private DrivingInstructor drivingInstructor;
+
 }

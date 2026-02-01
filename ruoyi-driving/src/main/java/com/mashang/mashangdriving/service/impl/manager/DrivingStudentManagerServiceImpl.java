@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mashang.mashangdriving.Exception.BusinessException;
+import com.mashang.mashangdriving.domain.entity.DrivingDriverLicenseType;
 import com.mashang.mashangdriving.domain.entity.DrivingInstructorStudent;
 import com.mashang.mashangdriving.domain.entity.DrivingStudent;
 import com.mashang.mashangdriving.domain.param.manager.create.DrivingStudentCreate;
@@ -12,21 +13,26 @@ import com.mashang.mashangdriving.domain.param.manager.query.DrivingStudentQuery
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingStudentManagerUpdate;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo1;
+import com.mashang.mashangdriving.mapper.manager.DrivingDriverLicenseTypeMapper;
 import com.mashang.mashangdriving.mapper.manager.DrivingStudentManagerMapper;
 import com.mashang.mashangdriving.mapper.manager.InstructorStudentManagerMapper;
 import com.mashang.mashangdriving.service.manager.IDrivingStudentManagerService;
 import com.ruoyi.common.utils.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class DrivingStudentManagerServiceImpl extends ServiceImpl<DrivingStudentManagerMapper, DrivingStudent> implements IDrivingStudentManagerService {
 
     @Autowired
     private InstructorStudentManagerMapper instructorStudentManagerMapper;
+    @Autowired
+    private DrivingDriverLicenseTypeMapper drivingDriverLicenseTypeMapper;
 
     @Override
     public Page<DrivingStudentListVo> getList( Page<DrivingStudentListVo> page) {
@@ -71,11 +77,24 @@ public class DrivingStudentManagerServiceImpl extends ServiceImpl<DrivingStudent
         drivingInstructorStudent.setInstructorId(dto.getDrivingInstructorStudent().getInstructorId());
         drivingInstructorStudent.setDelFlag("0");
 
+
         int i1 = instructorStudentManagerMapper.insert(drivingInstructorStudent);
         if (i1 <= 0) {
             throw new RuntimeException("保存教练学员关系失败");
         }
 
+        LambdaQueryWrapper<DrivingDriverLicenseType> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DrivingDriverLicenseType::getDriverLicenseId, dto.getDriverLicenseId());
+        DrivingDriverLicenseType drivingDriverLicenseType = drivingDriverLicenseTypeMapper.selectOne(wrapper);
+        if (drivingDriverLicenseType == null) {
+            // 记录日志
+            System.out.println("警告：驾照类型ID " + dto.getDriverLicenseId() + " 不存在");
+            studentEntity.setDriverLicenseName("");
+            studentEntity.setDriverLicenseCode("");
+        } else {
+            studentEntity.setDriverLicenseName(drivingDriverLicenseType.getDriverLicenseName());
+            studentEntity.setDriverLicenseCode(drivingDriverLicenseType.getDriverLicenseCode());
+        }
         studentEntity.setDrivingInstructorStudent(drivingInstructorStudent);
         return getDrivingStudentListVo(studentEntity);
     }
@@ -189,6 +208,7 @@ public class DrivingStudentManagerServiceImpl extends ServiceImpl<DrivingStudent
         DrivingStudentListVo vo = new DrivingStudentListVo();
         vo.setStudentId(studentEntity.getStudentId());
         vo.setStudentName(studentEntity.getStudentName());
+        vo.setDriverLicenseId(studentEntity.getDriverLicenseId());
         vo.setPhone(studentEntity.getPhone());
         vo.setIdNumber(studentEntity.getIdNumber());
         vo.setStatus(studentEntity.getStatus());
@@ -196,6 +216,9 @@ public class DrivingStudentManagerServiceImpl extends ServiceImpl<DrivingStudent
         vo.setUpdateTime(studentEntity.getUpdateTime());
         vo.setUserId(studentEntity.getUserId());
         vo.setDrivingInstructorStudent(studentEntity.getDrivingInstructorStudent());
+        vo.setDriverLicenseName(studentEntity.getDriverLicenseName());
+        vo.setDriverLicenseCode(studentEntity.getDriverLicenseCode());
+
         return vo;
     }
 }

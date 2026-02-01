@@ -131,22 +131,68 @@
                 AND dis.subject_id = #{drivingStudentQuery.subjectId}
             </if>
         </where>
+
+        AND ds.student_id IN (SELECT MAX(student_id)
+        FROM ms_stu_pro339.driving_student
+        WHERE del_flag = '0'
+        GROUP BY id_number -- 按身份证号分组，确保同一人只出现一次
+        )
         ORDER BY ds.student_id ASC
     </select>
 
-    <select id="getList" resultMap="DrivingStudentListVoResult">
-        SELECT ds.student_id, student_name, ds.user_id, ds.driver_license_id,
-               ds.phone, emergency_phone, ds.status, ds.id_number, id_number_front, id_number_back,
-                ds.create_time, avatar, student_code, ds.update_time,ddlt.driver_license_code,
-                dcr.finished_hours,dcr.status,di.instructor_name,di.score,dsj.subject_name
-            FROM ms_stu_pro339.driving_student ds
-        LEFT JOIN ms_stu_pro339.driving_driver_license_type ddlt ON ds.driver_license_id = ddlt.driver_license_id
-            LEFT JOIN ms_stu_pro339.driving_course_record dcr ON dcr.student_id = ds.student_id
-            LEFT JOIN ms_stu_pro339.driving_instructor_student dis ON dis.student_id = ds.student_id
-                LEFT JOIN ms_stu_pro339.driving_subject dsj ON dis.subject_id = dsj.subject_id
-            LEFT JOIN ms_stu_pro339.driving_instructor di ON dis.instructor_id = di.instructor_id
+    <select id="getList" resultMap="DrivingStudentListVo1Result">
+        SELECT DISTINCT ds.student_id,
+                        (SELECT ds.student_name
+                         FROM ms_stu_pro339.driving_student
+                         WHERE student_id = ds.student_id
+                         ORDER BY create_time DESC
+                         LIMIT 1)                          as student_name,
+                        ds.user_id,
+                        ds.driver_license_id,
+                        ds.del_flag,
+                        ds.phone,
+                        emergency_phone,
+                        (SELECT status
+                         FROM ms_stu_pro339.driving_student
+                         WHERE student_id = ds.student_id
+                         ORDER BY create_time DESC
+                         LIMIT 1)                          as status,
+                        ds.id_number,
+                        id_number_front,
+                        id_number_back,
+                        ds.create_time,
+                        avatar,
+                        student_code,
+                        ds.update_time,
+                        ddlt.driver_license_code,
+                        ddlt.driver_license_name,
+                        (SELECT SUM(finished_hours)
+                         FROM ms_stu_pro339.driving_course_record
+                         WHERE student_id = ds.student_id) as finished_hours,
+                        dcr.status                         as study_status,
+                        di.instructor_name,
+                        di.score,
+                        dsj.subject_name,
+                        di.id_number                       as instructor_id_number,
+                        di.phone                           as instructor_phone
+        FROM ms_stu_pro339.driving_student ds
+                 LEFT JOIN ms_stu_pro339.driving_driver_license_type ddlt
+                           ON ds.driver_license_id = ddlt.driver_license_id
+                 LEFT JOIN ms_stu_pro339.driving_course_record dcr
+                           ON dcr.student_id = ds.student_id
+                 LEFT JOIN ms_stu_pro339.driving_instructor_student dis
+                           ON dis.student_id = ds.student_id
+                 LEFT JOIN ms_stu_pro339.driving_subject dsj
+                           ON dis.subject_id = dsj.subject_id
+                 LEFT JOIN ms_stu_pro339.driving_instructor di
+                           ON dis.instructor_id = di.instructor_id
         WHERE ds.del_flag = '0'
-        ORDER BY student_id ASC
+          AND ds.student_id IN (SELECT MAX(student_id)
+                                FROM ms_stu_pro339.driving_student
+                                WHERE del_flag = '0'
+                                GROUP BY id_number -- 按身份证号分组，确保同一人只出现一次
+        )
+        ORDER BY student_id
     </select>
 <!--    <select id="selectOneStudent" resultMap="DrivingStudentListVoResult">-->
 <!--        SELECT ds.student_id, ds.student_name, ds.user_id, ds.driver_license_id,-->
