@@ -21,6 +21,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -109,7 +110,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
 
     @PostMapping("/batchAdd")
     @ApiOperation("批量新增教练时间安排")
-    public R batchAddSchedule(@RequestBody List<DrivingCoachTimeScheduleCreate> scheduleList) {
+    public R batchAddSchedule(@RequestBody @Validated List<DrivingCoachTimeScheduleCreate> scheduleList) {
 
         Long userId = SecurityUtils.getUserId();
         LambdaQueryWrapper<DrivingInstructor>lqw=new LambdaQueryWrapper<>();
