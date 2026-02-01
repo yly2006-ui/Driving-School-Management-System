@@ -120,8 +120,10 @@ public class DrivingCoachTimeScheduleController extends BaseController {
         Long instructorId = instructor.getInstructorId();
 
         for (DrivingCoachTimeScheduleCreate drivingCoachTimeScheduleCreate : scheduleList) {
-            LocalDateTime startTime = LocalDateTime.parse(drivingCoachTimeScheduleCreate.getStartTime(),DATE_TIME_FORMATTER);
-            LocalDateTime endTime = LocalDateTime.parse(drivingCoachTimeScheduleCreate.getEndTime(),DATE_TIME_FORMATTER);
+            LocalDateTime startTime = LocalDateTime.parse(drivingCoachTimeScheduleCreate.getStartTime().trim(),
+                    DATE_TIME_FORMATTER);
+            LocalDateTime endTime = LocalDateTime.parse(drivingCoachTimeScheduleCreate.getEndTime(),
+                    DATE_TIME_FORMATTER);
 
             LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper =
                     new LambdaQueryWrapper<>();
