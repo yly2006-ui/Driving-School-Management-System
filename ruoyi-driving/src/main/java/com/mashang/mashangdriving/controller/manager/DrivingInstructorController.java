@@ -121,15 +121,18 @@ public class DrivingInstructorController extends BaseController {
 
     @ApiOperation("更新部分时段安排")
     @PostMapping("/updatePartialSchedule")
-    public R updatePartialSchedule( DrivingScheduleUpdateDTO dto) {
+    public R updatePartialSchedule(  DrivingScheduleUpdateDTO dto) {
         try {
             // 参数验证
             if (dto.getInstructorId() == null || dto.getInstructorId() <= 0) {
                 return R.fail("教练ID无效");
             }
-                if (dto.getWeekDay() == null || dto.getWeekDay() <= 0 || dto.getWeekDay() >= 7) {
-                    return R.fail("星期参数必须为1-7");
+            List<Integer> weekDayList = dto.getWeekDayList();
+            for (Integer weekDay : weekDayList) {
+                if(weekDay == null||weekDay<=0||weekDay>=7){
+                    return R.fail("weekDay必须在1-7内"+weekDay+"不在范围内");
                 }
+            }
                 if (dto.getStatus() == null || (dto.getStatus() != -1 && dto.getStatus() != 0 && dto.getStatus() != 1)) {
                     return R.fail("状态参数必须为-1、0或1");
                 }
@@ -145,6 +148,5 @@ public class DrivingInstructorController extends BaseController {
         } catch (Exception e) {
             return R.fail("更新失败: " + e.getMessage());
         }
-
 
 }}

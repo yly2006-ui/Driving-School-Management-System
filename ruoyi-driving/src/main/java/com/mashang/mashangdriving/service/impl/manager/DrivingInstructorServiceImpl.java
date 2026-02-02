@@ -177,28 +177,39 @@ public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorM
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updatePartialSchedule(DrivingScheduleUpdateDTO dto) {
         List<Integer> timeSlotList = dto.getTimeSlotList();
         if (timeSlotList == null || timeSlotList.isEmpty()) {
             throw new RuntimeException("时间段列表不能为空");
         }
-
-        ArrayList<CoachWeeklySchedule> coachWeeklySchedules = new ArrayList<>();
-        for (Integer timeSlot : timeSlotList) {
-            if (timeSlot == null) {
-                continue;
-            }
-
-            CoachWeeklySchedule coachWeeklySchedule = new CoachWeeklySchedule();
-
-            coachWeeklySchedule.setInstructorId(dto.getInstructorId());
-            coachWeeklySchedule.setWeekDay(dto.getWeekDay());
-            coachWeeklySchedule.setTimeSlot(timeSlot);
-            coachWeeklySchedule.setStatus(dto.getStatus());
-            coachWeeklySchedules.add(coachWeeklySchedule);
+        List<Integer> weekDayList = dto.getWeekDayList();
+        if (weekDayList == null || weekDayList.isEmpty()) {
+            throw new RuntimeException("星期列表不能为空");
         }
 
-            baseMapper.batchUpsert(coachWeeklySchedules);
+        ArrayList<CoachWeeklySchedule> coachWeeklySchedules = new ArrayList<>();
+
+        for (Integer weekday : weekDayList) {
+            for (Integer timeSlot : timeSlotList) {
+                if (timeSlot == null) {
+                    continue;
+                }
+                CoachWeeklySchedule coachWeeklySchedule = new CoachWeeklySchedule();
+
+                coachWeeklySchedule.setInstructorId(dto.getInstructorId());
+                coachWeeklySchedule.setWeekDay(weekday);
+                coachWeeklySchedule.setTimeSlot(timeSlot);
+                coachWeeklySchedule.setStatus(dto.getStatus());
+                coachWeeklySchedules.add(coachWeeklySchedule);
+            }
+
+
+        }
+            int i = baseMapper.batchUpsert(coachWeeklySchedules);
+            if (i<=0){
+                throw new RuntimeException("更新失败");
+            }
     }
 
     private static DrivingInstructorListVo getDrivingInstructorVo(DrivingInstructor drivingInstructor) {
