@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mashang.mashangdriving.mapper.manager.DrivingRatingMapper">
+
+
+    <resultMap id="DrivingRatingStudentVOMap" type="com.mashang.mashangdriving.domain.vo.manager.DrivingRatingStudentVO">
+    <id column="rating_id" property="ratingId" jdbcType="BIGINT"/>
+    <result column="subject_id" property="subjectId" jdbcType="BIGINT"/>
+    <result column="subject_name" property="subjectName" jdbcType="VARCHAR"/>
+    <result column="instructor_id" property="instructorId" jdbcType="BIGINT"/>
+    <result column="instructor_name" property="instructorName" jdbcType="VARCHAR"/>
+    <result column="student_id" property="studentId" jdbcType="BIGINT"/>
+    <result column="student_name" property="studentName" jdbcType="VARCHAR"/>
+    <result column="student_user_id" property="studentUserId" jdbcType="BIGINT"/>
+    <result column="contanct" property="contanct" jdbcType="VARCHAR"/>
+    <result column="score" property="score" jdbcType="DECIMAL"/>
+    <result column="create_time" property="createTime" jdbcType="DATE"/>
+    </resultMap>
+
+    <select id="getRatingByInstructorWithStudentInfo"
+            resultMap="DrivingRatingStudentVOMap">
+        SELECT
+            dr.rating_id,
+            dr.create_time,
+            dr.subject_id,
+            ds.subject_name,
+            dr.instructor_id,
+            di.instructor_name,
+            dr.student_id,
+            ds2.student_name,
+            ds2.user_id as student_user_id,
+            dr.contanct ,
+            dr.score
+        FROM
+            driving_rating dr
+                LEFT JOIN
+            driving_subject ds ON dr.subject_id = ds.subject_id
+                LEFT JOIN
+            driving_instructor di ON dr.instructor_id = di.instructor_id
+                LEFT JOIN
+            driving_student ds2 ON dr.student_id = ds2.student_id
+        WHERE
+           dr.instructor_id = #{instructorId}
+        <choose>
+            <when test="timeFilter=='week'.toString">
+                AND dr.create_time>= DATE_SUB(NOW(),INTERVAL 7 DAY)
+            </when>
+            <when test="timeFilter=='month'.toString">
+                AND dr.create_time>= DATE_SUB(NOW(),INTERVAL 1 MONTH)
+            </when>
+            <when test="timeFilter=='quarter'.toString">
+                AND dr.create_time>= DATE_SUB(NOW(),INTERVAL 3 MONTH)
+            </when>
+        </choose>
+        ORDER BY
+            dr.create_time DESC
+    </select>
+
+
+
+</mapper>

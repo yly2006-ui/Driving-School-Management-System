@@ -27,6 +27,8 @@ public class DrivingInstructorUpdate {
   private String goodSubject;
   @ApiModelProperty(value = "教练照片")
   private String photo;
+  @ApiModelProperty(value = "工作状态 0在职1辞职")
+  private String status;
 
 
 

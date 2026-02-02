@@ -1,12 +1,12 @@
 package com.mashang.mashangdriving.controller.manager;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.mashang.mashangdriving.domain.entity.DrivingRating;
 import com.mashang.mashangdriving.domain.param.manager.create.DrivingInstructorCreate;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingInstructorUpdate;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingScheduleUpdateDTO;
-import com.mashang.mashangdriving.domain.vo.manager.DrivingInstructorDateVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingInstructorListVo;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingOneInstructorVo;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingRatingStudentVO;
 import com.mashang.mashangdriving.service.manager.IDrivingInstructorService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
@@ -14,7 +14,7 @@ import com.ruoyi.common.core.page.PageQuery;
 import com.ruoyi.common.core.page.TableDataInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.ibatis.annotations.Param;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,21 +40,44 @@ public class DrivingInstructorController extends BaseController {
 
     @GetMapping("/selectOne")
     @ApiOperation("查询教练详细信息")
-    public R selectOne(@RequestParam("instructorName") String instructorName) {
-        DrivingInstructorListVo instructor = drivingInstructorService.getByName(instructorName);
+    public R selectOne(@RequestParam("instructorId") Long instructorId) {
+        DrivingOneInstructorVo instructor = drivingInstructorService.getByInstructorId(instructorId);
         if (instructor == null)  {
             return R.fail("该用户不存在");
         }
         return R.ok(instructor);
     }
+    @GetMapping("/selectInstructor")
+    @ApiOperation("搜索教练")
+    public TableDataInfo<DrivingOneInstructorVo> selectInstructor(@RequestParam("instructorName") String instructorName,PageQuery pageQuery) {
+        Page<DrivingOneInstructorVo> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
+        Page<DrivingOneInstructorVo> instructor = drivingInstructorService.getByInstructorName(instructorName,page);
+        if (instructor == null)  {
+            return new TableDataInfo<>();
+        }
+        return getDataTable(instructor.getRecords(),instructor.getTotal());
+    }
+
+    @GetMapping("/selectAllStatus")
+    @ApiOperation("查看所有教练状态")
+    public R selectAllStatus() {
+        return R.ok(drivingInstructorService.getAllStatus());
+    }
+
+
     @GetMapping("/getRating")
     @ApiOperation("查看教练评论")
-     public R getRating(@RequestParam("instructorId") Long instructorId){
-        List<DrivingRating> rating = drivingInstructorService.getRating(instructorId);
+     public TableDataInfo<DrivingRatingStudentVO> getRating(@RequestParam("instructorId") Long instructorId, PageQuery pageQuery,
+                                                            @RequestParam(value = "timeFilter",required = false,defaultValue = "all")
+                                                            @ApiParam(value = "时间筛选: all(全部时间), week(最近一周), month(最近一月), quarter(最近三月)",
+                                                                    allowableValues = "all,week,month,quarter",
+                                                                    example = "week")String timeFilter) {
+        Page<DrivingRatingStudentVO> drivingRatingPage = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
+        Page<DrivingRatingStudentVO> rating = drivingInstructorService.getRatingByInstructorWithStudentInfo(instructorId,drivingRatingPage,timeFilter);
         if (rating == null)  {
-            return R.fail("评论不存在");
+            return new TableDataInfo<>();
         }
-        return R.ok(rating);
+        return getDataTable(rating.getRecords(),rating.getTotal());
     }
 
 

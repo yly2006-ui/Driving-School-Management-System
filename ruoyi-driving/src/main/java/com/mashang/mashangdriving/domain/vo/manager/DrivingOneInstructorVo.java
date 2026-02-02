@@ -3,7 +3,6 @@ package com.mashang.mashangdriving.domain.vo.manager;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mashang.mashangdriving.domain.entity.DrivingCar;
 import com.mashang.mashangdriving.domain.entity.DrivingRating;
 import io.swagger.annotations.ApiModelProperty;
@@ -12,9 +11,8 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class DrivingInstructorListVo {
+public class DrivingOneInstructorVo {
 
-  @TableId(type = IdType.AUTO)
   @ApiModelProperty(value = "教练ID")
   private Long instructorId;
   @ApiModelProperty(value = "教练名字")
@@ -39,14 +37,14 @@ public class DrivingInstructorListVo {
   private String certificate;
   @ApiModelProperty(value = "删除标志")
   private String delFlag;
-  @ApiModelProperty(value = "教练评分")
-  private Double score;
-  @ApiModelProperty(value = "学员评价")
-  private DrivingRating drivingRating;
   @ApiModelProperty(value = "车辆信息")
   private DrivingCar drivingCar;
   @ApiModelProperty(value = "学生数量")
   private Long studentNum;
+  @ApiModelProperty(value = "总评价数")
+  private Long ratingNum;
+  @ApiModelProperty(value = "综合评分")
+  private Double overAllRating;
   @ApiModelProperty(value = "驾驶代码")
   private String driverLicenseCode;
   @ApiModelProperty(value = "驾驶证类型名称")

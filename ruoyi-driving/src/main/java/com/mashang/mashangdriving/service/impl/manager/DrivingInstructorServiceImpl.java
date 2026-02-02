@@ -4,15 +4,17 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.mashang.mashangdriving.domain.entity.CoachWeeklySchedule;
-import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
-import com.mashang.mashangdriving.domain.entity.DrivingRating;
+import com.mashang.mashangdriving.domain.entity.*;
 import com.mashang.mashangdriving.domain.param.manager.create.DrivingInstructorCreate;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingInstructorUpdate;
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingScheduleUpdateDTO;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingInstructorListVo;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingOneInstructorVo;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingRatingStudentVO;
 import com.mashang.mashangdriving.mapper.manager.DrivingInstructorMapper;
 import com.mashang.mashangdriving.mapper.manager.DrivingRatingMapper;
+import com.mashang.mashangdriving.mapper.manager.DrivingStudentManagerMapper;
+import com.mashang.mashangdriving.mapper.student.DrivingStudentMapper;
 import com.mashang.mashangdriving.service.manager.IDrivingInstructorService;
 import com.ruoyi.common.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,8 @@ public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorM
 
     @Autowired
     private DrivingRatingMapper drivingRatingMapper;
+    @Autowired
+    private DrivingStudentManagerMapper drivingStudentManagerMapper;
     //4:00-23:00
     private static final int TOTAL_TIME_SLOTS = 19;
     //周一到周日
@@ -35,15 +39,18 @@ public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorM
     public Page<DrivingInstructorListVo> getList(Page<DrivingInstructorListVo> page) {
         Page<DrivingInstructorListVo> list = baseMapper.getList(page);
         List<DrivingInstructorListVo> records = list.getRecords();
-        for (DrivingInstructorListVo record : records) {
-            record.setTotal(null);
-        }
+
         return list;
     }
 
     @Override
-    public DrivingInstructorListVo getByName(String name) {
-        return baseMapper.getByName(name);
+    public DrivingOneInstructorVo getByInstructorId(Long instructorId) {
+        return baseMapper.getByInstructorId(instructorId);
+    }
+
+    @Override
+    public Page<DrivingOneInstructorVo> getByInstructorName(String instructorName,Page<DrivingOneInstructorVo> page) {
+        return baseMapper.getByInstructorName(instructorName, page);
     }
 
     @Override
@@ -109,6 +116,9 @@ public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorM
         if(StringUtils.isNotBlank(drivingInstructorUpdate.getPhoto())){
             wrapper.set(DrivingInstructor::getPhoto, drivingInstructorUpdate.getPhoto());
         }
+        if(StringUtils.isNotBlank(drivingInstructorUpdate.getStatus())){
+            wrapper.set(DrivingInstructor::getStatus,drivingInstructorUpdate.getStatus());
+        }
         int update = baseMapper.update(null, wrapper);
         if (update<=0){
             throw new RuntimeException("更新失败");
@@ -121,16 +131,33 @@ public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorM
     }
 
     @Override
-    public List<DrivingRating> getRating(Long instructorId) {
-        DrivingInstructor instructor = baseMapper.selectById(instructorId);
-        if (instructor == null) {
-            throw new RuntimeException("教练不存在评论");
+    public Page<DrivingRatingStudentVO> getRatingByInstructorWithStudentInfo(Long instructorId, Page<DrivingRatingStudentVO> page,String timeFilter) {
+        if(timeFilter!=null){
+            List<String> list = Arrays.asList("all", "week", "month", "quarter");
+            if(!list.contains(timeFilter)){
+                throw new RuntimeException("不包含\"all\", \"week\", \"month\", \"quarter\"的字段");
+            }
         }
-        return drivingRatingMapper.selectList(
-                new LambdaQueryWrapper<DrivingRating>()
-                        .eq(DrivingRating::getInstructorId, instructorId)
-        );
+        Page<DrivingRatingStudentVO> rating = drivingRatingMapper.getRatingByInstructorWithStudentInfo(instructorId, page,timeFilter);
+        if (rating==null){
+            throw new RuntimeException("查询错误");
+        }
+        return rating;
     }
+
+//    @Override
+//    public Page<DrivingRating> getRating(Long instructorId,Page<DrivingRating> page) {
+//        DrivingInstructor instructor = baseMapper.selectById(instructorId);
+//        if (instructor == null) {
+//            throw new RuntimeException("教练不存在评论");
+//        }
+//        LambdaQueryWrapper<DrivingRating> wrapper = new LambdaQueryWrapper<DrivingRating>()
+//                .eq(DrivingRating::getInstructorId, instructorId);
+//        wrapper.select(DrivingRating::getStudentId,DrivingRating::getInstructorId);
+//        LambdaQueryWrapper<DrivingStudent> studentLambdaQueryWrapper = new LambdaQueryWrapper<>();
+//
+//        return drivingRatingMapper.selectPage(page, wrapper);
+//    }
 
 
     @Override
@@ -143,6 +170,10 @@ public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorM
         return scheduleMatrix;
     }
 
+    @Override
+    public DrivingInstructorStatus getAllStatus() {
+        return baseMapper.getAllStatus();
+    }
 
 
     @Override
@@ -181,6 +212,8 @@ public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorM
         drivingInstructorListVo.setPhone(drivingInstructor.getPhone());
         drivingInstructorListVo.setPhoto(drivingInstructor.getPhoto());
         drivingInstructorListVo.setInstructorId(drivingInstructor.getInstructorId());
+        drivingInstructorListVo.setStatus(drivingInstructor.getStatus());
+        drivingInstructorListVo.setDelFlag(drivingInstructor.getDelFlag());
         return drivingInstructorListVo;
     }
 

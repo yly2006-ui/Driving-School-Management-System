@@ -16,7 +16,6 @@
         <result column="certificate" property="certificate" />
         <result column="del_flag" property="delFlag" />
         <result column="score" property="score" />
-        <result column="total_count" property="total"/>
         <result column="student_num" property="studentNum"/>
         <result column="driver_license_code" property="driverLicenseCode"/>
         <result column="driver_license_name" property="driverLicenseName"/>
@@ -43,6 +42,51 @@
             <result column="status" property="status" />
             <result column="del_flag" property="delFlag" />
         </association>
+    </resultMap>
+    <resultMap id="DrivingOneInstructorVoMap"
+               type="com.mashang.mashangdriving.domain.vo.manager.DrivingOneInstructorVo">
+        <!-- 基本字段 -->
+        <id column="instructor_id" property="instructorId" jdbcType="BIGINT"/>
+        <result column="instructor_name" property="instructorName" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="id_number" property="idNumber" jdbcType="VARCHAR"/>
+        <result column="entry_date" property="entryDate" jdbcType="DATE"/>
+        <result column="instructor_no" property="instructorNo" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="teaching_years" property="teachingYears" jdbcType="VARCHAR"/>
+        <result column="good_subject" property="goodSubject" jdbcType="VARCHAR"/>
+        <result column="photo" property="photo" jdbcType="VARCHAR"/>
+        <result column="certificate" property="certificate" jdbcType="VARCHAR"/>
+        <result column="del_flag" property="delFlag" jdbcType="VARCHAR"/>
+
+        <!-- 关联字段：驾驶证信息 -->
+        <result column="driver_license_code" property="driverLicenseCode" jdbcType="VARCHAR"/>
+        <result column="driver_license_name" property="driverLicenseName" jdbcType="VARCHAR"/>
+
+        <!-- 统计字段 -->
+        <result column="student_num" property="studentNum" jdbcType="BIGINT"/>
+        <result column="rating_num" property="ratingNum" jdbcType="BIGINT"/>
+        <result column="over_all_rating" property="overAllRating" jdbcType="DECIMAL"/>
+
+        <!-- 嵌套对象：车辆信息 -->
+        <association property="drivingCar" javaType="com.mashang.mashangdriving.domain.entity.DrivingCar">
+            <result column="car_id" property="carId" jdbcType="BIGINT"/>
+            <result column="instructor_id" property="instructorId" jdbcType="BIGINT"/>
+            <result column="car_name" property="carName" jdbcType="VARCHAR"/>
+            <result column="car_color" property="carColor" jdbcType="VARCHAR"/>
+            <result column="car_brand" property="carBrand" jdbcType="VARCHAR"/>
+            <result column="buy_date" property="buyDate" jdbcType="DATE"/>
+            <result column="transmission_type" property="transmissionType" jdbcType="VARCHAR"/>
+            <result column="ein" property="ein" jdbcType="VARCHAR"/>
+            <result column="vin" property="vin" jdbcType="VARCHAR"/>
+            <result column="mot_expires" property="motExpires" jdbcType="DATE"/>
+            <result column="full_persion" property="fullPersion" jdbcType="BIGINT"/>
+            <result column="plate_number" property="plateNumber" jdbcType="VARCHAR"/>
+            <result column="status" property="status" jdbcType="VARCHAR"/>
+            <result column="del_flag" property="delFlag" jdbcType="VARCHAR"/>
+            <result column="car_type" property="carType" jdbcType="VARCHAR"/>
+        </association>
+
     </resultMap>
     
     <resultMap id="DrivingRatingMap" type="com.mashang.mashangdriving.domain.entity.DrivingRating">
@@ -100,16 +144,82 @@
         WHERE di.status = '0'
     </select>
 
-    <select id="getByName" resultMap="DrivingInstructorListVo">
+    <select id="getByInstructorId" resultMap="DrivingOneInstructorVoMap">
         SELECT di.instructor_id, user_id, instructor_name, phone, id_number,
                entry_date, instructor_no, di.status, teaching_years, schedulable_time_start,
-               schedulable_time_end, no_time_start, no_time_end, photo, good_subject,
-               score, content, certificate, di.del_flag,dc.plate_number,dc.car_type,dc.mot_expires
-            FROM ms_stu_pro339.driving_instructor di
-        LEFT JOIN ms_stu_pro339.driving_car dc ON di.instructor_id = dc.instructor_id
-        where di.instructor_name LIKE CONCAT('%',#{instructorName},'%')
-        AND di.status = '0'
+               schedulable_time_end, no_time_start, no_time_end, photo, good_subject
+                , content, certificate, di.del_flag,dc.plate_number,dc.status,dc.car_type,dc.mot_expires,
+                  dc.buy_date,dc.car_color,dc.car_name,dc.car_brand,
+               COALESCE((
+                            SELECT GROUP_CONCAT(DISTINCT ddlt2.driver_license_name
+                                                ORDER BY ddlt2.driver_license_code
+                                                SEPARATOR ',')
+                            FROM ms_stu_pro339.driving_driver_license_type_instructor ddlti2
+                                     LEFT JOIN ms_stu_pro339.driving_driver_license_type ddlt2
+                                               ON ddlt2.driver_license_id = ddlti2.driver_license_id
+                            WHERE ddlti2.instructor_id = di.instructor_id
+                        ), '') as driver_license_name,
+               COALESCE((
+                            SELECT GROUP_CONCAT(DISTINCT ddlt2.driver_license_code
+                                                ORDER BY ddlt2.driver_license_code
+                                                SEPARATOR ',')
+                            FROM ms_stu_pro339.driving_driver_license_type_instructor ddlti2
+                                     LEFT JOIN ms_stu_pro339.driving_driver_license_type ddlt2
+                                               ON ddlt2.driver_license_id = ddlti2.driver_license_id
+                            WHERE ddlti2.instructor_id = di.instructor_id
+                        ), '') as driver_license_code,
+               (select COUNT(*) FROM ms_stu_pro339.driving_instructor_student dis
+                WHERE di.instructor_id=dis.instructor_id
+               ) as student_num,
+            (SELECT COUNT(*) FROM ms_stu_pro339.driving_rating dr
+                             WHERE di.instructor_id=dr.instructor_id) as rating_num,
+            (SELECT ROUND(AVG(score),1) FROM ms_stu_pro339.driving_rating dr2
+                                        WHERE di.instructor_id= dr2.instructor_id
+                                        AND dr2.score IS NOT NULL ) AS  over_all_rating
 
+        FROM ms_stu_pro339.driving_instructor di
+                 LEFT JOIN ms_stu_pro339.driving_car dc ON di.instructor_id = dc.instructor_id
+        where di.instructor_id = #{instructorId}
+        AND di.status = '0'
+    </select>
+
+    <select id="getByInstructorName" resultMap="DrivingOneInstructorVoMap">
+        SELECT di.instructor_id, user_id, instructor_name, phone, id_number,
+               entry_date, instructor_no, di.status, teaching_years, schedulable_time_start,
+               schedulable_time_end, no_time_start, no_time_end, photo, good_subject
+                , content, certificate, di.del_flag,dc.plate_number,dc.status,dc.car_type,dc.mot_expires,
+                  dc.buy_date,dc.car_color,dc.car_name,dc.car_brand,
+               COALESCE((
+                            SELECT GROUP_CONCAT(DISTINCT ddlt2.driver_license_name
+                                                ORDER BY ddlt2.driver_license_code
+                                                SEPARATOR ',')
+                            FROM ms_stu_pro339.driving_driver_license_type_instructor ddlti2
+                                     LEFT JOIN ms_stu_pro339.driving_driver_license_type ddlt2
+                                               ON ddlt2.driver_license_id = ddlti2.driver_license_id
+                            WHERE ddlti2.instructor_id = di.instructor_id
+                        ), '') as driver_license_name,
+               COALESCE((
+                            SELECT GROUP_CONCAT(DISTINCT ddlt2.driver_license_code
+                                                ORDER BY ddlt2.driver_license_code
+                                                SEPARATOR ',')
+                            FROM ms_stu_pro339.driving_driver_license_type_instructor ddlti2
+                                     LEFT JOIN ms_stu_pro339.driving_driver_license_type ddlt2
+                                               ON ddlt2.driver_license_id = ddlti2.driver_license_id
+                            WHERE ddlti2.instructor_id = di.instructor_id
+                        ), '') as driver_license_code,
+               (select COUNT(*) FROM ms_stu_pro339.driving_instructor_student dis
+                WHERE di.instructor_id=dis.instructor_id
+               ) as student_num,
+            (SELECT COUNT(*) FROM ms_stu_pro339.driving_rating dr
+                             WHERE di.instructor_id=dr.instructor_id) as rating_num,
+            (SELECT ROUND(AVG(score),1) FROM ms_stu_pro339.driving_rating dr2
+                                        WHERE di.instructor_id= dr2.instructor_id
+                                        AND dr2.score IS NOT NULL ) AS  over_all_rating
+
+        FROM ms_stu_pro339.driving_instructor di
+                 LEFT JOIN ms_stu_pro339.driving_car dc ON di.instructor_id = dc.instructor_id
+        WHERE di.instructor_name LIKE CONCAT('%',#{instructorName},'%')
+        AND di.status = '0'
     </select>
 
     <select id="findWeeklyScheduleByInstructorId" resultType="java.util.Map">
@@ -119,13 +229,33 @@
     ORDER BY week_day, time_slot
     </select>
 
-<!--    <insert id="upsertWeeklySchedule">-->
-<!--        INSERT INTO coach_weekly_schedule-->
-<!--            (instructor_id, week_day, time_slot, status)-->
-<!--        VALUES (#{instructorId}, #{weekDay}, #{timeSlot}, #{status})-->
-<!--        ON DUPLICATE KEY UPDATE-->
-<!--                             status = VALUES(status),-->
-<!--                             updated_at = CURRENT_TIMESTAMP-->
-<!--    </insert>-->
+
+    <resultMap id="DrivingInstructorStatusMap"
+               type="com.mashang.mashangdriving.domain.entity.DrivingInstructorStatus">
+        <result column="instructor_num" property="instructorNum" jdbcType="BIGINT"/>
+        <result column="on_job_num" property="onJobNuml" jdbcType="BIGINT"/>
+        <result column="rating_avg" property="ratingAvg" jdbcType="DECIMAL"/>
+        <result column="average_workload" property="averageWorkload" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getAllStatus" resultMap="DrivingInstructorStatusMap">
+        SELECT (SELECT COUNT(*) FROM driving_instructor WHERE del_flag = '0') AS instructor_num,
+               (SELECT COUNT(*) FROM driving_instructor di
+                                WHERE del_flag = '0' AND di.status = '0') AS on_job_num,
+            (SELECT ROUND(AVG(score),1)FROM ms_stu_pro339.driving_rating
+                                       WHERE driving_rating.score IS NOT NULL ) AS rating_avg,
+            CONCAT(
+                ROUND(
+                    COALESCE(
+                    (SELECT SUM(CASE WHEN cws.status = 1 THEN 1 ELSE 0 END ) *100.0/
+                            NULLIF(SUM(CASE WHEN cws.status != -1 THEN 1 ELSE 0 END ),0)
+                     FROM ms_stu_pro339.coach_weekly_schedule cws
+                     WHERE cws.instructor_id IN (SELECT di2.instructor_id FROM driving_instructor di2
+                            WHERE di2.status='0' AND di2.del_flag='0')),0
+                    ),1)
+                   ,'%')AS average_workload
+            FROM ms_stu_pro339.driving_instructor
+        LIMIT 1
+    </select>
 
 </mapper>
