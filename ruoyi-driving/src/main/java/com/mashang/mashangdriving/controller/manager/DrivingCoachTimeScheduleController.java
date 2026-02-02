@@ -197,7 +197,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     @GetMapping("/month")
     public R<List<TimeGridVO>> getCoachMonthTimeGrid(
             @RequestParam @ApiParam(value = "标准年月格式，2026-10）",
-                    required = true)@DateTimeFormat(pattern = "yyyy-MM") YearMonth yearAndMonth) {
+                    required = true)YearMonth yearAndMonth) {
 
         int year, month;
         try {
