@@ -35,7 +35,7 @@ public class DrivingStudentManagerServiceImpl extends ServiceImpl<DrivingStudent
     private DrivingDriverLicenseTypeMapper drivingDriverLicenseTypeMapper;
 
     @Override
-    public Page<DrivingStudentListVo> getList( Page<DrivingStudentListVo> page) {
+    public Page<DrivingStudentListVo1> getList( Page<DrivingStudentListVo1> page) {
         return baseMapper.getList(page);
     }
 

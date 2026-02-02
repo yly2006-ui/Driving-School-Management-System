@@ -12,7 +12,7 @@ import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo1;
 
 public interface IDrivingStudentManagerService extends IService<DrivingStudent> {
 
-    Page<DrivingStudentListVo> getList( Page<DrivingStudentListVo> page);
+    Page<DrivingStudentListVo1> getList( Page<DrivingStudentListVo1> page);
 
     Page<DrivingStudentListVo1> selectOne(DrivingStudentQuery drivingStudentQuery,Page<DrivingStudentListVo1> page);
 

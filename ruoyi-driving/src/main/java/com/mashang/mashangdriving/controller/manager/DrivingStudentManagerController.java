@@ -28,9 +28,9 @@ public class DrivingStudentManagerController extends BaseController {
 
     @GetMapping("/list")
     @ApiOperation("分页查询学员列表")
-    public TableDataInfo<DrivingStudentListVo> getList(PageQuery pageQuery) {
-        Page<DrivingStudentListVo> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
-        Page<DrivingStudentListVo> result = drivingStudentManagerService.getList( page);
+    public TableDataInfo<DrivingStudentListVo1> getList(PageQuery pageQuery) {
+        Page<DrivingStudentListVo1> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
+        Page<DrivingStudentListVo1> result = drivingStudentManagerService.getList( page);
         return getDataTable(result.getRecords(),result.getTotal());
     }
 
