@@ -197,12 +197,12 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     @GetMapping("/month")
     public R<List<TimeGridVO>> getCoachMonthTimeGrid(
             @RequestParam @ApiParam(value = "标准年月格式，2026-10）",
-                    required = true) YearMonth yearAndMonth) {
+                    required = true)@DateTimeFormat(pattern = "yyyy-MM") YearMonth yearAndMonth) {
 
         int year, month;
         try {
-            year = yearAndMonth.getYear(); // 提取4位年份
-            month = yearAndMonth.getMonthValue(); // 提取1/2位月份
+            year = yearAndMonth.getYear(); // 提取年份
+            month = yearAndMonth.getMonthValue(); // 提取月份
         } catch (NumberFormatException e) {
             return R.fail(400, "年份/月份必须为有效数字，请检查输入格式");
         }
