@@ -195,22 +195,13 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     @ApiOperation("新版查询时间安排")
     @GetMapping("/month")
     public R<List<TimeGridVO>> getCoachMonthTimeGrid(
-            @RequestParam @ApiParam(value = "年月，格式：YYYY年M月（例：2026年1月、2026年12月）",
-                    required = true) String yearAndMonth) {
-        // 1. 非空校验
-        if (yearAndMonth == null || yearAndMonth.trim().isEmpty()) {
-            return R.fail(400, "日期字符串不能为空，请传入如「2026年1月」的格式");
-        }
-        // 2. 正则匹配校验格式（复用类中已定义的YEAR_MONTH正则，无需重复定义）
-        Matcher matcher = YEAR_MONTH.matcher(yearAndMonth.trim());
-        if (!matcher.matches()) {
-            return R.fail(400, "日期格式错误，请严格按照「YYYY年M月」格式传入（例：2026年1月）");
-        }
-        // 3. 提取并转换年、月为数字
+            @RequestParam @ApiParam(value = "标准年月格式，2026-10）",
+                    required = true) YearMonth yearAndMonth) {
+
         int year, month;
         try {
-            year = Integer.parseInt(matcher.group(1)); // 提取4位年份
-            month = Integer.parseInt(matcher.group(2)); // 提取1/2位月份
+            year = yearAndMonth.getYear(); // 提取4位年份
+            month = yearAndMonth.getMonthValue(); // 提取1/2位月份
         } catch (NumberFormatException e) {
             return R.fail(400, "年份/月份必须为有效数字，请检查输入格式");
         }
