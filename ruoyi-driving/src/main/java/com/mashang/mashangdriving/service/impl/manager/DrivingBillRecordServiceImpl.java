@@ -47,12 +47,14 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         queryWrapper.like(StringUtils.isNotEmpty(query.getUserName()),
                 "driving_student.student_name", query.getUserName());
         String roleId = query.getRoleId();
-        if (!"0".equals(roleId)) {
-            queryWrapper.eq(StringUtils.isNotNull(query.getRoleId()), "role.role_id", roleId);
+        if ("5".equals(roleId)) {
+            queryWrapper.notIn("role.role_id",100,101,102,103);
+        } else if(!"0".equals(roleId)) {
+            queryWrapper.eq( "role.role_id", roleId);
         }
         queryWrapper.eq(StringUtils.isNotNull(query.getPaymentMethod()), "pay.pay_type", query.getPaymentMethod());
         queryWrapper.orderByDesc("r.create_time");
-        queryWrapper.eq("r.del_flag",0);
+        queryWrapper.eq("r.del_flag", 0);
         // 2. 处理时间条件
         handleTimeCondition(query, queryWrapper);
 
@@ -62,17 +64,17 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         // 4. 处理金额格式
         if (queried != null && CollectionUtils.isNotEmpty(queried.getRecords())) {
             for (DrivingBillRecordListVo record : queried.getRecords()) {
-                if ("教练".equals(record.getRoleName())) {
-                    record.setFinalAmount("-" + record.getAmount());
-                } else if ("学员".equals(record.getRoleName())) {
-                    record.setFinalAmount("+" + record.getAmount());
+                Long amount = record.getAmount();
+                if (amount > 0) {
+                    record.setFinalAmount("+" + amount);
+                } else {
+                    record.setFinalAmount("-" + amount);
                 }
             }
-        }
 
+        }
         return queried;
     }
-
     /**
      * 处理时间条件
      * 逻辑：
