@@ -78,7 +78,7 @@ public class DrivingLocationController extends BaseController {
     }
     @ApiOperation("分页查询地点")
     @GetMapping("/list")
-    public TableDataInfo<List<DrivingLocationListVo>> list( PageQuery pageQuery,
+    public TableDataInfo<List<DrivingLocationListVo>> list(@Validated PageQuery pageQuery,
                                                            DrivingLocationQuery drivingLocationQuery) {
         LambdaQueryWrapper<DrivingLocation> lqw = new LambdaQueryWrapper<>();
 
