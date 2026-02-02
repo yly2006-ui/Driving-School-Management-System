@@ -16,9 +16,7 @@ import java.util.List;
 
 
 public interface DrivingBillRecordMapper extends BaseMapper<DrivingBillRecord> {
-    // 分页查询所有财务信息
-//    Page<DrivingBillRecordListVo> queryBillRecord(@Param("page") Page<DrivingBillRecordListVo> page,
-//                                                  @Param("query") DrivingBillRecordQuery query);
+
     // 分页查询所有财务信息
     Page<DrivingBillRecordListVo> queryBillRecord(@Param("page") Page<DrivingBillRecordListVo> page,
                                                   @Param(Constants.WRAPPER) Wrapper<DrivingBillRecord> wrapper);
