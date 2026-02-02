@@ -23,6 +23,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -196,7 +197,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     @GetMapping("/month")
     public R<List<TimeGridVO>> getCoachMonthTimeGrid(
             @RequestParam @ApiParam(value = "标准年月格式，2026-10）",
-                    required = true) YearMonth yearAndMonth) {
+                    required = true)@DateTimeFormat(pattern = "yyyy-MM") YearMonth yearAndMonth) {
 
         int year, month;
         try {
