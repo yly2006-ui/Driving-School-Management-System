@@ -28,7 +28,6 @@ public class DrivingStudentListVo1 {
     private Long userId;
 
     @ApiModelProperty(value = "驾照类型ID", example = "1")
-    @JsonIgnore
     private Long driverLicenseId;
 
     @ApiModelProperty(value = "驾驶代码")
@@ -64,7 +63,6 @@ public class DrivingStudentListVo1 {
     private Date updateTime;
 
     @ApiModelProperty(value = "课目ID")
-    @JsonIgnore
     private Long subjectId;
     @ApiModelProperty(value = "课目名称")
     private String subjectName;
@@ -74,7 +72,6 @@ public class DrivingStudentListVo1 {
     @ApiModelProperty(value = "学习状态")
     private String studyStatus;
     @ApiModelProperty(value = "教练ID")
-    @JsonIgnore
     private Long instructorId;
     @ApiModelProperty(value = "教练名字")
     private String instructorName;

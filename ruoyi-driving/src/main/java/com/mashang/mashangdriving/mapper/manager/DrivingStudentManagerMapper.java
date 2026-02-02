@@ -9,7 +9,7 @@ import com.mashang.mashangdriving.domain.vo.manager.DrivingStudentListVo1;
 import org.apache.ibatis.annotations.Param;
 
 public interface DrivingStudentManagerMapper extends BaseMapper<DrivingStudent> {
-    Page<DrivingStudentListVo> getList( Page<DrivingStudentListVo> page);
+    Page<DrivingStudentListVo1> getList( Page<DrivingStudentListVo1> page);
     Page<DrivingStudentListVo1> selectOneStudent(@Param("drivingStudentQuery") DrivingStudentQuery drivingStudentQuery,Page<DrivingStudentListVo1> page);
 
 }

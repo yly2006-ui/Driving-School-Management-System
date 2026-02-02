@@ -174,7 +174,9 @@
                         di.score,
                         dsj.subject_name,
                         di.id_number                       as instructor_id_number,
-                        di.phone                           as instructor_phone
+                        di.phone                           as instructor_phone,
+                        dis.subject_id,
+                        dis.instructor_id
         FROM ms_stu_pro339.driving_student ds
                  LEFT JOIN ms_stu_pro339.driving_driver_license_type ddlt
                            ON ds.driver_license_id = ddlt.driver_license_id
