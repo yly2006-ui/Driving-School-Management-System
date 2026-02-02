@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
 @RequestMapping("/drivingCoachTimeSchedule")
 public class DrivingCoachTimeScheduleController extends BaseController {
 
-    private static final Pattern YEAR_MONTH = Pattern.compile("^(\\d{4})年(\\d{1,2})月$");
+    private static final Pattern YEAR_MONTH = Pattern.compile("^(\\d{4})\\s*-\\s*(\\d{1,2})$");
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -197,12 +197,13 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     @GetMapping("/month")
     public R<List<TimeGridVO>> getCoachMonthTimeGrid(
             @RequestParam @ApiParam(value = "标准年月格式，2026-10）",
-                    required = true)YearMonth yearAndMonth) {
+                    required = true)String yearAndMonth) {
+        Matcher matcher = YEAR_MONTH.matcher(yearAndMonth.trim());
 
         int year, month;
         try {
-            year = yearAndMonth.getYear(); // 提取年份
-            month = yearAndMonth.getMonthValue(); // 提取月份
+             year = Integer.parseInt(matcher.group(1)); // 提取年份
+             month = Integer.parseInt(matcher.group(2));// 提取月份
         } catch (NumberFormatException e) {
             return R.fail(400, "年份/月份必须为有效数字，请检查输入格式");
         }
