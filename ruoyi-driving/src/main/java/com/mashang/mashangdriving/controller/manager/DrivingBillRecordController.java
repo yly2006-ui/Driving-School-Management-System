@@ -50,7 +50,7 @@ public class DrivingBillRecordController extends BaseController {
     @ApiOperation("分页查询财务信息")
     @GetMapping("/list")
     public TableDataInfo<List<DrivingBillRecordListVo>> select(@Validated PageQuery pageQuery,
-                                                               DrivingBillRecordQuery drivingBillRecordQuery) {
+                                                               @Validated DrivingBillRecordQuery drivingBillRecordQuery) {
         Page<DrivingBillRecordListVo> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
         Page<DrivingBillRecordListVo> query = drivingBillRecordService.queryBillRecord(page, drivingBillRecordQuery);
         return getDataTable(query.getRecords(), query.getTotal());
