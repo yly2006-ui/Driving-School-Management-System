@@ -198,7 +198,19 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     public R<List<TimeGridVO>> getCoachMonthTimeGrid(
             @RequestParam @ApiParam(value = "标准年月格式，2026-10）",
                     required = true)String yearAndMonth) {
+
+
+        // 1. 非空校验：先拦截空参
+        if (!StringUtils.hasText(yearAndMonth)) {
+            return R.fail(400, "年月参数不能为空，请传入如2026-1或2026-01的格式");
+        }
+
+        // 2. 正则匹配：必须先判断matches()为true，才能取分组（核心修复点）
         Matcher matcher = YEAR_MONTH.matcher(yearAndMonth.trim());
+
+        if (!matcher.matches()) {
+            return R.fail(400, "年月格式错误，请传入如2026-1或2026-01的格式");
+        }
 
         int year, month;
         try {
