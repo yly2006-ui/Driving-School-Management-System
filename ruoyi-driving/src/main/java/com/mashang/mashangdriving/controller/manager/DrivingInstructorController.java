@@ -18,6 +18,7 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,11 +72,21 @@ public class DrivingInstructorController extends BaseController {
                                                             @RequestParam(value = "timeFilter",required = false,defaultValue = "all")
                                                             @ApiParam(value = "时间筛选: all(全部时间), week(最近一周), month(最近一月), quarter(最近三月)",
                                                                     allowableValues = "all,week,month,quarter",
-                                                                    example = "week")String timeFilter) {
+                                                                    example = "week")String timeFilter,
+                                                            @RequestParam(value = "scoreLevel",required = false,defaultValue = "all")
+                                                                @ApiParam(value = "时间筛选: one(一星）,two（二星）,three（三星）,four（四星）,five（五星）,all（全部）",
+                                                                        allowableValues = "one,two,three,four,five,all",
+                                                                        example = "one")
+                                                            String scoreLevel) {
         Page<DrivingRatingStudentVO> drivingRatingPage = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
-        Page<DrivingRatingStudentVO> rating = drivingInstructorService.getRatingByInstructorWithStudentInfo(instructorId,drivingRatingPage,timeFilter);
-        if (rating == null)  {
-            return new TableDataInfo<>();
+        Page<DrivingRatingStudentVO> rating = drivingInstructorService.getRatingByInstructorWithStudentInfo(instructorId,drivingRatingPage,timeFilter,scoreLevel);
+        if (rating == null||rating.getTotal()==0)  {
+            TableDataInfo<DrivingRatingStudentVO> dataInfo = new TableDataInfo<>();
+            dataInfo.setCode(200);
+            dataInfo.setMsg("该教练在"+scoreLevel+"下没有评论");
+            dataInfo.setTotal(0L);
+            dataInfo.setRows(new ArrayList<>());
+            return dataInfo;
         }
         return getDataTable(rating.getRecords(),rating.getTotal());
     }

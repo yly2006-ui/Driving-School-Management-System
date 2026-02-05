@@ -7,6 +7,7 @@ import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
 import com.mashang.mashangdriving.domain.entity.DrivingInstructorStatus;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingInstructorListVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingOneInstructorVo;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -18,7 +19,6 @@ public interface DrivingInstructorMapper extends BaseMapper<DrivingInstructor> {
 
     DrivingOneInstructorVo getByInstructorId(@Param("instructorId") Long instructorId);
     Page<DrivingOneInstructorVo> getByInstructorName(@Param("instructorName") String instructorName,Page<DrivingOneInstructorVo> page);
-
 
     List<Map<String,Object>> findWeeklyScheduleByInstructorId(@Param("instructorId")Long instructorId);
     DrivingInstructorStatus getAllStatus();

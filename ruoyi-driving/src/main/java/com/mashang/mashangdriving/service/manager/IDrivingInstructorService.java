@@ -21,7 +21,7 @@ public interface IDrivingInstructorService extends IService<DrivingInstructor> {
     DrivingInstructorListVo update(DrivingInstructorUpdate drivingInstructorUpdate);
     Page<DrivingRatingStudentVO> getRatingByInstructorWithStudentInfo(
             @Param("instructorId") Long instructorId,
-            Page<DrivingRatingStudentVO> page,String timeFilter);
+            Page<DrivingRatingStudentVO> page,String timeFilter,String scoreLevel);
     int[][] createScheduleMatrixFromDB(Long instructorId);
 
     DrivingInstructorStatus getAllStatus();
