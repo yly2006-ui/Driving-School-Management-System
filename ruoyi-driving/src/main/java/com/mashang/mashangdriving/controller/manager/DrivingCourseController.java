@@ -68,7 +68,7 @@ public class DrivingCourseController extends BaseController {
     @ApiOperation("查询课程详情")
     @GetMapping("/dtl/{courseId}")
     public R selectById(@PathVariable Long courseId) {
-        List<DrivingCourseDtlVo> drivingCourseDtlVos = drivingCourseService.selectByCourseId(courseId);
+        DrivingCourseDtlVo drivingCourseDtlVos = drivingCourseService.selectByCourseId(courseId);
         if (drivingCourseDtlVos != null) {
             return R.ok(drivingCourseDtlVos);
         } else {

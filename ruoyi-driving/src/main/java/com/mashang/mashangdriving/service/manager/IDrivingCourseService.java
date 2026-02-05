@@ -13,7 +13,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface IDrivingCourseService extends IService<DrivingCourse> {
-    List<DrivingCourseDtlVo> selectByCourseId(@Param("courseId")Long courseId);
+    DrivingCourseDtlVo selectByCourseId(@Param("courseId")Long courseId);
 
     //分页查询课程信息·
     Page<DrivingCourseListVo> query(@Param("page") Page<DrivingCourseListVo> page,

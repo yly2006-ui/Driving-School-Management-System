@@ -15,7 +15,7 @@ import java.util.List;
 public interface DrivingCourseMapper extends BaseMapper<DrivingCourse> {
 
     //查询课程详情
-    List<DrivingCourseDtlVo> selectByCourseId(@Param("courseId")Long courseId);
+    DrivingCourseDtlVo selectByCourseId(@Param("courseId")Long courseId);
 
     //分页查询课程信息·
     Page<DrivingCourseListVo> query(@Param("page") Page<DrivingCourseListVo> page,
