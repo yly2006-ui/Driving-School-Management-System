@@ -160,7 +160,7 @@ public class DrivingCourseController extends BaseController {
     @GetMapping("/overCourses/count")
     public R overCourses() {
         LambdaQueryWrapper<DrivingCourse> overCourses = new LambdaQueryWrapper<>();
-        overCourses.eq(DrivingCourse::getStatus, "3");
+        overCourses.eq(DrivingCourse::getStatus, "2");
         long count = drivingCourseService.count(overCourses);
         if (count > 0) {
             System.out.println("查询到的结束的课程数量为" + count);
