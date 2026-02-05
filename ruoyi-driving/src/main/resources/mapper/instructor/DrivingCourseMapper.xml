@@ -30,7 +30,7 @@
                            ON course.course_id=chapter.course_id
                  LEFT JOIN driving_section section
         ON chapter.chapter_id=section.chapter_id
-        WHERE course.course_id=#{courseId}
+        WHERE course.course_id=#{courseId} and course.del_flag=0
     </select>
 
 
