@@ -42,6 +42,7 @@
             driving_student ds2 ON dr.student_id = ds2.student_id
         WHERE
            dr.instructor_id = #{instructorId}
+          <if test="timeFilter != null and timeFilter != '' and timeFilter != 'all'">
         <choose>
             <when test="timeFilter=='week'.toString">
                 AND dr.create_time>= DATE_SUB(NOW(),INTERVAL 7 DAY)
@@ -53,6 +54,27 @@
                 AND dr.create_time>= DATE_SUB(NOW(),INTERVAL 3 MONTH)
             </when>
         </choose>
+          </if>
+          <if test="scoreLevel != null and scoreLevel != '' and scoreLevel != 'all'">
+              <choose>
+                  <when test="scoreLevel=='five'.toString">
+                      AND ROUND(dr.score, 0) = 5
+                  </when>
+                  <when test="scoreLevel=='four'.toString">
+                      AND ROUND(dr.score, 0) = 4
+                  </when>
+                  <when test="scoreLevel=='three'.toString">
+                      AND ROUND(dr.score, 0) = 3
+                  </when>
+                  <when test="scoreLevel=='two'.toString">
+                      AND ROUND(dr.score, 0) = 2
+                  </when>
+                  <when test="scoreLevel=='one'.toString">
+                      AND ROUND(dr.score,0) = 1
+                  </when>
+              </choose>
+          </if>
+
         ORDER BY
             dr.create_time DESC
     </select>

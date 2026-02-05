@@ -10,5 +10,5 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface DrivingRatingMapper extends BaseMapper<DrivingRating> {
     Page<DrivingRatingStudentVO> getRatingByInstructorWithStudentInfo(
             @Param("instructorId") Long instructorId,
-            Page<DrivingRatingStudentVO> page,@Param("timeFilter") String timeFilter);
+            Page<DrivingRatingStudentVO> page,@Param("timeFilter") String timeFilter,@Param("scoreLevel")String scoreLevel);
 }

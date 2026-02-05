@@ -18,6 +18,7 @@
         <result column="score" property="score" />
         <result column="student_num" property="studentNum"/>
         <result column="driver_license_code" property="driverLicenseCode"/>
+        <result column="driver_license_id" property="driverLicenseID"/>
         <result column="driver_license_name" property="driverLicenseName"/>
         <association property="drivingRating" javaType="com.mashang.mashangdriving.domain.entity.DrivingRating">
             <result column="rating_id" property="ratingId" />
@@ -113,7 +114,7 @@
         SELECT  di.instructor_id, user_id, instructor_name, phone, id_number,
                entry_date, instructor_no, di.status, teaching_years, schedulable_time_start,
                schedulable_time_end, no_time_start, no_time_end, photo, good_subject
-               , content, certificate, di.del_flag,dc.plate_number,
+               , content, certificate, di.del_flag,dc.plate_number,di.driver_license_id,
                dr.rating_id,  student_id, contanct, dr.score,
                 COALESCE((
                              SELECT GROUP_CONCAT(DISTINCT ddlt2.driver_license_name
@@ -142,6 +143,9 @@
         LEFT JOIN ms_stu_pro339.driving_car dc ON di.instructor_id = dc.instructor_id
         LEFT JOIN ms_stu_pro339.driving_rating dr ON dr.instructor_id = di.instructor_id
         WHERE di.status = '0'
+        AND di.instructor_id IN (SELECT MAX(instructor_id) FROM ms_stu_pro339.driving_instructor
+                                 WHERE del_flag = '0'
+                                 GROUP BY id_number)
     </select>
 
     <select id="getByInstructorId" resultMap="DrivingOneInstructorVoMap">

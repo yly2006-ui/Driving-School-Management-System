@@ -51,6 +51,8 @@ public class DrivingInstructorListVo {
   private String driverLicenseCode;
   @ApiModelProperty(value = "驾驶证类型名称")
   private String driverLicenseName;
+  @ApiModelProperty(value = "准教类型ID")
+  private String driverLicenseID;
 
 
 

@@ -11,6 +11,7 @@ import com.mashang.mashangdriving.domain.param.manager.update.DrivingScheduleUpd
 import com.mashang.mashangdriving.domain.vo.manager.DrivingInstructorListVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingOneInstructorVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingRatingStudentVO;
+import com.mashang.mashangdriving.mapper.manager.DrivingDriverLicenseTypeInstructorMapper;
 import com.mashang.mashangdriving.mapper.manager.DrivingInstructorMapper;
 import com.mashang.mashangdriving.mapper.manager.DrivingRatingMapper;
 import com.mashang.mashangdriving.mapper.manager.DrivingStudentManagerMapper;
@@ -30,6 +31,8 @@ public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorM
     private DrivingRatingMapper drivingRatingMapper;
     @Autowired
     private DrivingStudentManagerMapper drivingStudentManagerMapper;
+    @Autowired
+    private DrivingDriverLicenseTypeInstructorMapper drivingDriverLicenseTypeInstructorMapper;
     //4:00-23:00
     private static final int TOTAL_TIME_SLOTS = 19;
     //周一到周日
@@ -84,6 +87,19 @@ public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorM
             drivingInstructor.setUserId(null);
         }
 
+        if (dto.getDriverLicenseIds()!=null&&!dto.getDriverLicenseIds().isEmpty()) {
+            List<Long> longs = parseDriverLicenseIds(dto.getDriverLicenseIds());
+            if (!longs.isEmpty()) {
+                for (Long licenseId : longs) {
+                    DrivingDriverLicenseTypeInstructor licenseTypeInstructor = new DrivingDriverLicenseTypeInstructor();
+                    licenseTypeInstructor.setDriverLicenseId(licenseId);
+                    licenseTypeInstructor.setInstructorId(drivingInstructor.getInstructorId());
+                    drivingDriverLicenseTypeInstructorMapper.insert(licenseTypeInstructor);
+                }
+                drivingInstructor.setDriverLicenseId(dto.getDriverLicenseIds());
+            }
+            baseMapper.updateById(drivingInstructor);
+        }
         return getDrivingInstructorVo(drivingInstructor);
 
     }
@@ -131,14 +147,14 @@ public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorM
     }
 
     @Override
-    public Page<DrivingRatingStudentVO> getRatingByInstructorWithStudentInfo(Long instructorId, Page<DrivingRatingStudentVO> page,String timeFilter) {
+    public Page<DrivingRatingStudentVO> getRatingByInstructorWithStudentInfo(Long instructorId, Page<DrivingRatingStudentVO> page,String timeFilter,String scoreLevel) {
         if(timeFilter!=null){
             List<String> list = Arrays.asList("all", "week", "month", "quarter");
             if(!list.contains(timeFilter)){
                 throw new RuntimeException("不包含\"all\", \"week\", \"month\", \"quarter\"的字段");
             }
         }
-        Page<DrivingRatingStudentVO> rating = drivingRatingMapper.getRatingByInstructorWithStudentInfo(instructorId, page,timeFilter);
+        Page<DrivingRatingStudentVO> rating = drivingRatingMapper.getRatingByInstructorWithStudentInfo(instructorId, page,timeFilter,scoreLevel);
         if (rating==null){
             throw new RuntimeException("查询错误");
         }
@@ -225,6 +241,7 @@ public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorM
         drivingInstructorListVo.setInstructorId(drivingInstructor.getInstructorId());
         drivingInstructorListVo.setStatus(drivingInstructor.getStatus());
         drivingInstructorListVo.setDelFlag(drivingInstructor.getDelFlag());
+        drivingInstructorListVo.setDriverLicenseID(drivingInstructor.getDriverLicenseId());
         return drivingInstructorListVo;
     }
 
@@ -264,5 +281,41 @@ public class DrivingInstructorServiceImpl extends ServiceImpl<DrivingInstructorM
             return ((Number) value).intValue();
         }
         return null;
+    }
+    private List<Long> parseDriverLicenseIds(String idsStr) {
+        List<Long> result = new ArrayList<>();
+
+        if (StringUtils.isBlank(idsStr)) {
+            return result;
+        }
+
+        String ids = idsStr.trim();
+
+        // 1. 处理 "[1,2,3]" 格式
+        if (ids.startsWith("[") && ids.endsWith("]")) {
+            ids = ids.substring(1, ids.length() - 1);
+        }
+
+        // 2. 分割字符串
+        String[] idArray = ids.split(",");
+
+        for (String idStr : idArray) {
+            try {
+                // 去除可能的空格和引号
+                String cleanId = idStr.trim()
+                        .replace("\"", "")
+                        .replace("'", "")
+                        .replace(" ", "");
+
+                if (!cleanId.isEmpty()) {
+                    result.add(Long.parseLong(cleanId));
+                }
+            } catch (NumberFormatException e) {
+                // 忽略格式错误的ID
+                System.err.println("警告：忽略格式错误的准教车型ID: " + idStr);
+            }
+        }
+
+        return result;
     }
 }

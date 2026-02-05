@@ -6,7 +6,11 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class DrivingInstructorCreate {
@@ -32,7 +36,8 @@ public class DrivingInstructorCreate {
   private String photo;
   @ApiModelProperty(value = "教练证件")
   private String certificate;
-
+  @ApiModelProperty(value = "准教车型",example = "1,2")
+  private String driverLicenseIds;
 
 
 }

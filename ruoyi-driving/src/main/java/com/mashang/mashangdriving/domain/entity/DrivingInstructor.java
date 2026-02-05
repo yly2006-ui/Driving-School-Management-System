@@ -57,6 +57,8 @@ public class DrivingInstructor {
   @TableField(exist = false)
   @ApiModelProperty(value = "车辆信息")
   private DrivingCar drivingCar;
+  @ApiModelProperty(value = "驾驶代码ID")
+  private String driverLicenseId;
 
 
 }
