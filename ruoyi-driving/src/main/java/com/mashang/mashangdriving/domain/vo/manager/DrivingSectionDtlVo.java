@@ -19,4 +19,7 @@ public class DrivingSectionDtlVo{
 
     @ApiModelProperty(value = "教学图片URL", example = "https://cn.bing.com/im...")
     private String picture;
+
+    @ApiModelProperty(value = "教学图片解释")
+    private String pictureExplain;
 }

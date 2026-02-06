@@ -17,6 +17,7 @@
                 <result property="sectionName" column="section_name"/>
                 <result property="sectionExplain" column="section_explain"/>
                 <result property="picture" column="picture"/>
+                <result property="pictureExplain" column="picture_explain"/>
             </collection>
         </collection>
     </resultMap>
@@ -24,7 +25,7 @@
     <select id="selectByCourseId" resultMap="list">
         SELECT course.course_id, course.course_name,course.type, course.all_hours,course.person_count,
                chapter.chapter_id,chapter.chapter_name,
-               section.section_id,section.section_name,section.section_explain,section.picture
+               section.section_id,section.section_name,section.section_explain,section.picture,section.picture_explain
         FROM driving_course course
                  LEFT JOIN driving_chapter chapter
                            ON course.course_id=chapter.course_id

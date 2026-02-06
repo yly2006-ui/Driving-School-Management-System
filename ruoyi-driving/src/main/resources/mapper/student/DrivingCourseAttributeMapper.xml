@@ -16,6 +16,7 @@
                 <result property="contentTime" column="content_time"/>
                 <result property="courseContect" column="course_contect"/>
                 <result property="ipstructionalVideo" column="ipstructional_video"/>
+                <result property="videoExplain" column="video_explain"/>
             </collection>
         </collection>
 
@@ -33,7 +34,8 @@
                 c.contect_name,
                 c.content_time,
                 c.course_contect,
-                c.ipstructional_video
+                c.ipstructional_video,
+                c.video_explain
             FROM driving_course_attribute a
                     LEFT JOIN driving_lable l ON a.attribute_id=l.attribute_id and l.del_flag=0
                     LEFT  JOIN driving_content c ON l.lable_id=c.lable_id  and c.del_flag=0

@@ -11,4 +11,5 @@ public class DrivingSectionUpdate {
     private Long chapterId;
     private String sectionExplain;
     private String picture;
+    private String pictureExplain;
 }

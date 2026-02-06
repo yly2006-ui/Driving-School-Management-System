@@ -10,4 +10,5 @@ public class DrivingContentCreate {
     private String courseContect;
     private String ipstructionalVideo;
     private String contentTime;
+    private String videoExplain;
 }
