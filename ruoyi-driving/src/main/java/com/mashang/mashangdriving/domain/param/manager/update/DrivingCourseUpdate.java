@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * 驾驶课程详情VO
+ * 驾驶课程修改
  */
 @Data
 @ApiModel(value = "DrivingCourseUpdate", description = "驾驶课程修改对象")
