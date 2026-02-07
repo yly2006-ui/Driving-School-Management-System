@@ -14,4 +14,5 @@ public class DrivingSection {
     private String sectionExplain;
     private String picture;
     private String pictureExplain;
+    private String delFlag;
 }
