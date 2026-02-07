@@ -7,7 +7,6 @@ public class DrivingSectionUpdate {
 
     private Long sectionId;
     private String sectionName;
-    private String sectionSort;
     private Long chapterId;
     private String sectionExplain;
     private String picture;
