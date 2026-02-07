@@ -261,7 +261,7 @@ public class DrivingCourseController extends BaseController {
     @ApiOperation("删除小节")
     @DeleteMapping("deleteSectionId/{sectionId}")
     public R removeSection(@PathVariable Long sectionId){
-        boolean b = drivingCourseService.removeById(sectionId);
+        boolean b = drivingSectionService.removeById(sectionId);
         return  toR(b);
     }
 }
