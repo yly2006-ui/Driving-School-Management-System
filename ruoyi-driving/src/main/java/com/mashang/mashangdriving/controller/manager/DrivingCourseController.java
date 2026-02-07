@@ -147,7 +147,8 @@ public class DrivingCourseController extends BaseController {
             System.out.println("查询到的理论数量为"+count);
             return R.ok(count);
         }else {
-            return R.fail();
+            count=0;
+            return R.ok(count);
         }}
 
         @ApiOperation("统计实操课程")
@@ -160,7 +161,8 @@ public class DrivingCourseController extends BaseController {
                 System.out.println("查询到的实操数量为" + count);
                 return R.ok(count);
             } else {
-                return R.fail();
+                count=0;
+                return R.ok(count);
             }
         }
 
