@@ -174,7 +174,8 @@ public class DrivingCourseController extends BaseController {
             System.out.println("查询到的进行中的课程数量为" + count);
             return R.ok(count);
         } else {
-            return R.fail();
+            count=0;
+            return R.ok(count);
         }
     }
     @ApiOperation("统计已结束课程")
