@@ -8,7 +8,7 @@ import lombok.Data;
  * 驾驶课程详情VO
  */
 @Data
-@ApiModel(value = "DrivingCourseDtlVo", description = "驾驶课程详情响应对象")
+@ApiModel(value = "DrivingCourseUpdate", description = "驾驶课程修改对象")
 public class DrivingCourseUpdate {
 
     @ApiModelProperty(value = "课程ID", example = "1")
