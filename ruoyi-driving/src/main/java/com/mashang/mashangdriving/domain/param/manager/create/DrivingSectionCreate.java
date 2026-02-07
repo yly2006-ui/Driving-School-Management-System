@@ -8,7 +8,6 @@ public class DrivingSectionCreate {
 
 
     private String sectionName;
-    private Integer  sectionSort;
     private Long chapterId;
     private String sectionExplain;
     private String picture;
