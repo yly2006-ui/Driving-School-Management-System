@@ -50,6 +50,7 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
             long totalTime = 0L;
             String totalTimeStr = null;
             drivingCourseAttributeVO.setStudyPersonTotal(string);
+            String courseCount = drivingCourseAttributeVO.getCourseCount();
             for (DrivingCourseLableVo drivingCourseLableVo : drivingCourseAttributeVO.getDrivingCourseLableVoList()) {
                 for (DrivingCourseContextVo drivingCourseContextVo : drivingCourseLableVo.getList()) {
                     Long contentId = Long.valueOf(drivingCourseContextVo.getContentId());
@@ -71,12 +72,14 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
             }
             drivingCourseAttributeVO.setTotalTime(totalTimeStr);
             drivingCourseAttributeVO.setCourseCount(total.toString());
-            String finish = null;
+            String finish = String.valueOf(0);
             for (DrivingCourseAttributeVO drivingCourseAttributeVO1 : drivingCourseAttributeVOS1) {
                 finish = drivingCourseAttributeVO1.getFinish();
 //                System.out.println("完成数量"+finish);
             }
             drivingCourseAttributeVO.setFinish(finish);
+            String percentage= String.valueOf(Integer.parseInt(finish)/Integer.parseInt(courseCount));
+            drivingCourseAttributeVO.setPercentage(percentage);
 
 
         }

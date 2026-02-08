@@ -21,7 +21,7 @@ public class DrivingCourseAttributeVO  {
     private String attributeName;
 
     @ApiModelProperty(value = "类型", example = "1", notes = "1-理论, 2-实操")
-    private Integer type;
+    private String type;
 
     @ApiModelProperty(value = "总时长", example = "12小时")
     private String totalTime;
@@ -34,6 +34,9 @@ public class DrivingCourseAttributeVO  {
 
     @ApiModelProperty(value = "学习人数")
     private String studyPersonTotal;
+
+    @ApiModelProperty(value = "完成百分比")
+    private String percentage;
     private List<DrivingCourseLableVo> drivingCourseLableVoList;
 
 
