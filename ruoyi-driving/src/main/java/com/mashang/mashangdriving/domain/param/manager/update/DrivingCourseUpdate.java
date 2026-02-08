@@ -18,7 +18,7 @@ public class DrivingCourseUpdate {
     private String courseName;
 
     @ApiModelProperty(value = "课程类型（0=理论课程，1=实践课程）", example = "0")
-    private Integer type;
+    private String type;
 
     @ApiModelProperty(value = "总课时", example = "10")
     private Integer allHours;
