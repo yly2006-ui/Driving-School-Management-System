@@ -24,7 +24,6 @@ public class DrivingCourseUpdate {
     private String allHours;
 
 
-
     @ApiModelProperty(value = "状态", example = "0")
     private String status;
 
