@@ -166,10 +166,10 @@ public class DrivingCoachTimeScheduleController extends BaseController {
             }
         }
         List<DrivingCoachTimeSchedule> delete = DrivingCoachTimeScheduleMapping.INSTANCE.toDelete(deleteList);
-        LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         int succeful = 0;
         for (DrivingCoachTimeSchedule drivingCoachTimeSchedule : delete) {
             drivingCoachTimeSchedule.setUserId(SecurityUtils.getUserId());
+            LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper = new LambdaQueryWrapper<>();
             lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId, SecurityUtils.getUserId());
             lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getStartTime, drivingCoachTimeSchedule.getStartTime());
             lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getEndTime, drivingCoachTimeSchedule.getEndTime());
