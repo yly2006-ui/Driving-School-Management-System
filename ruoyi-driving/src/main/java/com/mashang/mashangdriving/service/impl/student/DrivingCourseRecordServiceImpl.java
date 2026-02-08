@@ -41,7 +41,7 @@ public class DrivingCourseRecordServiceImpl extends ServiceImpl<DrivingCourseRec
         lambdaQueryWrapper.eq(DrivingCourseRecord::getUserId, SecurityUtils.getUserId());
         lambdaQueryWrapper.eq(DrivingCourseRecord::getContentId,drivingCourseRecordQuery.getContentId());
         DrivingCourseRecord drivingCourseRecord = drivingCourseRecordMapper.selectOne(lambdaQueryWrapper);
-        if (drivingCourseRecord==null){throw new RuntimeException("不存在此数据");}
+        if (drivingCourseRecord==null){throw new RuntimeException("不存在此数据如未学习请先学习");}
         else{
             drivingCourseRecord.setFinishedHours(drivingCourseRecordQuery.getViewTime());
             //更新观看时间

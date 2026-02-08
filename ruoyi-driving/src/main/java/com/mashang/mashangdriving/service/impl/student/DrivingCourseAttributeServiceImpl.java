@@ -87,14 +87,14 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
                 }
             }
             drivingCourseAttributeVO.setFinish(finish);
-            if (total == null) {
-                String percentaged = "0%%";
-                drivingCourseAttributeVO.setPercentage(percentaged);
-            } else {
-                String bigDecimal=new BigDecimal(finish).divide(new BigDecimal(total),3, RoundingMode.HALF_UP).
-                        multiply(new BigDecimal(100)).setScale(1,RoundingMode.HALF_UP)+"%";
-                drivingCourseAttributeVO.setPercentage(bigDecimal);
-            }
+
+            if (total == 0L){
+                drivingCourseAttributeVO.setPercentage("0%");
+            }else {
+
+            String bigDecimal=new BigDecimal(finish).divide(new BigDecimal(total),3, RoundingMode.HALF_UP).
+                    multiply(new BigDecimal(100)).setScale(1,RoundingMode.HALF_UP)+"%";
+            drivingCourseAttributeVO.setPercentage(bigDecimal);}
 
 
         }
