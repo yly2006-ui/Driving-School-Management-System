@@ -24,6 +24,6 @@ public class DrivingCourseContextVo {
     private String videoExplain;
 
 
-    @ApiModelProperty(value = "小节完成状态",example = "0已完成")
+    @ApiModelProperty(value = "小节完成状态",example = "学习状态(0 已学,1 正在学, 2 未学)")
     private String finishStatus;
 }

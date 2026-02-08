@@ -1,6 +1,7 @@
 package com.mashang.mashangdriving.controller.manager;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.mashang.mashangdriving.domain.entity.DrivingCoachTimeSchedule;
 import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
 import com.mashang.mashangdriving.domain.param.manager.delete.DrivingCoachTimeScheduleDelete;
@@ -152,14 +153,29 @@ public class DrivingCoachTimeScheduleController extends BaseController {
     }
 
     @DeleteMapping("/delete")
-    @ApiOperation("取消可预约时间安排")
-    public R deleteById(@RequestBody DrivingCoachTimeScheduleDelete delete) {
-        LambdaQueryWrapper<DrivingCoachTimeSchedule>lambdaQueryWrapper=new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getStartTime,delete.getStartTime());
-        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getEndTime,delete.getEndTime());
-        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId,SecurityUtils.getUserId());
-        boolean remove = drivingCoachTimeScheduleService.remove(lambdaQueryWrapper);
-        return toR(remove);
+    @ApiOperation("批量取消可预约时间安排")
+    public R deleteById(@RequestBody List<DrivingCoachTimeScheduleDelete> deleteList) {
+        for (DrivingCoachTimeScheduleDelete delete : deleteList) {
+            LambdaQueryWrapper<DrivingCoachTimeSchedule>lambdaQueryWrapper=new LambdaQueryWrapper<>();
+            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getStartTime,delete.getStartTime());
+            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getEndTime,delete.getEndTime());
+            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId,SecurityUtils.getUserId());
+            DrivingCoachTimeSchedule one = drivingCoachTimeScheduleService.getOne(lambdaQueryWrapper);
+            if (one==null){
+                return R.fail("不存在该教练的时间安排");
+            }
+        }
+        List<DrivingCoachTimeSchedule> delete = DrivingCoachTimeScheduleMapping.INSTANCE.toDelete(deleteList);
+        for (DrivingCoachTimeSchedule drivingCoachTimeSchedule : delete) {
+            drivingCoachTimeSchedule.setUserId(SecurityUtils.getUserId());
+            LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId, SecurityUtils.getUserId());
+            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getStartTime,drivingCoachTimeSchedule.getStartTime());
+            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getEndTime,drivingCoachTimeSchedule.getEndTime());
+            boolean remove = drivingCoachTimeScheduleService.remove(lambdaQueryWrapper);
+            return toR(remove);
+        }
+        return null;
     }
 
     @GetMapping("/selectByUserId")

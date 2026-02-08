@@ -28,6 +28,8 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
 
 
         Long total = drivingCourseAttributeMapper.total(attributeId);
+        if (!(total >0)){total= 0L;
+        }
 //        System.out.println("查询出的课程下的总条数"+total);
 //        for (DrivingCourseAttributeVO drivingCourseAttributeVO : drivingCourseAttributeVOS1) {
 //            String finish = drivingCourseAttributeVO.getFinish();
@@ -42,6 +44,8 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
 //            }
 //        }
         String string = drivingCourseAttributeMapper.selectStudyTotal(attributeId);
+        if (string==null){string= String.valueOf(0);
+        }
 //        System.out.println("课程下的总条数"+total);
 
 
@@ -51,6 +55,7 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
             String totalTimeStr = String.valueOf(0);
             drivingCourseAttributeVO.setStudyPersonTotal(string);
             String courseCount = drivingCourseAttributeVO.getCourseCount();
+
             for (DrivingCourseLableVo drivingCourseLableVo : drivingCourseAttributeVO.getDrivingCourseLableVoList()) {
                 for (DrivingCourseContextVo drivingCourseContextVo : drivingCourseLableVo.getList()) {
                     Long contentId = Long.valueOf(drivingCourseContextVo.getContentId());
@@ -72,15 +77,23 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
             }
             drivingCourseAttributeVO.setTotalTime(totalTimeStr);
             drivingCourseAttributeVO.setCourseCount(total.toString());
-            String finish = String.valueOf(0);
+            String finish = null;
             for (DrivingCourseAttributeVO drivingCourseAttributeVO1 : drivingCourseAttributeVOS1) {
                 finish = drivingCourseAttributeVO1.getFinish();
 //                System.out.println("完成数量"+finish);
+                if (finish == null){
+                    finish= String.valueOf(0);
+                }
             }
             drivingCourseAttributeVO.setFinish(finish);
+            if (courseCount==null){
+                String percentaged = "0%";
+                drivingCourseAttributeVO.setPercentage(percentaged);
+            }else {
             String percentage= String.valueOf(Integer.parseInt(finish)/Integer.parseInt(courseCount));
             String percentaged = Integer.parseInt(percentage) * 100 + "%";
-            drivingCourseAttributeVO.setPercentage(percentaged);
+                drivingCourseAttributeVO.setPercentage(percentaged);
+            }
 
 
         }
