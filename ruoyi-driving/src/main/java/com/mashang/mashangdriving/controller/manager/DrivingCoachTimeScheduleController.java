@@ -154,7 +154,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
 
     @DeleteMapping("/delete")
     @ApiOperation("批量取消可预约时间安排")
-    public R deleteById(@RequestBody List<DrivingCoachTimeScheduleDelete> deleteList) {
+    public R deleteById( @RequestBody @Validated List<DrivingCoachTimeScheduleDelete> deleteList) {
         if (deleteList == null || deleteList.isEmpty()) {
             return R.fail("待取消的时间安排列表不能为空");
         }
