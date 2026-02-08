@@ -60,49 +60,8 @@ public class DrivingCourseRecordController extends BaseController {
     @ApiOperation("观看时长达标")
     @PutMapping("/CourseRecord/update")
     public R updateRecord(@RequestBody DrivingCourseRecordQuery drivingCourseRecordQuery){
-        LambdaQueryWrapper<DrivingCourseRecord>lambdaQueryWrapper=new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(DrivingCourseRecord::getUserId, SecurityUtils.getUserId());
-        lambdaQueryWrapper.eq(DrivingCourseRecord::getContentId,drivingCourseRecordQuery.getContentId());
-        DrivingCourseRecord one = drivingCourseRecordService.getOne(lambdaQueryWrapper);
-        one.setFinishedHours(drivingCourseRecordQuery.getViewTime());
-        LambdaQueryWrapper<DrivingContent>drivingContentLambdaQueryWrapper=new LambdaQueryWrapper<>();
-        drivingContentLambdaQueryWrapper.eq(DrivingContent::getContentId,drivingCourseRecordQuery.getContentId());
-        DrivingContent content = drivingContentService.getOne(drivingContentLambdaQueryWrapper);
-
-        String contentTime = content.getContentTime();
-        String finishedHours = one.getFinishedHours();
-        int i = Integer.parseInt(finishedHours);
-        int i1 = Integer.parseInt(contentTime);
-        if (i>=i1){
-            DrivingCourseRecord drivingCourseRecord=new DrivingCourseRecord();
-            drivingCourseRecord.setRecordId(one.getRecordId());
-            drivingCourseRecord.setContentId(drivingCourseRecordQuery.getContentId());
-            drivingCourseRecord.setStatus("0");
-            drivingCourseRecord.setDelFlag("0");
-            drivingCourseRecord.setFinishedHours(drivingCourseRecordQuery.getViewTime());
-            drivingCourseRecord.setUserId(SecurityUtils.getUserId());
-            boolean b = drivingCourseRecordService.updateById(drivingCourseRecord);
-            Long attributeId = drivingAttributeUseridService.selectAttributeId(drivingCourseRecordQuery.getContentId(),
-                    SecurityUtils.getUserId());
-            drivingCourseRecordService.insertRecord(attributeId,SecurityUtils.getUserId());
-
-            Long total = drivingAttributeUseridService.selectCourseTotal();
-            Long finishedCourse = drivingAttributeUseridService.selectFinishedCourse(SecurityUtils.getUserId());
-
-            if (total<=finishedCourse){
-                LambdaQueryWrapper<DrivingStudent>studentLambdaQueryWrapper=new LambdaQueryWrapper<>();
-                studentLambdaQueryWrapper.eq(DrivingStudent::getUserId,SecurityUtils.getUserId());
-                DrivingStudent studentServiceOne = drivingStudentService.getOne(studentLambdaQueryWrapper);
-                studentServiceOne.setStatus("1");
-                boolean updated = drivingStudentService.updateById(studentServiceOne);
-                if (!updated){
-                    return R.fail("学生状态修改失败");
-                }
-            }
-            return toR(b);
-        }else {
-            return R.fail("还未观看达标");
-        }
+        int i = drivingCourseRecordService.updateRecord(drivingCourseRecordQuery);
+        return toR(i);
     }
 
 
