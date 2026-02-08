@@ -11,6 +11,8 @@ import com.mashang.mashangdriving.service.student.IDrivingCourseAttributeService
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -54,19 +56,18 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
             long totalTime = 0L;
             String totalTimeStr = String.valueOf(0);
             drivingCourseAttributeVO.setStudyPersonTotal(string);
-            String courseCount = drivingCourseAttributeVO.getCourseCount();
-
             for (DrivingCourseLableVo drivingCourseLableVo : drivingCourseAttributeVO.getDrivingCourseLableVoList()) {
                 for (DrivingCourseContextVo drivingCourseContextVo : drivingCourseLableVo.getList()) {
                     Long contentId = Long.valueOf(drivingCourseContextVo.getContentId());
 //                    System.out.println("小节id"+contentId);
                     String l = drivingCourseAttributeMapper.selectFinished(contentId, userId);
 //                    System.out.println("学习状态"+l);
-                    if (l==null){
+                    if (l == null) {
                         drivingCourseContextVo.setFinishStatus("2");
-                    }else {
+                    } else {
 
-                    drivingCourseContextVo.setFinishStatus(l);}
+                        drivingCourseContextVo.setFinishStatus(l);
+                    }
 //                    System.out.println("Content time: " + contentTime);
                     Long contentTime = drivingCourseContextVo.getContentTime();
                     totalTime = totalTime + contentTime;
@@ -80,19 +81,19 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
             String finish = null;
             for (DrivingCourseAttributeVO drivingCourseAttributeVO1 : drivingCourseAttributeVOS1) {
                 finish = drivingCourseAttributeVO1.getFinish();
-//                System.out.println("完成数量"+finish);
-                if (finish == null){
-                    finish= String.valueOf(0);
+                System.out.println("完成数量"+finish);
+                if (finish == null) {
+                    finish = String.valueOf(0);
                 }
             }
             drivingCourseAttributeVO.setFinish(finish);
-            if (courseCount==null){
-                String percentaged = "0%";
+            if (total == null) {
+                String percentaged = "0%%";
                 drivingCourseAttributeVO.setPercentage(percentaged);
-            }else {
-            String percentage= String.valueOf(Integer.parseInt(finish)/Integer.parseInt(courseCount));
-            String percentaged = Integer.parseInt(percentage) * 100 + "%";
-                drivingCourseAttributeVO.setPercentage(percentaged);
+            } else {
+                String bigDecimal=new BigDecimal(finish).divide(new BigDecimal(total),3, RoundingMode.HALF_UP).
+                        multiply(new BigDecimal(100)).setScale(1,RoundingMode.HALF_UP)+"%";
+                drivingCourseAttributeVO.setPercentage(bigDecimal);
             }
 
 
