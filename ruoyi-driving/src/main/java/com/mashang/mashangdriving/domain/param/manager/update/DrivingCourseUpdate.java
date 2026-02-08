@@ -21,10 +21,10 @@ public class DrivingCourseUpdate {
     private String type;
 
     @ApiModelProperty(value = "总课时", example = "10")
-    private Integer allHours;
+    private String allHours;
 
     @ApiModelProperty(value = "人数", example = "5")
-    private Integer personCount;
+    private String personCount;
 
     @ApiModelProperty(value = "状态", example = "0")
     private String status;
