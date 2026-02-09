@@ -40,7 +40,7 @@
                     LEFT JOIN driving_lable l ON a.attribute_id=l.attribute_id and l.del_flag=0
                     LEFT  JOIN driving_content c ON l.lable_id=c.lable_id  and c.del_flag=0
             WHERE a.attribute_id=#{attributeId} and a.del_flag=0
-            -- 去掉count(*)，去掉JOIN driving_course_record r
+            order by a.attribute_id,l.lable_id,c.content_id
     </select>
 
 
