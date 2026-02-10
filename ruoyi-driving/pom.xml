@@ -57,6 +57,23 @@
             <version>1.6.2</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-framework</artifactId>
+            <version>${ruoyi.version}</version>
+        </dependency>
+        <!-- 引入若依system模块依赖 -->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-system</artifactId>
+            <version>${ruoyi.version}</version> <!-- 比如 3.8.6，和你项目版本一致 -->
+        </dependency>
+        <!-- 邮件发送依赖（Spring Boot 2.7.x 正确版本） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+            <!-- 不需要指定版本，继承父工程的2.7.6即可 -->
+        </dependency>
 
     </dependencies>
 
