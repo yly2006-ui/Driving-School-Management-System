@@ -57,7 +57,7 @@ public class DrivingCourseRecordController extends BaseController {
         return R.fail("已经有观看记录了");
     }
 
-    @ApiOperation("观看时长达标")
+    @ApiOperation("更新观看时长")
     @PutMapping("/CourseRecord/update")
     public R updateRecord(@RequestBody DrivingCourseRecordQuery drivingCourseRecordQuery){
         int i = drivingCourseRecordService.updateRecord(drivingCourseRecordQuery);
