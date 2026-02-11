@@ -17,6 +17,7 @@ import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +48,7 @@ public class DrivingCourseAttributeController extends BaseController {
 
     @ApiOperation("查询学习资料列表")
     @GetMapping("/list")
-    public TableDataInfo<List<DrivingCourseStudentListVo>> list( String name){
+    public TableDataInfo<List<DrivingCourseStudentListVo>> list(@ApiParam("课程名称") String name){
         LambdaQueryWrapper<DrivingCourseAttribute>lambdaQueryWrapper=new LambdaQueryWrapper<>();
         lambdaQueryWrapper.like(StringUtils.isNotEmpty(name),DrivingCourseAttribute::getAttributeName,name);
         List<DrivingCourseAttribute> list = drivingCourseAttributeService.list(lambdaQueryWrapper);
@@ -57,18 +58,16 @@ public class DrivingCourseAttributeController extends BaseController {
             List<DrivingCourseAttributeVO> drivingCourseAttributeVOS = drivingCourseAttributeService.
                     selectByCourseId(Long.valueOf(attributeId), SecurityUtils.getUserId());
             for (DrivingCourseAttributeVO drivingCourseAttributeVO : drivingCourseAttributeVOS) {
-                String totalTime = drivingCourseAttributeVO.getTotalTime();
+                String percentage = drivingCourseAttributeVO.getPercentage();
                 String courseCount = drivingCourseAttributeVO.getCourseCount();
                 String studyPersonTotal = drivingCourseAttributeVO.getStudyPersonTotal();
-                String percentage = drivingCourseAttributeVO.getPercentage();
-                vo.setTotalTime(totalTime);
+                String totalTime = drivingCourseAttributeVO.getTotalTime();
+                vo.setPercentage(percentage);
                 vo.setCourseCount(courseCount);
                 vo.setStudyPersonTotal(studyPersonTotal);
-                vo.setPercentage(percentage);
-                vos.add(vo);
+                vo.setTotalTime(totalTime);
             }
         }
-
 
 
         return getDataTable(vos);
