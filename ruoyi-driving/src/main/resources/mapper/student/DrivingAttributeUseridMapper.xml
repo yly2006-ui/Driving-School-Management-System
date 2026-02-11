@@ -15,7 +15,7 @@
     </select>
     <select id="selectFinishedCourse" resultType="java.lang.Long">
         select COUNT(r.user_id) finished  from driving_attribute_userid r
-        WHERE r.user_id=#{userId} and r.`status`=1
+        WHERE r.user_id=#{userId}
     </select>
     <select id="selectCourseTotal" resultType="java.lang.Long">
 

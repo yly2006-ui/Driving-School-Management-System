@@ -1,10 +1,12 @@
 package com.mashang.mashangdriving.controller.student;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.mashang.mashangdriving.domain.entity.DrivingContent;
 import com.mashang.mashangdriving.domain.entity.DrivingLable;
 import com.mashang.mashangdriving.domain.param.student.create.DrivingLableCreate;
 import com.mashang.mashangdriving.domain.param.student.update.DrivingLableUpdate;
 import com.mashang.mashangdriving.mapping.student.DrivingLableMapping;
+import com.mashang.mashangdriving.service.student.IDrivingContentService;
 import com.mashang.mashangdriving.service.student.IDrivingLableService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
@@ -20,6 +22,8 @@ public class DrivingLableController extends BaseController {
 
     @Autowired
     private IDrivingLableService drivingLableService;
+    @Autowired
+    private IDrivingContentService drivingContentService;
 
     @ApiOperation("新增学习标签")
     @PostMapping("/save")
@@ -52,6 +56,11 @@ public class DrivingLableController extends BaseController {
     @ApiOperation("删除学习标签")
     @DeleteMapping("/delete/{lableId}")
     public R delete(@PathVariable Long lableId){
+        LambdaQueryWrapper<DrivingContent>lambdaQueryWrapper=new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(DrivingContent::getLableId,lableId);
+        DrivingContent drivingContent = drivingContentService.getOne(lambdaQueryWrapper);
+        if (drivingContent!=null){return R.fail("此章之下存在小节");}
+
         boolean b = drivingLableService.removeById(lableId);
         return toR(b);
 

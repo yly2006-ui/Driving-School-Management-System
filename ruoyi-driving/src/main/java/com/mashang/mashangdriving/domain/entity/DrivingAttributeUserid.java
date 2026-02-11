@@ -11,6 +11,6 @@ public class DrivingAttributeUserid {
     private Long attributeUserId;
     private Long attributeId;
     private Long userId;
-    private String status;
+//    private String status;
     private String delFlag;
 }

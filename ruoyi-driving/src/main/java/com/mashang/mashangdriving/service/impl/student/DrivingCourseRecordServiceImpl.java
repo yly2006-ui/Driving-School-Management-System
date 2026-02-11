@@ -88,21 +88,29 @@ public class DrivingCourseRecordServiceImpl extends ServiceImpl<DrivingCourseRec
             int finished = Integer.parseInt(finish);
             int totaled = Integer.parseInt(String.valueOf(total));
             if (finished ==totaled){
-                DrivingAttributeUserid drivingAttributeUserid=new DrivingAttributeUserid();
-                drivingAttributeUserid.setUserId(SecurityUtils.getUserId());
-                drivingAttributeUserid.setStatus("1");
-                drivingAttributeUserid.setAttributeId(attributeId);
-                int insert = drivingAttributeUseridMapper.insert(drivingAttributeUserid);
-                if (insert<0){
-                    throw new RuntimeException("未插入课程完结表");
-                }
+                LambdaQueryWrapper<DrivingAttributeUserid>useridLambdaQueryWrapper=new LambdaQueryWrapper<>();
+                useridLambdaQueryWrapper.eq(DrivingAttributeUserid::getAttributeId,attributeId);
+                useridLambdaQueryWrapper.eq(DrivingAttributeUserid::getUserId,SecurityUtils.getUserId());
+                DrivingAttributeUserid drivingAttributeUserid = drivingAttributeUseridMapper.
+                        selectOne(useridLambdaQueryWrapper);
+                if (drivingAttributeUserid==null){
+                    DrivingAttributeUserid AttributeUserid=new DrivingAttributeUserid();
+                    AttributeUserid.setUserId(SecurityUtils.getUserId());
+    //                drivingAttributeUserid.setStatus("1");
+                    AttributeUserid.setAttributeId(attributeId);
+                    int insert = drivingAttributeUseridMapper.insert(AttributeUserid);
+                    if (insert<0){
+                        throw new RuntimeException("未插入课程完结表");
+                    }}
             }
         }
 
         //判断课程数与学员学习的课程数
         Long courseTotal = drivingAttributeUseridMapper.selectCourseTotal();
         Long finishedCourse = drivingAttributeUseridMapper.selectFinishedCourse(SecurityUtils.getUserId());
-        if (courseTotal.equals( finishedCourse)){
+        System.out.println(courseTotal);
+        System.out.println(finishedCourse);
+        if (courseTotal.equals(finishedCourse)){
             LambdaQueryWrapper<DrivingStudent>studentLambdaQueryWrapper=new LambdaQueryWrapper<>();
             studentLambdaQueryWrapper.eq(DrivingStudent::getUserId,SecurityUtils.getUserId());
             DrivingStudent drivingStudent = drivingStudentMapper.selectOne(studentLambdaQueryWrapper);
