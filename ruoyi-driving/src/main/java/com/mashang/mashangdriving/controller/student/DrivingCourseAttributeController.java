@@ -43,18 +43,19 @@ public class DrivingCourseAttributeController extends BaseController {
         List<DrivingCourseAttributeVO> drivingCourseAttributeVOS = drivingCourseAttributeService.
                 selectByCourseId(attributeId, SecurityUtils.getUserId());
 
-//        LambdaQueryWrapper<DrivingCourseAttributeRecord>lambdaQueryWrapper=new LambdaQueryWrapper<>();
-//        lambdaQueryWrapper.eq(DrivingCourseAttributeRecord::getCourseAttributeId,attributeId);
-//        lambdaQueryWrapper.eq(DrivingCourseAttributeRecord::getUserId,SecurityUtils.getUserId());
-//        DrivingCourseAttributeRecord one = drivingCourseAttributeRecordService.getOne(lambdaQueryWrapper);
-//        if (one==null){
-//        DrivingCourseAttributeRecord record =new DrivingCourseAttributeRecord();
-//        record.setCourseAttributeId(attributeId);
-//        record.setUserId(SecurityUtils.getUserId());
-//        boolean save = drivingCourseAttributeRecordService.save(record);
-//        if (!save){
-//            throw new RuntimeException("插入课程人数记录表失败");
-//        }}
+        LambdaQueryWrapper<DrivingCourseAttributeRecord>lambdaQueryWrapper=new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(DrivingCourseAttributeRecord::getCourseAttributeId,attributeId);
+        lambdaQueryWrapper.eq(DrivingCourseAttributeRecord::getUserId,SecurityUtils.getUserId());
+        DrivingCourseAttributeRecord one = drivingCourseAttributeRecordService.getOne(lambdaQueryWrapper);
+        System.out.println(one);
+        if (one==null){
+        DrivingCourseAttributeRecord record =new DrivingCourseAttributeRecord();
+        record.setCourseAttributeId(attributeId);
+        record.setUserId(SecurityUtils.getUserId());
+        boolean save = drivingCourseAttributeRecordService.save(record);
+        if (!save){
+            throw new RuntimeException("插入课程人数记录表失败");
+        }}
         if (drivingCourseAttributeVOS != null) {
             return R.ok(drivingCourseAttributeVOS);
         } else {
