@@ -7,4 +7,7 @@ import org.apache.ibatis.annotations.Param;
 
 public interface IDrivingStudentService extends IService<DrivingStudent> {
     DrivingStudentDtlVo selectById(@Param("studentId") Long studentId);
+
+    //查询学生对应邮箱
+    String selectMail(Long userId);
 }

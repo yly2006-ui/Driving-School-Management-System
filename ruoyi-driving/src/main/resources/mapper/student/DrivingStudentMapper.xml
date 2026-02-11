@@ -10,4 +10,8 @@
           ON s.driver_license_id=t.driver_license_id
           where s.student_id=#{studentId}
  </select>
-</mapper>
+    <select id="selectMail" resultType="java.lang.String">
+        select sys_user.email from  sys_user
+        where sys_user.user_id=#{userId}
+    </select>
+ </mapper>

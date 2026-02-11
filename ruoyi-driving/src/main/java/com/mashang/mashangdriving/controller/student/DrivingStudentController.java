@@ -25,11 +25,9 @@ public class DrivingStudentController extends BaseController {
     @GetMapping("/list/{studentId}")
     public R select(@PathVariable Long studentId){
         DrivingStudentDtlVo drivingStudentDtlVo = drivingStudentService.selectById(studentId);
-        if (drivingStudentDtlVo!=null){
-            return R.ok(drivingStudentDtlVo);
-        }else {
-            return R.fail();
-        }
+        String selectMail = drivingStudentService.selectMail(SecurityUtils.getUserId());
+        drivingStudentDtlVo.setEmail(selectMail);
+        return R.ok(drivingStudentDtlVo);
     }
 
     @ApiOperation("修改个人信息")
