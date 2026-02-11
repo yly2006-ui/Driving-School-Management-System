@@ -10,7 +10,7 @@ import java.util.List;
 public interface DrivingCourseAttributeMapper extends BaseMapper<DrivingCourseAttribute> {
 
     //查询学习端课程详情
-    List<DrivingCourseAttributeVO> selectByCourseId(@Param("attributeId")Long attributeId);
+    DrivingCourseAttributeVO selectByCourseId(@Param("attributeId")Long attributeId);
 
     //查询学习端课程学习情况
     String selectFinished(@Param("contentId")Long contentId,

@@ -9,5 +9,5 @@ import java.util.List;
 public interface IDrivingCourseAttributeService extends IService<DrivingCourseAttribute> {
 
     //查询学习端课程详情
-    List<DrivingCourseAttributeVO> selectByCourseId(Long attributeId,Long userId);
+    DrivingCourseAttributeVO selectByCourseId(Long attributeId,Long userId);
 }

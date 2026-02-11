@@ -40,7 +40,7 @@ public class DrivingCourseAttributeController extends BaseController {
     @GetMapping("/Dtl/{attributeId}")
     @ApiOperation("查询学习资料详情")
     public R selectById(@PathVariable Long attributeId ){
-        List<DrivingCourseAttributeVO> drivingCourseAttributeVOS = drivingCourseAttributeService.
+        DrivingCourseAttributeVO drivingCourseAttributeVOS = drivingCourseAttributeService.
                 selectByCourseId(attributeId, SecurityUtils.getUserId());
 
         LambdaQueryWrapper<DrivingCourseAttributeRecord>lambdaQueryWrapper=new LambdaQueryWrapper<>();
@@ -72,9 +72,8 @@ public class DrivingCourseAttributeController extends BaseController {
         List<DrivingCourseStudentListVo> vos = DrivingCourseAttributeMapping.INSTANCE.toList(list);
         for (DrivingCourseStudentListVo vo : vos) {
             Integer attributeId = vo.getAttributeId();
-            List<DrivingCourseAttributeVO> drivingCourseAttributeVOS = drivingCourseAttributeService.
+            DrivingCourseAttributeVO drivingCourseAttributeVO = drivingCourseAttributeService.
                     selectByCourseId(Long.valueOf(attributeId), SecurityUtils.getUserId());
-            for (DrivingCourseAttributeVO drivingCourseAttributeVO : drivingCourseAttributeVOS) {
                 String percentage = drivingCourseAttributeVO.getPercentage();
                 String courseCount = drivingCourseAttributeVO.getCourseCount();
                 String studyPersonTotal = drivingCourseAttributeVO.getStudyPersonTotal();
@@ -83,7 +82,6 @@ public class DrivingCourseAttributeController extends BaseController {
                 vo.setCourseCount(courseCount);
                 vo.setStudyPersonTotal(studyPersonTotal);
                 vo.setTotalTime(totalTime);
-            }
         }
 
 

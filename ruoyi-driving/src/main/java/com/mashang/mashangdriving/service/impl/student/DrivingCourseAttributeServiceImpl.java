@@ -22,9 +22,9 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
     @Autowired
     private DrivingAttributeUseridMapper drivingAttributeUseridMapper;
     @Override
-    public List<DrivingCourseAttributeVO> selectByCourseId(Long attributeId,Long userId) {
+    public DrivingCourseAttributeVO selectByCourseId(Long attributeId,Long userId) {
 
-        List<DrivingCourseAttributeVO> drivingCourseAttributeVOS = drivingCourseAttributeMapper.selectByCourseId(attributeId);
+        DrivingCourseAttributeVO drivingCourseAttributeVOS = drivingCourseAttributeMapper.selectByCourseId(attributeId);
         List<DrivingCourseAttributeVO> drivingCourseAttributeVOS1 = drivingCourseAttributeMapper.countFinish(attributeId,
                 userId);
 
@@ -52,13 +52,12 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
         }
 
 
-        for (DrivingCourseAttributeVO drivingCourseAttributeVO : drivingCourseAttributeVOS) {
-
             long totalTime = 0L;
             String totalTimeStr = String.valueOf(0);
-            drivingCourseAttributeVO.setStudyPersonTotal(string);
-            for (DrivingCourseLableVo drivingCourseLableVo : drivingCourseAttributeVO.getDrivingCourseLableVoList()) {
-                for (DrivingCourseContextVo drivingCourseContextVo : drivingCourseLableVo.getList()) {
+            drivingCourseAttributeVOS.setStudyPersonTotal(string);
+        List<DrivingCourseLableVo> drivingCourseLableVoList = drivingCourseAttributeVOS.getDrivingCourseLableVoList();
+        for (DrivingCourseLableVo drivingCourseLableVo : drivingCourseLableVoList) {
+        for (DrivingCourseContextVo drivingCourseContextVo : drivingCourseLableVo.getList()) {
                     Long contentId = Long.valueOf(drivingCourseContextVo.getContentId());
 //                    System.out.println("小节id"+contentId);
                     String l = drivingCourseAttributeMapper.selectFinished(contentId, userId);
@@ -77,8 +76,8 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
                     totalTimeStr = hours + "小时" + minutes + "分钟";
                 }
             }
-            drivingCourseAttributeVO.setTotalTime(totalTimeStr);
-            drivingCourseAttributeVO.setCourseCount(total.toString());
+        drivingCourseAttributeVOS.setTotalTime(totalTimeStr);
+        drivingCourseAttributeVOS.setCourseCount(total.toString());
             String finish = null;
             for (DrivingCourseAttributeVO drivingCourseAttributeVO1 : drivingCourseAttributeVOS1) {
                 finish = drivingCourseAttributeVO1.getFinish();
@@ -87,18 +86,18 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
                     finish = String.valueOf(0);
                 }
             }
-            drivingCourseAttributeVO.setFinish(finish);
+        drivingCourseAttributeVOS.setFinish(finish);
 
             if (total == 0L){
-                drivingCourseAttributeVO.setPercentage("0%");
+                drivingCourseAttributeVOS.setPercentage("0%");
             }else {
 
             String bigDecimal=new BigDecimal(finish).divide(new BigDecimal(total),3, RoundingMode.HALF_UP).
                     multiply(new BigDecimal(100)).setScale(1,RoundingMode.HALF_UP)+"%";
-            drivingCourseAttributeVO.setPercentage(bigDecimal);}
+                drivingCourseAttributeVOS.setPercentage(bigDecimal);}
 
 
-        }
+
 
         return  drivingCourseAttributeVOS;
     }
