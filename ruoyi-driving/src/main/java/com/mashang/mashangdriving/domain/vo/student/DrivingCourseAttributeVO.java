@@ -37,6 +37,8 @@ public class DrivingCourseAttributeVO  {
 
     @ApiModelProperty(value = "完成百分比")
     private String percentage;
+
+
     private List<DrivingCourseLableVo> drivingCourseLableVoList;
 
 

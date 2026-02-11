@@ -45,10 +45,11 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
 //                drivingAttributeUseridMapper.insert(drivingAttributeUserid);
 //            }
 //        }
+
+
         String string = drivingCourseAttributeMapper.selectStudyTotal(attributeId);
         if (string==null){string= String.valueOf(0);
         }
-//        System.out.println("课程下的总条数"+total);
 
 
         for (DrivingCourseAttributeVO drivingCourseAttributeVO : drivingCourseAttributeVOS) {

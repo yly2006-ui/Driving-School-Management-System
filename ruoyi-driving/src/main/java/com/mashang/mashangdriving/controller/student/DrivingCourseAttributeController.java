@@ -3,11 +3,13 @@ package com.mashang.mashangdriving.controller.student;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mashang.mashangdriving.domain.entity.DrivingCourseAttribute;
+import com.mashang.mashangdriving.domain.entity.DrivingCourseAttributeRecord;
 import com.mashang.mashangdriving.domain.param.student.create.DrivingCourseAttributeCreate;
 import com.mashang.mashangdriving.domain.param.student.update.DrivingCourseAttributeUpdate;
 import com.mashang.mashangdriving.domain.vo.student.DrivingCourseAttributeVO;
 import com.mashang.mashangdriving.domain.vo.student.DrivingCourseStudentListVo;
 import com.mashang.mashangdriving.mapping.student.DrivingCourseAttributeMapping;
+import com.mashang.mashangdriving.service.student.IDrivingCourseAttributeRecordService;
 import com.mashang.mashangdriving.service.student.IDrivingCourseAttributeService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
@@ -32,6 +34,8 @@ public class DrivingCourseAttributeController extends BaseController {
 
     @Autowired
     private IDrivingCourseAttributeService drivingCourseAttributeService;
+    @Autowired
+    private IDrivingCourseAttributeRecordService drivingCourseAttributeRecordService;
 
     @GetMapping("/Dtl/{attributeId}")
     @ApiOperation("查询学习资料详情")
@@ -39,6 +43,18 @@ public class DrivingCourseAttributeController extends BaseController {
         List<DrivingCourseAttributeVO> drivingCourseAttributeVOS = drivingCourseAttributeService.
                 selectByCourseId(attributeId, SecurityUtils.getUserId());
 
+        LambdaQueryWrapper<DrivingCourseAttributeRecord>lambdaQueryWrapper=new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(DrivingCourseAttributeRecord::getCourseAttributeId,attributeId);
+        lambdaQueryWrapper.eq(DrivingCourseAttributeRecord::getUserId,SecurityUtils.getUserId());
+        DrivingCourseAttributeRecord one = drivingCourseAttributeRecordService.getOne(lambdaQueryWrapper);
+        if (one==null){
+        DrivingCourseAttributeRecord record =new DrivingCourseAttributeRecord();
+        record.setCourseAttributeId(attributeId);
+        record.setUserId(SecurityUtils.getUserId());
+        boolean save = drivingCourseAttributeRecordService.save(record);
+        if (!save){
+            throw new RuntimeException("插入课程人数记录表失败");
+        }}
         if (drivingCourseAttributeVOS != null) {
             return R.ok(drivingCourseAttributeVOS);
         } else {

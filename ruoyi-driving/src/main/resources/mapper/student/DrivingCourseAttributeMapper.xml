@@ -7,6 +7,7 @@
         <result property="attributeName" column="attribute_name"/>
         <result property="type" column="type"/>
         <result property="courseCount" column="courseCount"/>
+<!--        <result property="studyPersonTotal" column="study_person_total"/>-->
         <collection property="drivingCourseLableVoList" ofType="drivingCourseLableVo">
             <result property="lableId" column="lable_id"/>
             <result property="lableName" column="lable_name"/>
@@ -28,6 +29,7 @@
                 a.attribute_id,
                 a.attribute_name,
                 a.type,
+--                 a.study_person_total,
                 l.lable_id,
                 l.lable_name,
                 c.content_id,
@@ -84,14 +86,7 @@
         WHERE a.attribute_id=#{attributeId}
     </select>
     <select id="selectStudyTotal" resultType="java.lang.String">
-        select DISTINCT count(r.user_id)
-        FROM driving_course_attribute a
-                 JOIN driving_lable l
-                      ON a.attribute_id=l.attribute_id
-                 JOIN driving_content c
-                      ON l.lable_id=c.lable_id
-                 JOIN driving_course_record r
-                      ON r.content_id=c.content_id
-        WHERE a.attribute_id=#{attributeId}
+        SELECT COUNT(*) FROM `driving_course_attribute_record`
+        WHERE `driving_course_attribute_record`.course_attribute_id=#{attributeId}
     </select>
 </mapper>
