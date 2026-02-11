@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 @Data
 public class DrivingCourseAttributeRecord {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(value = "study_id", type = IdType.AUTO)
     private Long studyId;
     private Long courseAttributeId;
     private Long userId;
