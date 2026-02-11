@@ -23,4 +23,6 @@ public class DrivingStudentUpdate {
     @ApiModelProperty(value = "头像",  example = "13800138000")
     private String avatar;
 
+    @ApiModelProperty("邮箱")
+    private String email;
 }

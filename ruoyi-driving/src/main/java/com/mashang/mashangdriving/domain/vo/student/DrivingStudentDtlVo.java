@@ -38,4 +38,7 @@ public class DrivingStudentDtlVo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @ApiModelProperty(value = "创建时间", example = "2024-01-15 10:30:00")
     private Date createTime;
+
+    @ApiModelProperty("邮箱")
+    private String email;
 }
