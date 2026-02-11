@@ -21,9 +21,8 @@ public class DrivingCourseServiceImpl extends ServiceImpl<DrivingCourseMapper, D
     @Autowired
     private DrivingCourseMapper drivingCourseMapper;
     @Override
-    public List<DrivingCourseDtlVo> selectByCourseId(Long courseId) {
-        List<DrivingCourseDtlVo> drivingCourseDtlVos = drivingCourseMapper.selectByCourseId(courseId);
-        return drivingCourseDtlVos;
+    public DrivingCourseDtlVo selectByCourseId(Long courseId) {
+        return drivingCourseMapper.selectByCourseId(courseId);
     }
 
 

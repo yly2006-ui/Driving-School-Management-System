@@ -11,6 +11,8 @@ import com.mashang.mashangdriving.service.student.IDrivingCourseAttributeService
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -28,6 +30,8 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
 
 
         Long total = drivingCourseAttributeMapper.total(attributeId);
+        if (!(total >0)){total= 0L;
+        }
 //        System.out.println("查询出的课程下的总条数"+total);
 //        for (DrivingCourseAttributeVO drivingCourseAttributeVO : drivingCourseAttributeVOS1) {
 //            String finish = drivingCourseAttributeVO.getFinish();
@@ -41,14 +45,17 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
 //                drivingAttributeUseridMapper.insert(drivingAttributeUserid);
 //            }
 //        }
+
+
         String string = drivingCourseAttributeMapper.selectStudyTotal(attributeId);
-//        System.out.println("课程下的总条数"+total);
+        if (string==null){string= String.valueOf(0);
+        }
 
 
         for (DrivingCourseAttributeVO drivingCourseAttributeVO : drivingCourseAttributeVOS) {
 
             long totalTime = 0L;
-            String totalTimeStr = null;
+            String totalTimeStr = String.valueOf(0);
             drivingCourseAttributeVO.setStudyPersonTotal(string);
             for (DrivingCourseLableVo drivingCourseLableVo : drivingCourseAttributeVO.getDrivingCourseLableVoList()) {
                 for (DrivingCourseContextVo drivingCourseContextVo : drivingCourseLableVo.getList()) {
@@ -56,11 +63,12 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
 //                    System.out.println("小节id"+contentId);
                     String l = drivingCourseAttributeMapper.selectFinished(contentId, userId);
 //                    System.out.println("学习状态"+l);
-                    if (l==null){
+                    if (l == null) {
                         drivingCourseContextVo.setFinishStatus("2");
-                    }else {
+                    } else {
 
-                    drivingCourseContextVo.setFinishStatus(l);}
+                        drivingCourseContextVo.setFinishStatus(l);
+                    }
 //                    System.out.println("Content time: " + contentTime);
                     Long contentTime = drivingCourseContextVo.getContentTime();
                     totalTime = totalTime + contentTime;
@@ -74,9 +82,20 @@ public class DrivingCourseAttributeServiceImpl extends ServiceImpl<DrivingCourse
             String finish = null;
             for (DrivingCourseAttributeVO drivingCourseAttributeVO1 : drivingCourseAttributeVOS1) {
                 finish = drivingCourseAttributeVO1.getFinish();
-//                System.out.println("完成数量"+finish);
+                System.out.println("完成数量"+finish);
+                if (finish == null) {
+                    finish = String.valueOf(0);
+                }
             }
             drivingCourseAttributeVO.setFinish(finish);
+
+            if (total == 0L){
+                drivingCourseAttributeVO.setPercentage("0%");
+            }else {
+
+            String bigDecimal=new BigDecimal(finish).divide(new BigDecimal(total),3, RoundingMode.HALF_UP).
+                    multiply(new BigDecimal(100)).setScale(1,RoundingMode.HALF_UP)+"%";
+            drivingCourseAttributeVO.setPercentage(bigDecimal);}
 
 
         }

@@ -13,6 +13,7 @@ public class DrivingContent {
     private String contectName;
     private String courseContect;
     private String ipstructionalVideo;
+    private String videoExplain;
     private String contentTime;
     private String delFlag;
 }

@@ -14,7 +14,7 @@ import java.util.List;
 public class DrivingCourseListVo {
 
     @ApiModelProperty(value = "课程ID", example = "1")
-    private Integer courseId;
+    private Long courseId;
 
     @ApiModelProperty(value = "课程名称", example = "科目一理论课程")
     private String courseName;

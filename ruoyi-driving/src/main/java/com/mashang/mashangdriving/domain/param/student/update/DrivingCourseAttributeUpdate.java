@@ -2,6 +2,7 @@ package com.mashang.mashangdriving.domain.param.student.update;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
@@ -12,4 +13,6 @@ public class DrivingCourseAttributeUpdate {
     private String attributeName;
     private String Introduction;
     private String type;
+    @ApiModelProperty(value = "课程标签")
+    private String attributeLable;
 }

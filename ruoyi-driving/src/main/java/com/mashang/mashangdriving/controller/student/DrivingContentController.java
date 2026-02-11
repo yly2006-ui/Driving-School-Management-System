@@ -8,6 +8,7 @@ import com.mashang.mashangdriving.mapping.student.DrivingContentMapping;
 import com.mashang.mashangdriving.service.student.IDrivingContentService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
+import com.ruoyi.common.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,14 +25,8 @@ public class DrivingContentController extends BaseController {
     @ApiOperation("新增学习小节")
     @PostMapping("/save")
     public R insert(@RequestBody DrivingContentCreate create){
-        LambdaQueryWrapper<DrivingContent> lambdaQueryWrapper=new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(DrivingContent::getContectName,create.getContectName());
-        DrivingContent one = drivingContentService.getOne(lambdaQueryWrapper);
-        if (one!=null) {
-            throw new RuntimeException("已存在此名称学习小节");
-        }
-        boolean save = drivingContentService.save(DrivingContentMapping.INSTANCE.toCreate(create));
-        return toR(save);
+        int i = drivingContentService.insertContent(create);
+        return toR(i);
     }
 
     @ApiOperation("修改学习小节")

@@ -1,5 +1,6 @@
 package com.mashang.mashangdriving.domain.param.student.create;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
@@ -8,4 +9,6 @@ public class DrivingCourseAttributeCreate {
     private String attributeName;
     private String Introduction;
     private String type;
+    @ApiModelProperty(value = "课程标签")
+    private String attributeLable;
 }

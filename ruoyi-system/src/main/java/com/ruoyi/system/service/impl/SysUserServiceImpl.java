@@ -547,4 +547,13 @@ public class SysUserServiceImpl implements ISysUserService
         }
         return successMsg.toString();
     }
+
+    /**
+     * 根据邮箱查询用户（原生 MyBatis 实现）
+     */
+    @Override
+    public SysUser selectUserByEmail(String email) {
+        // 直接调用 Mapper，无任何 Plus 语法
+        return userMapper.selectUserByEmail(email);
+    }
 }

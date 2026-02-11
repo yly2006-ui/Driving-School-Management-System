@@ -56,6 +56,24 @@ user:
 
 # Spring配置
 spring:
+  # 原有配置保留
+  mail:
+    host: smtp.qq.com
+    port: 465  # 465端口必须配SSL，587端口需改配置
+    username: 3154563562@qq.com  # 比如 123456@qq.com
+    password: pbaokaxrkvogddcj     # 不是QQ密码！
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true  # 465端口必须开启SSL
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+            port: 465     # 显式指定SSL端口
+          starttls:
+            enable: false # 465端口关闭STARTTLS，587端口才需要true
   # 资源信息
   messages:
     # 国际化资源文件路径
@@ -101,6 +119,8 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
+
 # token配置
 token:
   # 令牌自定义标识

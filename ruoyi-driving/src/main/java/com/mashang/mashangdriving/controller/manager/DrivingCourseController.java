@@ -14,6 +14,7 @@ import com.mashang.mashangdriving.domain.param.manager.update.DrivingCourseUpdat
 import com.mashang.mashangdriving.domain.param.manager.update.DrivingSectionUpdate;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingCourseDtlVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingCourseListVo;
+import com.mashang.mashangdriving.domain.vo.manager.DrivingLearningMaterialsVo;
 import com.mashang.mashangdriving.mapping.manager.DrivingChapterMapping;
 import com.mashang.mashangdriving.mapping.manager.DrivingCourseMapping;
 import com.mashang.mashangdriving.service.manager.IDrivingChapterService;
@@ -30,7 +31,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Api(tags = "管理端--课程管理")
 @RestController
@@ -50,27 +53,45 @@ public class DrivingCourseController extends BaseController {
     @ApiOperation("分页查询课程列表")
     public TableDataInfo<List<DrivingCourseListVo>> list(@Validated PageQuery pageQuery,
                                                          DrivingCourseQuery drivingCourseQuery) {
-        Page<DrivingCourseListVo> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
-        QueryWrapper<DrivingCourse> lqw = new QueryWrapper<>();
-        lqw.like(StringUtils.isNotEmpty(drivingCourseQuery.getCourseName()), "c.course_name",
+        Page<DrivingCourse> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
+        LambdaQueryWrapper<DrivingCourse> lqw = new LambdaQueryWrapper<>();
+        lqw.like(StringUtils.isNotEmpty(drivingCourseQuery.getCourseName()), DrivingCourse::getCourseName,
                 drivingCourseQuery.getCourseName());
         lqw.eq(StringUtils.isNotEmpty(drivingCourseQuery.getType()),
-               "c.type", drivingCourseQuery.getType());
+                DrivingCourse::getType, drivingCourseQuery.getType());
         lqw.eq(StringUtils.isNotEmpty(drivingCourseQuery.getStatus()),
-                "c.status", drivingCourseQuery.getStatus());
-        lqw.eq("c.del_flag",0);
-        lqw.orderByDesc("c.course_id");
+                DrivingCourse::getStatus, drivingCourseQuery.getStatus());
+        lqw.orderByDesc(DrivingCourse::getCourseId);
 
-        Page<DrivingCourseListVo> result = drivingCourseService.query(page, lqw);
-        return getDataTable(result.getRecords(), result.getTotal());
+        Page<DrivingCourse> result = drivingCourseService.page(page, lqw);
+        List<DrivingCourse> records = result.getRecords();
+        List<DrivingCourseListVo> courseListVos = DrivingCourseMapping.INSTANCE.toList(records);
+        System.out.println(courseListVos);
+        for (DrivingCourseListVo record : courseListVos) {
+            Long courseId = record.getCourseId();
+            LambdaQueryWrapper<DrivingChapter> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper.in(DrivingChapter::getCourseId, courseId);
+            List<DrivingChapter> drivingChapters = drivingChapterService.list(lambdaQueryWrapper);
+            List<DrivingLearningMaterialsVo> list = new ArrayList<>();
+            for (DrivingChapter drivingChapter : drivingChapters) {
+                Long chapterId = drivingChapter.getChapterId();
+                String chapterName = drivingChapter.getChapterName();
+                DrivingLearningMaterialsVo drivingLearningMaterialsVo = new DrivingLearningMaterialsVo();
+                drivingLearningMaterialsVo.setMaterialsId(chapterId);
+                drivingLearningMaterialsVo.setMaterialsName(chapterName);
+                list.add(drivingLearningMaterialsVo);
+            }record.setDrivingLearningMaterialsVos(list);
+        }
+        System.out.println(courseListVos);
+        return getDataTable(courseListVos, result.getTotal());
     }
 
     @ApiOperation("查询课程详情")
     @GetMapping("/dtl/{courseId}")
     public R selectById(@PathVariable Long courseId) {
-        List<DrivingCourseDtlVo> drivingCourseDtlVos = drivingCourseService.selectByCourseId(courseId);
-        if (drivingCourseDtlVos != null) {
-            return R.ok(drivingCourseDtlVos);
+        DrivingCourseDtlVo drivingCourseDtlVo = drivingCourseService.selectByCourseId(courseId);
+        if (drivingCourseDtlVo != null) {
+            return R.ok(drivingCourseDtlVo);
         } else {
             return R.fail();
         }
@@ -126,7 +147,8 @@ public class DrivingCourseController extends BaseController {
             System.out.println("查询到的理论数量为"+count);
             return R.ok(count);
         }else {
-            return R.fail();
+            count=0;
+            return R.ok(count);
         }}
 
         @ApiOperation("统计实操课程")
@@ -139,7 +161,8 @@ public class DrivingCourseController extends BaseController {
                 System.out.println("查询到的实操数量为" + count);
                 return R.ok(count);
             } else {
-                return R.fail();
+                count=0;
+                return R.ok(count);
             }
         }
 
@@ -153,7 +176,8 @@ public class DrivingCourseController extends BaseController {
             System.out.println("查询到的进行中的课程数量为" + count);
             return R.ok(count);
         } else {
-            return R.fail();
+            count=0;
+            return R.ok(count);
         }
     }
     @ApiOperation("统计已结束课程")
@@ -166,7 +190,8 @@ public class DrivingCourseController extends BaseController {
             System.out.println("查询到的结束的课程数量为" + count);
             return R.ok(count);
         } else {
-            return R.fail();
+            count=0;
+            return R.ok(count);
         }
     }
 
@@ -240,7 +265,7 @@ public class DrivingCourseController extends BaseController {
     @ApiOperation("删除小节")
     @DeleteMapping("deleteSectionId/{sectionId}")
     public R removeSection(@PathVariable Long sectionId){
-        boolean b = drivingCourseService.removeById(sectionId);
+        boolean b = drivingSectionService.removeById(sectionId);
         return  toR(b);
     }
 }

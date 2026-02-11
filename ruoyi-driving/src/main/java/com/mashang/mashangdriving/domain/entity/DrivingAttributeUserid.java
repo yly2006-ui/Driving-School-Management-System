@@ -8,7 +8,9 @@ import lombok.Data;
 public class DrivingAttributeUserid {
 
     @TableId(type = IdType.AUTO)
+    private Long attributeUserId;
     private Long attributeId;
     private Long userId;
     private String status;
+    private String delFlag;
 }

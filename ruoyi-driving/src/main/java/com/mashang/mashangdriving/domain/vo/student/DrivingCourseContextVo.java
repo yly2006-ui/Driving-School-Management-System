@@ -18,8 +18,12 @@ public class DrivingCourseContextVo {
     private String courseContect; // 注意：原字段拼写错误
 
     @ApiModelProperty(value = "教学视频路径", example = "/video/lesson1.mp4")
-    private String ipstructionalVideo; // 注意：原字段拼写错误
+    private String ipstructionalVideo;
 
-    @ApiModelProperty(value = "小节完成状态",example = "0已完成")
+    @ApiModelProperty(value = "教学视频解释")
+    private String videoExplain;
+
+
+    @ApiModelProperty(value = "小节完成状态",example = "学习状态(0 已学,1 正在学, 2 未学)")
     private String finishStatus;
 }
