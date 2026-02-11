@@ -12,28 +12,42 @@
         <result column="status" property="status" />
         <result column="teaching_years" property="teachingYears" />
         <result column="good_subject" property="goodSubject" />
-        <result column="schedulable_time_start" property="schedulableTimeStart" />
-        <result column="schedulable_time_end" property="schedulableTimeEnd" />
-        <result column="no_time_start" property="noTimeStart" />
-        <result column="no_time_end" property="noTimeEnd" />
         <result column="score" property="score" />
         <result column="car_id" property="carId" />
         <result column="plate_number" property="plateNumber" />
+        <result column="student_num" property="studentNum"/>
     </resultMap>
 
     <select id="selectMyInstructorById" resultMap="MyInstructorVo1">
         SELECT di.instructor_id, di.instructor_name, di.phone,  di.instructor_no,
-               di.status, di.teaching_years, di.schedulable_time_start,
-               di.schedulable_time_end, di.no_time_start, di.no_time_end,
-                di.good_subject, di.score,dis.instructor_id, dis.student_id,ds.student_id,
-                dc.car_id,dc.plate_number
+               di.status, di.teaching_years,di.good_subject,
+               COALESCE(
+                       (SELECT ROUND(AVG(score),1)
+                        FROM ms_stu_pro339.driving_rating dr
+                        WHERE di.instructor_id=dr.instructor_id),
+                       0
+               ) AS score,
+               dis.instructor_id,
+               dis.student_id,
+               ds.student_id,
+               dc.car_id,
+               dc.plate_number,
+               (SELECT COUNT(*) FROM ms_stu_pro339.driving_instructor_student dis2
+                                WHERE di.instructor_id=dis2.instructor_id) AS student_num
             FROM ms_stu_pro339.driving_instructor di
         INNER JOIN ms_stu_pro339.driving_instructor_student dis ON dis.instructor_id = di.instructor_id
-        INNER JOIN ms_stu_pro339.driving_student ds ON ds.student_id = dis.student_id
+        INNER JOIN ms_stu_pro339.driving_student ds ON dis.student_id = ds.student_id
         LEFT JOIN ms_stu_pro339.driving_car dc ON dc.instructor_id = di.instructor_id
         WHERE dis.student_id = #{studentId}
         LIMIT 1
     </select>
 
+    <select id="findWeeklyScheduleByStudentId" resultType="java.util.Map">
+        SELECT  week_day, time_slot, status
+        FROM ms_stu_pro339.coach_weekly_schedule cws
+        WHERE cws.instructor_id=(SELECT instructor_id FROM ms_stu_pro339.driving_instructor_student
+                                                      WHERE student_id=#{studentId} LIMIT 1)
+        ORDER BY week_day, time_slot
+    </select>
 
 </mapper>

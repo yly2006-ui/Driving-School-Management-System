@@ -6,5 +6,7 @@ import com.mashang.mashangdriving.domain.vo.student.MyInstructorVo;
 
 public interface IMyInstructorService extends IService<MyInstructor> {
     MyInstructorVo selectMyInstructorById( Long studentId);
+    int[][] createScheduleMatrixFromDB(Long studentId);
+
 
 }
