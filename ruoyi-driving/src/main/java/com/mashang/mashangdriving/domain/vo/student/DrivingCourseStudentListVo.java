@@ -26,4 +26,9 @@ public class DrivingCourseStudentListVo {
 
     @ApiModelProperty(value = "完成百分比")
     private String percentage;
+
+
+
+    @ApiModelProperty(value = "课程标签")
+    private String attributeLable;
 }
