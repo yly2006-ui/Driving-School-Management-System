@@ -9,6 +9,8 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.utils.SecurityUtils;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +45,10 @@ public class DrivingStudentController extends BaseController {
 
     @ApiOperation("学员修改头像")
     @PostMapping("/updateAvatar")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "studentId", value = "学员ID", required = true, dataType = "Long", paramType = "form"),
+            @ApiImplicitParam(name = "file", value = "头像文件", required = true, dataType = "MultipartFile", paramType = "form")
+    })
     public R updateAvatar(
             @RequestParam("studentId") Long studentId,
             @RequestParam("file") MultipartFile file
