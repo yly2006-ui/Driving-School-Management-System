@@ -6,7 +6,6 @@ import com.mashang.mashangdriving.domain.vo.student.DrivingStudentDtlVo;
 import com.mashang.mashangdriving.mapping.student.DrivingStudentMapping;
 import com.mashang.mashangdriving.service.student.IDrivingStudentService;
 import com.ruoyi.common.core.controller.BaseController;
-import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.utils.SecurityUtils;
 import io.swagger.annotations.Api;
@@ -42,15 +41,16 @@ public class DrivingStudentController extends BaseController {
         return toR(b);
     }
 
-    // 学员修改头像接口
     @ApiOperation("学员修改头像")
     @PostMapping("/updateAvatar")
     public R updateAvatar(
-            @RequestParam("studentId") Long studentId,  // 学员ID（必传）
-            @RequestParam("file") MultipartFile file    // 头像文件（form-data）
+            @RequestParam("studentId") Long studentId,
+            @RequestParam("file") MultipartFile file
     ) throws IOException {
+        if (file.isEmpty()) {
+            return R.fail("头像文件不能为空");
+        }
         String avatarUrl = drivingStudentService.updateAvatar(studentId, file);
         return R.ok("头像修改成功", avatarUrl);
     }
-
 }

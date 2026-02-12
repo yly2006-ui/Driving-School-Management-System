@@ -6,7 +6,6 @@ import com.mashang.mashangdriving.domain.vo.student.DrivingStudentDtlVo;
 import com.mashang.mashangdriving.mapper.student.DrivingStudentMapper;
 import com.mashang.mashangdriving.service.student.IDrivingStudentService;
 import com.ruoyi.common.config.RuoYiConfig;
-import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,16 +13,25 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-
 @Service
 public class DrivingStudentServiceImpl extends ServiceImpl<DrivingStudentMapper, DrivingStudent> implements IDrivingStudentService {
     @Autowired
     private DrivingStudentMapper drivingStudentMapper;
 
+    @Autowired
+    private RuoYiConfig ruoYiConfig;
 
+    // 纯原生查询：只拼接域名，不修改路径格式
     @Override
     public DrivingStudentDtlVo selectById(Long studentId) {
-        return drivingStudentMapper.selectById(studentId);
+        DrivingStudentDtlVo vo = drivingStudentMapper.selectById(studentId);
+        if (vo != null && vo.getAvatar() != null && !vo.getAvatar().startsWith("http")) {
+            // 只做2件事：1. 拼接域名 2. 处理多余斜杠（仅容错，不修改路径本身）
+            String fullUrl = ruoYiConfig.getDomain() + vo.getAvatar();
+            fullUrl = fullUrl.replaceAll("(?<!http:|https:)//+", "/");
+            vo.setAvatar(fullUrl);
+        }
+        return vo;
     }
 
     @Override
@@ -31,22 +39,21 @@ public class DrivingStudentServiceImpl extends ServiceImpl<DrivingStudentMapper,
         return drivingStudentMapper.selectMail(userId);
     }
 
-
-    // 固定你的服务器域名（和你之前说的完全一致）
-    private static final String SERVER_DOMAIN = "http://mashang.eicp.vip:5555/ms_stu_pro339";
-
+    // 纯原生上传：只存若依返回的原始路径
+    @Override
     public String updateAvatar(Long studentId, MultipartFile file) throws IOException {
-        // 1. 上传文件，获取本地相对路径（比如 /profile/upload/2026/02/13/abc.png）
-        String localPath = FileUploadUtils.upload(FileUploadUtils.getDefaultBaseDir(), file);
+        if (file.isEmpty()) {
+            throw new IOException("头像文件不能为空");
+        }
+        // 1. 若依原生上传，返回：/profile/upload/20260212/xxx.png（默认路径，不用改）
+        String ruoyiOriginalPath = FileUploadUtils.upload(FileUploadUtils.getDefaultBaseDir(), file);
 
-        // 2. 拼接你的服务器域名，生成可访问的完整URL（绝对匹配你的地址）
-        String fullAvatarUrl = SERVER_DOMAIN + localPath;
-        fullAvatarUrl = fullAvatarUrl.replaceAll("//", "/"); // 防止多斜杠（比如域名结尾带/的情况）
+        // 2. 数据库只存这个原始路径，不做任何修改
+        drivingStudentMapper.updateAvatar(studentId, ruoyiOriginalPath);
 
-        // 3. 更新数据库（存的是完整可访问URL，不是本地路径）
-        drivingStudentMapper.updateAvatar(studentId, fullAvatarUrl);
-
+        // 3. 拼接域名，返回完整URL
+        String fullAvatarUrl = ruoYiConfig.getDomain() + ruoyiOriginalPath;
+        fullAvatarUrl = fullAvatarUrl.replaceAll("(?<!http:|https:)//+", "/");
         return fullAvatarUrl;
     }
-
 }
