@@ -20,13 +20,10 @@ public class DrivingStudentServiceImpl extends ServiceImpl<DrivingStudentMapper,
     @Autowired
     private DrivingStudentMapper drivingStudentMapper;
 
-    private static final String LOCAL_PREFIX = "http://127.0.0.1:11339";
-    private static final String SERVER_PREFIX = "http://mashang.eicp.vip:5555/ms_stu_pro339";
 
     @Override
     public DrivingStudentDtlVo selectById(Long studentId) {
-        DrivingStudentDtlVo studentVo = drivingStudentMapper.selectById(studentId);
-        return studentVo;
+        return drivingStudentMapper.selectById(studentId);
     }
 
     @Override

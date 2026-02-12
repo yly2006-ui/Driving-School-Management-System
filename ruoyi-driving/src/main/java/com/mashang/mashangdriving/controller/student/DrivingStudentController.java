@@ -43,6 +43,7 @@ public class DrivingStudentController extends BaseController {
     }
 
     // 学员修改头像接口
+    @ApiOperation("学员修改头像")
     @PostMapping("/updateAvatar")
     public R updateAvatar(
             @RequestParam("studentId") Long studentId,  // 学员ID（必传）
