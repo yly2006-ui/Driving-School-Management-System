@@ -8,10 +8,7 @@ import com.mashang.mashangdriving.service.student.IDrivingStudentService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.utils.SecurityUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,13 +41,12 @@ public class DrivingStudentController extends BaseController {
     }
 
     @ApiOperation("学员修改头像")
-    @PostMapping("/updateAvatar")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "studentId", value = "学员ID", required = true, dataType = "Long", paramType = "form"),
-            @ApiImplicitParam(name = "file", value = "头像文件", required = true, dataType = "MultipartFile", paramType = "form")
-    })
+    @PostMapping(value = "/updateAvatar", consumes = "multipart/form-data")
     public R updateAvatar(
+            @ApiParam(value = "学员ID", required = true)
             @RequestParam("studentId") Long studentId,
+
+            @ApiParam(value = "头像文件", required = true)
             @RequestParam("file") MultipartFile file
     ) throws IOException {
         if (file.isEmpty()) {
