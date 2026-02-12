@@ -64,7 +64,7 @@ public class DrivingStudentServiceImpl extends ServiceImpl<DrivingStudentMapper,
         DrivingStudent student = new DrivingStudent();
         student.setStudentId(studentId);
         student.setAvatar(fullUrl); // 存完整URL
-        drivingStudentMapper.updateById(student);
+        return drivingStudentMapper.updateById(student);
     }
 
 
