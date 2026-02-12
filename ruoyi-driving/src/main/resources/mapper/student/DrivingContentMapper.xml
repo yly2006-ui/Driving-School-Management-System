@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mashang.mashangdriving.mapper.student.DrivingContentMapper">
+
+    <!-- 查询课程内容详情（含上/下节ID） -->
+    <select id="selectContentWithPrevNext" resultType="com.mashang.mashangdriving.domain.vo.student.DrivingCourseAndContentVo">
+        SELECT
+        t.contentId,
+        t.contentName,
+        t.contentTime,
+        t.courseContext,
+        t.instructionalVideo,
+        t.videoExplain,
+        -- 上一节ID：查询比当前ID小的最大ID，无则为null
+        (SELECT MAX(contentId) FROM driving_content WHERE contentId &lt;  t.contentId) AS prevContentId,
+        -- 下一节ID：查询比当前ID大的最小ID，无则为null
+        (SELECT MIN(contentId) FROM driving_content WHERE contentId &gt; t.contentId) AS nextContentId
+        FROM driving_content t
+        WHERE t.contentId = #{contentId}
+    </select>
+
+</mapper>

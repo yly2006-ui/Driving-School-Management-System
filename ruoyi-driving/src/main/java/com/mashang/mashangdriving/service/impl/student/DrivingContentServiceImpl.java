@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mashang.mashangdriving.domain.entity.*;
 import com.mashang.mashangdriving.domain.param.student.create.DrivingContentCreate;
+import com.mashang.mashangdriving.domain.vo.student.DrivingCourseAndContentVo;
 import com.mashang.mashangdriving.mapper.student.DrivingAttributeUseridMapper;
 import com.mashang.mashangdriving.mapper.student.DrivingContentMapper;
 import com.mashang.mashangdriving.mapper.student.DrivingStudentMapper;
@@ -49,5 +50,10 @@ public class DrivingContentServiceImpl extends ServiceImpl<DrivingContentMapper,
         drivingStudent.setStatus("0");
 
         return drivingStudentMapper.updateById(drivingStudent);
+    }
+
+    @Override
+    public DrivingCourseAndContentVo selectContentWithPrevNext(Long contentId) {
+        return drivingContentMapper.selectContentWithPrevNext(contentId);
     }
 }

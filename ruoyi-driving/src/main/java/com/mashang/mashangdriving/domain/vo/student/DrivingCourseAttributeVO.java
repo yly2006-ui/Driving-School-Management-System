@@ -20,7 +20,7 @@ public class DrivingCourseAttributeVO  {
     @ApiModelProperty(value = "属性名称", example = "道路交通安全法规", required = true)
     private String attributeName;
 
-    @ApiModelProperty(value = "类型", example = "1", notes = "1-理论, 2-实操")
+    @ApiModelProperty(value = "类型", example = "1", notes = "0-理论, 1-实操")
     private String type;
 
     @ApiModelProperty(value = "总时长", example = "12小时")

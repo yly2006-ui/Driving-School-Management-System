@@ -6,9 +6,11 @@ import com.mashang.mashangdriving.domain.entity.DrivingCourseAttribute;
 import com.mashang.mashangdriving.domain.entity.DrivingCourseAttributeRecord;
 import com.mashang.mashangdriving.domain.param.student.create.DrivingCourseAttributeCreate;
 import com.mashang.mashangdriving.domain.param.student.update.DrivingCourseAttributeUpdate;
+import com.mashang.mashangdriving.domain.vo.student.DrivingCourseAndContentVo;
 import com.mashang.mashangdriving.domain.vo.student.DrivingCourseAttributeVO;
 import com.mashang.mashangdriving.domain.vo.student.DrivingCourseStudentListVo;
 import com.mashang.mashangdriving.mapping.student.DrivingCourseAttributeMapping;
+import com.mashang.mashangdriving.service.student.IDrivingContentService;
 import com.mashang.mashangdriving.service.student.IDrivingCourseAttributeRecordService;
 import com.mashang.mashangdriving.service.student.IDrivingCourseAttributeService;
 import com.ruoyi.common.core.controller.BaseController;
@@ -36,6 +38,8 @@ public class DrivingCourseAttributeController extends BaseController {
     private IDrivingCourseAttributeService drivingCourseAttributeService;
     @Autowired
     private IDrivingCourseAttributeRecordService drivingCourseAttributeRecordService;
+    @Autowired
+    private IDrivingContentService drivingContentService;
 
     @GetMapping("/Dtl/{attributeId}")
     @ApiOperation("查询学习资料详情")
@@ -61,6 +65,15 @@ public class DrivingCourseAttributeController extends BaseController {
         } else {
             return R.fail();
         }
+    }
+    @ApiOperation("查询课程下的具体小节信息")
+    @GetMapping("/selectContent/{contentId}")
+    public R selectContent(@PathVariable Long contentId){
+
+        DrivingCourseAndContentVo drivingCourseAndContentVo = drivingContentService.selectContentWithPrevNext(contentId);
+        if (drivingCourseAndContentVo!=null){
+            return R.ok(drivingCourseAndContentVo);
+        }else return R.fail();
     }
 
     @ApiOperation("查询学习资料列表")
