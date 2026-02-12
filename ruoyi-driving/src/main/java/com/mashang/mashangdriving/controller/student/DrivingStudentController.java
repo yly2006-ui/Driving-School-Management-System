@@ -1,6 +1,7 @@
 package com.mashang.mashangdriving.controller.student;
 
 import com.mashang.mashangdriving.domain.entity.DrivingStudent;
+import com.mashang.mashangdriving.domain.param.student.update.AratarUpdate;
 import com.mashang.mashangdriving.domain.param.student.update.DrivingStudentUpdate;
 import com.mashang.mashangdriving.domain.vo.student.DrivingStudentDtlVo;
 import com.mashang.mashangdriving.mapping.student.DrivingStudentMapping;
@@ -12,6 +13,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @Api(tags = "学生端--个人信息")
 @RestController
@@ -36,6 +39,14 @@ public class DrivingStudentController extends BaseController {
         DrivingStudent update = DrivingStudentMapping.INSTANCE.toUpdtae(drivingStudentUpdate);
         boolean b = drivingStudentService.updateById(update);
         return toR(b);
+    }
+
+    @ApiOperation("修改头像")
+    @PutMapping("/uploadAvatar")
+    public R uploadAvatar(@RequestBody AratarUpdate aratarUpdate ) throws IOException {
+        int i = drivingStudentService.uploadAvatar(aratarUpdate.getStudentId(), aratarUpdate.getAratar());
+
+        return toR(i);
     }
 
 }

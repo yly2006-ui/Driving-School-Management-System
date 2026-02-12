@@ -5,9 +5,14 @@ import com.mashang.mashangdriving.domain.entity.DrivingStudent;
 import com.mashang.mashangdriving.domain.vo.student.DrivingStudentDtlVo;
 import com.mashang.mashangdriving.mapper.student.DrivingStudentMapper;
 import com.mashang.mashangdriving.service.student.IDrivingStudentService;
+import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.file.FileUploadUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Service
 public class DrivingStudentServiceImpl extends ServiceImpl<DrivingStudentMapper, DrivingStudent> implements IDrivingStudentService {
@@ -44,4 +49,24 @@ public class DrivingStudentServiceImpl extends ServiceImpl<DrivingStudentMapper,
     public String selectMail(Long userId) {
         return drivingStudentMapper.selectMail(userId);
     }
+
+    @Override
+    public int uploadAvatar(Long studentId, MultipartFile file) throws IOException {
+        // 1. 用若依工具类上传图片，得到「本地相对路径」（比如 /profile/upload/2026/02/11/xxx.png）
+        String localPath = FileUploadUtils.upload(RuoYiConfig.getUploadPath(), file);
+
+        // 2. 核心：拼接服务器域名，生成完整URL（这一步你之前没做！）
+        String serverDomain = RuoYiConfig.getDomain(); // 从配置读取：http://mashang.eicp.vip:5555/ms_stu_pro339
+        String fullUrl = serverDomain + localPath;     // 拼接后：http://xxx:5555/ms_stu_pro339/profile/upload/xxx.png
+        fullUrl = fullUrl.replaceAll("//", "/");       // 去除多余的/，避免格式错误
+
+        // 3. 更新数据库：存入完整URL，而非本地路径
+        DrivingStudent student = new DrivingStudent();
+        student.setStudentId(studentId);
+        student.setAvatar(fullUrl); // 存完整URL
+        drivingStudentMapper.updateById(student);
+    }
+
+
+
 }

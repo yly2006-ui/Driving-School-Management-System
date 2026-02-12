@@ -39,6 +39,8 @@ public class DrivingStudent {
 
     @ApiModelProperty(value = "学员状态",  example = "0(再学)")
     private String status;
+    @ApiModelProperty(value = "头像")
+    private String avatar;
 
     @ApiModelProperty(value = "身份证号", required = true, example = "110101199001011234")
     private String idNumber;
