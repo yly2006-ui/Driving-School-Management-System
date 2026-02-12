@@ -20,7 +20,8 @@ public class DrivingStudentUpdate {
     @ApiModelProperty(value = "手机号码",  example = "13800138000")
     private String phone;
 
-
+    @ApiModelProperty(value = "头像",  example = "13800138000")
+    private String avatar;
 
 
 }
