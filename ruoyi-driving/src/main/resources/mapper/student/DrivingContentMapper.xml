@@ -7,12 +7,12 @@
     <select id="selectContentWithPrevNext" resultType="com.mashang.mashangdriving.domain.vo.student.DrivingCourseAndContentVo">
         SELECT
         t.content_id AS contentId,
-        t.contect_name AS contentName,
+        t.contect_name AS contectName,
         t.content_time AS contentTime,
-        t.course_contect AS courseContext,
-        t.ipstructional_video AS instructionalVideo,
+        t.course_contect AS courseContect,
+        t.ipstructional_video AS ipstructionalVideo,
         t.video_explain AS videoExplain,
-        -- 上一节ID（匹配数据库content_id字段，用&lt;替代<）
+        -- 上一节ID（匹配数据库content_id字段，用&lt;替代
         (SELECT MAX(content_id) FROM driving_content WHERE content_id &lt; t.content_id) AS prevContentId,
         -- 下一节ID（匹配数据库content_id字段，用&gt;替代>）
         (SELECT MIN(content_id) FROM driving_content WHERE content_id &gt; t.content_id) AS nextContentId
