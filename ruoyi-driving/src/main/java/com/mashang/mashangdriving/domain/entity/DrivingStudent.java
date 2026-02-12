@@ -1,5 +1,6 @@
 package com.mashang.mashangdriving.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -56,6 +57,7 @@ public class DrivingStudent {
 
     @ApiModelProperty(value = "创建时间", example = "2024-01-15 10:30:00")
     private Date createTime;
+    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
     @ApiModelProperty(value = "修改时间", example = "2024-01-15 10:30:00")
     private Date updateTime;
 
