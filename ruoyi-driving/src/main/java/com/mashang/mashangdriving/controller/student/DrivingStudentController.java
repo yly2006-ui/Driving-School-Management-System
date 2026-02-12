@@ -47,7 +47,7 @@ public class DrivingStudentController extends BaseController {
             @RequestParam("studentId") Long studentId,
 
             @ApiParam(value = "头像文件", required = true)
-            @RequestParam("file") MultipartFile file
+            @RequestPart("file") MultipartFile file
     ) throws IOException {
         if (file.isEmpty()) {
             return R.fail("头像文件不能为空");
