@@ -6,7 +6,7 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
-public class AratarUpdate {
+public class AvatarUpdate {
     @ApiModelProperty("学生id")
     private Long studentId;
 

@@ -1,7 +1,7 @@
 package com.mashang.mashangdriving.controller.student;
 
 import com.mashang.mashangdriving.domain.entity.DrivingStudent;
-import com.mashang.mashangdriving.domain.param.student.update.AratarUpdate;
+import com.mashang.mashangdriving.domain.param.student.update.AvatarUpdate;
 import com.mashang.mashangdriving.domain.param.student.update.DrivingStudentUpdate;
 import com.mashang.mashangdriving.domain.vo.student.DrivingStudentDtlVo;
 import com.mashang.mashangdriving.mapping.student.DrivingStudentMapping;
@@ -43,7 +43,7 @@ public class DrivingStudentController extends BaseController {
 
     @ApiOperation("修改头像")
     @PutMapping("/uploadAvatar")
-    public R uploadAvatar(@RequestBody AratarUpdate aratarUpdate ) throws IOException {
+    public R uploadAvatar(@RequestBody AvatarUpdate aratarUpdate ) throws IOException {
         int i = drivingStudentService.uploadAvatar(aratarUpdate.getStudentId(), aratarUpdate.getAvatar());
 
         return toR(i);
