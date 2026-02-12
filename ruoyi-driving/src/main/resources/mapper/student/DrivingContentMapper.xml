@@ -6,18 +6,18 @@
     <!-- 查询课程内容详情（含上/下节ID） -->
     <select id="selectContentWithPrevNext" resultType="com.mashang.mashangdriving.domain.vo.student.DrivingCourseAndContentVo">
         SELECT
-        t.contentId,
-        t.contentName,
-        t.contentTime,
-        t.courseContext,
-        t.instructionalVideo,
-        t.videoExplain,
-        -- 上一节ID：查询比当前ID小的最大ID，无则为null
-        (SELECT MAX(contentId) FROM driving_content WHERE contentId &lt;  t.contentId) AS prevContentId,
-        -- 下一节ID：查询比当前ID大的最小ID，无则为null
-        (SELECT MIN(contentId) FROM driving_content WHERE contentId &gt; t.contentId) AS nextContentId
+        t.content_id AS contentId,
+        t.contect_name AS contentName,
+        t.content_time AS contentTime,
+        t.course_contect AS courseContext,
+        t.ipstructional_video AS instructionalVideo,
+        t.video_explain AS videoExplain,
+        -- 上一节ID（匹配数据库content_id字段，用&lt;替代<）
+        (SELECT MAX(content_id) FROM driving_content WHERE content_id &lt; t.content_id) AS prevContentId,
+        -- 下一节ID（匹配数据库content_id字段，用&gt;替代>）
+        (SELECT MIN(content_id) FROM driving_content WHERE content_id &gt; t.content_id) AS nextContentId
         FROM driving_content t
-        WHERE t.contentId = #{contentId}
+        WHERE t.content_id = #{contentId}
     </select>
 
 </mapper>
