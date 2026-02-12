@@ -32,13 +32,13 @@ public class RuoYiConfig
     /** 验证码类型 */
     private static String captchaType;
 
-    @Value("${ruoyi.domain}")
-    private String domain;
-
-    // 提供静态方法供其他类调用
-    public static String getDomain() {
-        return SpringUtils.getBean(RuoYiConfig.class).domain;
-    }
+//    @Value("${ruoyi.domain}")
+//    private String domain;
+//
+//    // 提供静态方法供其他类调用
+//    public static String getDomain() {
+//        return SpringUtils.getBean(RuoYiConfig.class).domain;
+//    }
 
     public String getName()
     {

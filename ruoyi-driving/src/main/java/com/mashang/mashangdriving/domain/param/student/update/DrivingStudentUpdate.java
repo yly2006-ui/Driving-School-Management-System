@@ -2,6 +2,7 @@ package com.mashang.mashangdriving.domain.param.student.update;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiParam;
 import lombok.Data;
 
 /**
@@ -22,6 +23,9 @@ public class DrivingStudentUpdate {
 
     @ApiModelProperty(value = "头像",  example = "13800138000")
     private String avatar;
+
+    @ApiParam(value = "头像文件", required = true)
+    private String file;
 
 
 }

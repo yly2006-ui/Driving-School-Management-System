@@ -40,19 +40,19 @@ public class DrivingStudentController extends BaseController {
         return toR(b);
     }
 
-    @ApiOperation("学员修改头像")
-    @PostMapping(value = "/updateAvatar", consumes = "multipart/form-data")
-    public R updateAvatar(
-            @ApiParam(value = "学员ID", required = true)
-            @RequestParam("studentId") Long studentId,
-
-            @ApiParam(value = "头像文件", required = true)
-            @RequestPart("file") MultipartFile file
-    ) throws IOException {
-        if (file.isEmpty()) {
-            return R.fail("头像文件不能为空");
-        }
-        String avatarUrl = drivingStudentService.updateAvatar(studentId, file);
-        return R.ok("头像修改成功", avatarUrl);
-    }
+//    @ApiOperation("学员修改头像")
+//    @PostMapping(value = "/updateAvatar")
+//    public R updateAvatar(
+//            @ApiParam(value = "学员ID", required = true)
+//            @RequestParam("studentId") Long studentId,
+//
+//            @ApiParam(value = "头像文件", required = true)
+//            @RequestPart("file") String file
+//    ) throws IOException {
+//        if (file.isEmpty()) {
+//            return R.fail("头像文件不能为空");
+//        }
+//        String avatarUrl = drivingStudentService.updateAvatar(studentId, file);
+//        return R.ok("头像修改成功", avatarUrl);
+//    }
 }

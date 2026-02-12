@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,7 @@ import com.ruoyi.framework.config.ServerConfig;
  * 
  * @author ruoyi
  */
+@Api(tags = "通用请求处理")
 @RestController
 @RequestMapping("/common")
 public class CommonController
@@ -72,6 +76,7 @@ public class CommonController
     /**
      * 通用上传请求（单个）
      */
+    @ApiOperation("通用上传请求")
     @PostMapping("/upload")
     public AjaxResult uploadFile(MultipartFile file) throws Exception
     {

@@ -19,14 +19,11 @@ public class ServerConfig
      */
     public String getUrl()
     {
-        HttpServletRequest request = ServletUtils.getRequest();
-        return getDomain(request);
+        return "http://mashang.eicp.vip:5555/ms_stu_pro339";
     }
 
     public static String getDomain(HttpServletRequest request)
     {
-        StringBuffer url = request.getRequestURL();
-        String contextPath = request.getServletContext().getContextPath();
-        return url.delete(url.length() - request.getRequestURI().length(), url.length()).append(contextPath).toString();
+        return "http://mashang.eicp.vip:5555/ms_stu_pro339";
     }
 }
