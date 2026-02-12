@@ -11,5 +11,5 @@ public class AratarUpdate {
     private Long studentId;
 
     @ApiModelProperty("头像")
-    private MultipartFile aratar;
+    private MultipartFile avatar;
 }

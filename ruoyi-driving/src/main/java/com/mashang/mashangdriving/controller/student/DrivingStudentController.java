@@ -44,7 +44,7 @@ public class DrivingStudentController extends BaseController {
     @ApiOperation("修改头像")
     @PutMapping("/uploadAvatar")
     public R uploadAvatar(@RequestBody AratarUpdate aratarUpdate ) throws IOException {
-        int i = drivingStudentService.uploadAvatar(aratarUpdate.getStudentId(), aratarUpdate.getAratar());
+        int i = drivingStudentService.uploadAvatar(aratarUpdate.getStudentId(), aratarUpdate.getAvatar());
 
         return toR(i);
     }
