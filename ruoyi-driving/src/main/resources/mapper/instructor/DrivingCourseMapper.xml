@@ -32,7 +32,7 @@
                  LEFT JOIN driving_section section
         ON chapter.chapter_id=section.chapter_id and section.del_flag=0
         WHERE course.course_id=#{courseId} and course.del_flag=0
-        order by coursr.course_id ,chapter.chapter_id,section.section_id
+        order by course.course_id ,chapter.chapter_id,section.section_id
     </select>
 
 
