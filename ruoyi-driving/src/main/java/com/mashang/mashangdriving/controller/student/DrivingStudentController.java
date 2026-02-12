@@ -6,12 +6,16 @@ import com.mashang.mashangdriving.domain.vo.student.DrivingStudentDtlVo;
 import com.mashang.mashangdriving.mapping.student.DrivingStudentMapping;
 import com.mashang.mashangdriving.service.student.IDrivingStudentService;
 import com.ruoyi.common.core.controller.BaseController;
+import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Api(tags = "学生端--个人信息")
 @RestController
@@ -36,6 +40,16 @@ public class DrivingStudentController extends BaseController {
         DrivingStudent update = DrivingStudentMapping.INSTANCE.toUpdtae(drivingStudentUpdate);
         boolean b = drivingStudentService.updateById(update);
         return toR(b);
+    }
+
+    // 学员修改头像接口
+    @PostMapping("/updateAvatar")
+    public R updateAvatar(
+            @RequestParam("studentId") Long studentId,  // 学员ID（必传）
+            @RequestParam("file") MultipartFile file    // 头像文件（form-data）
+    ) throws IOException {
+        String avatarUrl = drivingStudentService.updateAvatar(studentId, file);
+        return R.ok("头像修改成功", avatarUrl);
     }
 
 }

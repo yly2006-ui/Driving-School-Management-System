@@ -5,9 +5,14 @@ import com.mashang.mashangdriving.domain.entity.DrivingStudent;
 import com.mashang.mashangdriving.domain.vo.student.DrivingStudentDtlVo;
 import com.mashang.mashangdriving.mapper.student.DrivingStudentMapper;
 import com.mashang.mashangdriving.service.student.IDrivingStudentService;
+import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.file.FileUploadUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 
 @Service
@@ -15,29 +20,12 @@ public class DrivingStudentServiceImpl extends ServiceImpl<DrivingStudentMapper,
     @Autowired
     private DrivingStudentMapper drivingStudentMapper;
 
-    // 1. 直接定义本地前缀和服务器前缀（核心修改）
     private static final String LOCAL_PREFIX = "http://127.0.0.1:11339";
     private static final String SERVER_PREFIX = "http://mashang.eicp.vip:5555/ms_stu_pro339";
 
     @Override
     public DrivingStudentDtlVo selectById(Long studentId) {
-        // 2. 查询原始数据
         DrivingStudentDtlVo studentVo = drivingStudentMapper.selectById(studentId);
-
-        // 3. 处理avatar前缀（核心逻辑）
-        if (studentVo != null && StringUtils.isNotBlank(studentVo.getAvatar())) {
-            String avatar = studentVo.getAvatar();
-            // 去掉本地前缀
-            if (avatar.startsWith(LOCAL_PREFIX)) {
-                avatar = avatar.replace(LOCAL_PREFIX, "");
-            }
-            // 纯路径拼接服务器前缀，外网地址不处理
-            if (!avatar.startsWith("http")) {
-                avatar = SERVER_PREFIX + avatar;
-            }
-            studentVo.setAvatar(avatar);
-        }
-
         return studentVo;
     }
 
@@ -47,6 +35,21 @@ public class DrivingStudentServiceImpl extends ServiceImpl<DrivingStudentMapper,
     }
 
 
+    // 固定你的服务器域名（和你之前说的完全一致）
+    private static final String SERVER_DOMAIN = "http://mashang.eicp.vip:5555/ms_stu_pro339";
 
+    public String updateAvatar(Long studentId, MultipartFile file) throws IOException {
+        // 1. 上传文件，获取本地相对路径（比如 /profile/upload/2026/02/13/abc.png）
+        String localPath = FileUploadUtils.upload(FileUploadUtils.getDefaultBaseDir(), file);
+
+        // 2. 拼接你的服务器域名，生成可访问的完整URL（绝对匹配你的地址）
+        String fullAvatarUrl = SERVER_DOMAIN + localPath;
+        fullAvatarUrl = fullAvatarUrl.replaceAll("//", "/"); // 防止多斜杠（比如域名结尾带/的情况）
+
+        // 3. 更新数据库（存的是完整可访问URL，不是本地路径）
+        drivingStudentMapper.updateAvatar(studentId, fullAvatarUrl);
+
+        return fullAvatarUrl;
+    }
 
 }

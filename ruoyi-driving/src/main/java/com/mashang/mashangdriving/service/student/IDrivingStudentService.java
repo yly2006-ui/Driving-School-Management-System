@@ -14,4 +14,6 @@ public interface IDrivingStudentService extends IService<DrivingStudent> {
     //查询学生对应邮箱
     String selectMail(Long userId);
 
+    //修改头像
+    String updateAvatar(Long studentId, MultipartFile file) throws IOException;
 }
