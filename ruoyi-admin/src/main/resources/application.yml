@@ -8,6 +8,8 @@ ruoyi:
   copyrightYear: 2024
   # 文件路径
   profile: ./uploadPath
+  # 关键：配置服务器前缀，覆盖框架默认的本地地址
+  domain: http://mashang.eicp.vip:5555/ms_stu_pro339
   # 获取ip地址开关
   addressEnabled: false
   # 验证码类型 math 数字计算 char 字符验证
