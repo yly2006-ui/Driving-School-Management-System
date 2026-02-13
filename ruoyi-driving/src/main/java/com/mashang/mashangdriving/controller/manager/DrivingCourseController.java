@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mashang.mashangdriving.domain.entity.DrivingChapter;
 import com.mashang.mashangdriving.domain.entity.DrivingCourse;
+import com.mashang.mashangdriving.domain.entity.DrivingSection;
 import com.mashang.mashangdriving.domain.param.manager.create.DrivingChapterCreate;
 import com.mashang.mashangdriving.domain.param.manager.create.DrivingCourseCreate;
 import com.mashang.mashangdriving.domain.param.manager.create.DrivingSectionCreate;
@@ -27,6 +28,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -132,6 +134,12 @@ public class DrivingCourseController extends BaseController {
     @ApiOperation("删除课程")
     @DeleteMapping("deleteCourseId/{courseId}")
     public R deleteCourse(@PathVariable Long courseId) {
+        LambdaQueryWrapper<DrivingChapter>lambdaQueryWrapper=new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(DrivingChapter::getCourseId,courseId);
+        List<DrivingChapter> drivingChapters = drivingChapterService.list(lambdaQueryWrapper);
+        if (CollectionUtils.isNotEmpty(drivingChapters)){
+            return R.fail("课程下存在章");
+        }
         boolean b = drivingCourseService.removeById(courseId);
         return toR(b);
     }
@@ -239,6 +247,12 @@ public class DrivingCourseController extends BaseController {
     @ApiOperation("删除章")
     @DeleteMapping("/deleteChapterId/{chapterId}")
     public R deleteChapter(@PathVariable Long chapterId) {
+        LambdaQueryWrapper<DrivingSection>lambdaQueryWrapper=new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(DrivingSection::getChapterId,chapterId);
+        List<DrivingSection> list = drivingSectionService.list(lambdaQueryWrapper);
+        if (CollectionUtils.isNotEmpty(list)){
+            return R.fail("章下存在数据");
+        }
         boolean b = drivingChapterService.removeById(chapterId);
         return toR(b);
     }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mashang.mashangdriving.domain.entity.DrivingCourseAttribute;
 import com.mashang.mashangdriving.domain.entity.DrivingCourseAttributeRecord;
+import com.mashang.mashangdriving.domain.entity.DrivingLable;
 import com.mashang.mashangdriving.domain.param.student.create.DrivingCourseAttributeCreate;
 import com.mashang.mashangdriving.domain.param.student.update.DrivingCourseAttributeUpdate;
 import com.mashang.mashangdriving.domain.vo.student.DrivingCourseAndContentVo;
@@ -13,6 +14,7 @@ import com.mashang.mashangdriving.mapping.student.DrivingCourseAttributeMapping;
 import com.mashang.mashangdriving.service.student.IDrivingContentService;
 import com.mashang.mashangdriving.service.student.IDrivingCourseAttributeRecordService;
 import com.mashang.mashangdriving.service.student.IDrivingCourseAttributeService;
+import com.mashang.mashangdriving.service.student.IDrivingLableService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.page.PageQuery;
@@ -22,6 +24,7 @@ import com.ruoyi.common.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +43,8 @@ public class DrivingCourseAttributeController extends BaseController {
     private IDrivingCourseAttributeRecordService drivingCourseAttributeRecordService;
     @Autowired
     private IDrivingContentService drivingContentService;
+    @Autowired
+    private IDrivingLableService drivingLableService;
 
     @GetMapping("/Dtl/{attributeId}")
     @ApiOperation("查询学习资料详情")
@@ -131,6 +136,12 @@ public class DrivingCourseAttributeController extends BaseController {
     @ApiOperation("删除学习课程")
     @DeleteMapping("/delete/{attributeId}")
     public R delete(@PathVariable Long attributeId){
+        LambdaQueryWrapper<DrivingLable>lambdaQueryWrapper=new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(DrivingLable::getAttributeId,attributeId);
+        List<DrivingLable> list = drivingLableService.list(lambdaQueryWrapper);
+        if (CollectionUtils.isNotEmpty(list)){
+            return R.fail("课程下存在章");
+        }
         boolean b = drivingCourseAttributeService.removeById(attributeId);
         return toR(b);
 

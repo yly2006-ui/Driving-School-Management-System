@@ -12,8 +12,11 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Api(tags = "学员端--课程标签管理")
 @RestController
@@ -58,8 +61,8 @@ public class DrivingLableController extends BaseController {
     public R delete(@PathVariable Long lableId){
         LambdaQueryWrapper<DrivingContent>lambdaQueryWrapper=new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(DrivingContent::getLableId,lableId);
-        DrivingContent drivingContent = drivingContentService.getOne(lambdaQueryWrapper);
-        if (drivingContent!=null){return R.fail("此章之下存在小节");}
+        List<DrivingContent> drivingContent = drivingContentService.list(lambdaQueryWrapper);
+        if (CollectionUtils.isNotEmpty(drivingContent)){return R.fail("此章之下存在小节");}
 
         boolean b = drivingLableService.removeById(lableId);
         return toR(b);
