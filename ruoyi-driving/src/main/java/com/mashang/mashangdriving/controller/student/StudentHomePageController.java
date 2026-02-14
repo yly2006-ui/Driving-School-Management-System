@@ -6,6 +6,7 @@ import com.mashang.mashangdriving.service.manager.INoticeService;
 import com.mashang.mashangdriving.service.student.IStudentService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
+import com.ruoyi.common.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +29,14 @@ public class StudentHomePageController extends BaseController {
 
     @ApiOperation("学员端----数据概览")
     @GetMapping("/student/overview")
-    public R studentDataOverview(Long studentId) {
-
-        List<StudentDataOverviewNoticeDtlVo> studentDataOverviewNoticeDtlVos = noticeService.allDataOverviewNotice(studentId);
-        StudentDataOverviewDtlVo student = studentService.student(studentId);
+    public R studentDataOverview() {
+        Long userId = SecurityUtils.getUserId();
+        Long studentIdByUserId = studentService.getStudentIdByUserId(userId);
+        if (studentIdByUserId == null) {
+            return R.fail("当前用户不是学员，无法查看学员数据");
+        }
+        List<StudentDataOverviewNoticeDtlVo> studentDataOverviewNoticeDtlVos = noticeService.allDataOverviewNotice(studentIdByUserId);
+        StudentDataOverviewDtlVo student = studentService.student(studentIdByUserId);
         student.setDataOverviewNoticeDtlVoS(studentDataOverviewNoticeDtlVos);
 
         if (student!=null) {

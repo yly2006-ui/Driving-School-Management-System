@@ -103,4 +103,18 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, DrivingStuden
     public StudentDataOverviewDtlVo student(Long studentId) {
         return studentMapper.student(studentId);
     }
+
+    @Override
+    public Long getStudentIdByUserId(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        LambdaQueryWrapper<DrivingStudent> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DrivingStudent::getUserId, userId);
+        wrapper.eq(DrivingStudent::getDelFlag, "0");
+
+        DrivingStudent student = studentMapper.selectOne(wrapper);
+
+        return student != null ? student.getStudentId() : null;
+    }
 }

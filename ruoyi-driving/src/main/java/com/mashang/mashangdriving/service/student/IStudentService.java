@@ -17,4 +17,6 @@ public interface IStudentService extends IService<DrivingStudent> {
 
     //根据登陆信息查询该学员
     StudentDataOverviewDtlVo student(Long studentId);
+
+    Long getStudentIdByUserId(Long userId);
 }
