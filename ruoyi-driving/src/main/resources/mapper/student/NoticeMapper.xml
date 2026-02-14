@@ -8,6 +8,7 @@
             tice.text,
             tice.publish_time,
             tice.title_photo,
+            tice.user_id,
             nt.type_name,
             nt.type_id
         FROM
@@ -17,6 +18,7 @@
             ON
                 tice.type_id = nt.type_id
         WHERE
-            tice.user_id = #{userId} AND tice.`status` = "1"
+            tice.user_id = (SELECT user_id FROM driving_student
+                                           WHERE student_id = #{studentId} )
     </select>
 </mapper>

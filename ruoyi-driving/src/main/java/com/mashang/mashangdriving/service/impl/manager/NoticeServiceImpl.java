@@ -18,11 +18,8 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, DrivingNotice> 
     private NoticeMapper noticeMapper;
 
     @Override
-    public List<StudentDataOverviewNoticeDtlVo> allDataOverviewNotice() {
+    public List<StudentDataOverviewNoticeDtlVo> allDataOverviewNotice(Long studentId) {
 
-        Long userId = SecurityUtils.getLoginUser().getUserId();
-        List<StudentDataOverviewNoticeDtlVo> studentDataOverviewNoticeDtlVos =
-                noticeMapper.allDataOverviewNotice(userId);
-        return studentDataOverviewNoticeDtlVos;
+        return noticeMapper.allDataOverviewNotice(studentId);
     }
 }

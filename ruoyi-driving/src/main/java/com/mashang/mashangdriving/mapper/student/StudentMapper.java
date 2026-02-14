@@ -7,5 +7,5 @@ import com.mashang.mashangdriving.domain.vo.student.StudentDataOverviewDtlVo;
 public interface StudentMapper extends BaseMapper<DrivingStudent> {
 
     //根据userId查询学生实体
-    StudentDataOverviewDtlVo student(Long userId);
+    StudentDataOverviewDtlVo student(Long studentId);
 }

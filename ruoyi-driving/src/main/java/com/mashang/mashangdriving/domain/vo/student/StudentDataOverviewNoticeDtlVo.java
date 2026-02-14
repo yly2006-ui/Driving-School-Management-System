@@ -27,4 +27,10 @@ public class StudentDataOverviewNoticeDtlVo {
 
     @ApiModelProperty("通知logo")
     private String titlePhoto;
+
+//    @ApiModelProperty(value = "学生ID")
+//    private Long studentId;
+
+    @ApiModelProperty
+    private Long userId;
 }

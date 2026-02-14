@@ -16,5 +16,5 @@ public interface IStudentService extends IService<DrivingStudent> {
     int countOnMonthActiveStudent();
 
     //根据登陆信息查询该学员
-    StudentDataOverviewDtlVo student();
+    StudentDataOverviewDtlVo student(Long studentId);
 }

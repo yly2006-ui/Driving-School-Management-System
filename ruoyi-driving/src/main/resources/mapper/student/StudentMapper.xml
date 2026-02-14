@@ -14,6 +14,6 @@
                            ON ss.student_id = stu.student_id
                  LEFT JOIN driving_subject sub
                            ON sub.subject_id = ss.subject_id
-        WHERE stu.user_id = #{userId}
+        WHERE stu.student_id = #{studentId}
     </select>
 </mapper>

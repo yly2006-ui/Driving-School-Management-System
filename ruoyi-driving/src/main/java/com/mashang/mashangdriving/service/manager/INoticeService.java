@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface INoticeService extends IService<DrivingNotice> {
 
-    List<StudentDataOverviewNoticeDtlVo> allDataOverviewNotice();
+    List<StudentDataOverviewNoticeDtlVo> allDataOverviewNotice(Long studentId);
 
 }

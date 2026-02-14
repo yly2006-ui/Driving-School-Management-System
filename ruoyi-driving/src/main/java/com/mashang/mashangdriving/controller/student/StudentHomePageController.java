@@ -28,13 +28,17 @@ public class StudentHomePageController extends BaseController {
 
     @ApiOperation("学员端----数据概览")
     @GetMapping("/student/overview")
-    public R<StudentDataOverviewDtlVo> studentDataOverview(){
+    public R studentDataOverview(Long studentId) {
 
-        List<StudentDataOverviewNoticeDtlVo> studentDataOverviewNoticeDtlVos = noticeService.allDataOverviewNotice();
-        StudentDataOverviewDtlVo student = studentService.student();
+        List<StudentDataOverviewNoticeDtlVo> studentDataOverviewNoticeDtlVos = noticeService.allDataOverviewNotice(studentId);
+        StudentDataOverviewDtlVo student = studentService.student(studentId);
         student.setDataOverviewNoticeDtlVoS(studentDataOverviewNoticeDtlVos);
 
-        return R.ok(student);
+        if (student!=null) {
+            return R.ok(student);
+        }
+        return R.fail("查询失败");
+
 
     }
 

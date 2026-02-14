@@ -100,10 +100,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, DrivingStuden
     }
 
     @Override
-    public StudentDataOverviewDtlVo student() {
-
-        Long userId = SecurityUtils.getLoginUser().getUserId();
-        StudentDataOverviewDtlVo student = studentMapper.student(userId);
-        return student;
+    public StudentDataOverviewDtlVo student(Long studentId) {
+        return studentMapper.student(studentId);
     }
 }
