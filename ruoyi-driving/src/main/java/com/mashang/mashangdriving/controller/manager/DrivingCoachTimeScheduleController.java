@@ -250,7 +250,6 @@ public class DrivingCoachTimeScheduleController extends BaseController {
             return R.fail(400, "月份需在1-12之间，请检查输入");
         }
 
-        // 以下是你原有核心业务逻辑，一字不改
         // 1. 生成4-20点空白模板
         List<TimeGridVO> template = CoachTimeGridUtil.generateCoachTemplate(year, month);
         // 2. 查你的数据库数据
