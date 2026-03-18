@@ -104,7 +104,7 @@ public class DrivingBillRecordController extends BaseController {
         }
     }
 
-    @ApiOperation("财务报表")
+    @ApiOperation("财务报表excel")
     @Log(title = "财务报表", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public void export(HttpServletResponse response) throws IOException {

@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -717,9 +718,15 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
     @Override
     public List<DrivingGroupMonthVo> queryIncomeTrendByYear(String year) {
         String yearNumber = year.replaceAll("[^0-9]", "");
-        // 构造该年的时间范围（如2025-01-01 ~ 2025-12-31）
-        String startDate = yearNumber + "-01-01 00:00:00";
-        String endDate = yearNumber + "-12-31 23:59:59";
+        // 构造该年的时间范围（如2025-01-01 ~ 2026-01-01）
+
+        int time= Integer.parseInt(yearNumber);
+//        开始时间
+        LocalDateTime startDate = LocalDateTime.of(time, 1, 1, 0, 0, 0);
+//        结束时间
+        LocalDateTime endDate = LocalDateTime.of((time + 1), 1, 1, 0, 0, 0);
+//        String startDate = yearNumber + "-01-01 00:00:00";
+//        String endDate = yearNumber + "-12-31 23:59:59";
 
         QueryWrapper<DrivingBillRecord> queryWrapper = new QueryWrapper<>();
         queryWrapper.between("b.create_time", startDate, endDate); // 限定年份
