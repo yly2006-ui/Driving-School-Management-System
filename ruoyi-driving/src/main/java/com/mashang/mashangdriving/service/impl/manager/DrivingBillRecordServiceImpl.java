@@ -227,8 +227,14 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
     public DrivingBillYearMessageVo queryAll(String year) {
         String yearNumber = year.replaceAll("[^0-9]", "");
         QueryWrapper<DrivingBillRecord> queryWrapper = new QueryWrapper<>();
-        String startDate = yearNumber + "-01-01 00:00:00";
-        String endDate = yearNumber + "-12-31 23:59:59";
+        int time =Integer.parseInt(yearNumber);
+//        开始时间
+        LocalDateTime startDate = LocalDateTime.of(time, 1, 1, 0, 0, 0);
+//        结束时间
+        LocalDateTime endDate = LocalDateTime.of((time + 1), 1, 1, 0, 0, 0);
+
+//        String startDate = yearNumber + "-01-01 00:00:00";
+//        String endDate = yearNumber + "-12-31 23:59:59";
         queryWrapper.between("b.create_time", startDate, endDate);
         queryWrapper.eq("b.role_id", 102);
         DrivingBillYearMessageVo AnnualTotalIncome = drivingBillRecordMapper.queryAnnualTotalIncome(queryWrapper);
