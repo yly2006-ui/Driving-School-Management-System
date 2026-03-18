@@ -13,10 +13,8 @@ import com.mashang.mashangdriving.domain.vo.manager.DrivingBillRecordListVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingBillYearMessageVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingGroupMonthVo;
 import com.mashang.mashangdriving.mapper.manager.DrivingBillRecordMapper;
-import com.mashang.mashangdriving.mapper.student.DrivingCourseAttributeMapper;
 import com.mashang.mashangdriving.mapper.student.PayMapper;
 import com.mashang.mashangdriving.service.manager.IDrivingBillRecordService;
-import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.utils.StringUtils;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +25,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -44,7 +44,7 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
                                                          @Param("query") DrivingBillRecordQuery query) {
         QueryWrapper<DrivingBillRecord> queryWrapper = new QueryWrapper<>();
 
-        // 1. 基本条件
+        // 基础查询条件
         queryWrapper.like(StringUtils.isNotEmpty(query.getUserName()),
                 "driving_student.student_name", query.getUserName());
         String roleId = query.getRoleId();
@@ -56,13 +56,14 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         queryWrapper.eq(StringUtils.isNotNull(query.getPaymentMethod()), "pay.pay_type", query.getPaymentMethod());
         queryWrapper.orderByDesc("r.create_time");
         queryWrapper.eq("r.del_flag", 0);
-        // 2. 处理时间条件
+
+        // 时间条件处理
         handleTimeCondition(query, queryWrapper);
 
-        // 3. 执行查询
+        // 执行查询
         Page<DrivingBillRecordListVo> queried = drivingBillRecordMapper.queryBillRecord(page, queryWrapper);
 
-        // 4. 处理金额格式
+        // 金额格式处理
         if (queried != null && CollectionUtils.isNotEmpty(queried.getRecords())) {
             for (DrivingBillRecordListVo record : queried.getRecords()) {
                 Long amount = record.getAmount();
@@ -72,48 +73,32 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
                     record.setFinalAmount("-" + amount);
                 }
             }
-
         }
         return queried;
     }
+
     /**
-     * 处理时间条件
-     * 逻辑：
-     * 1. 都没传时间 → 查全部
-     * 2. 只有开始时间 → 查开始时间之后的所有记录
-     * 3. 只有结束时间 → 查结束时间之前的所有记录
-     * 4. 都有 → 查时间段内的记录
+     * 时间条件处理
      */
     private void handleTimeCondition(DrivingBillRecordQuery query, QueryWrapper<DrivingBillRecord> queryWrapper) {
         String endTime = query.getEndTime();
         String beginTime = query.getBeginTime();
 
-        // 1. 都有：查询时间段内的记录
         if (StringUtils.isNotEmpty(beginTime) && StringUtils.isNotEmpty(endTime)) {
             String startDate = parseDate(beginTime) + " 00:00:00";
             String endDate = parseDate(endTime) + " 23:59:59";
             queryWrapper.between("pay.create_time", startDate, endDate);
-        }
-        // 2. 只有结束时间：查询结束时间之前的所有记录
-        else if (StringUtils.isNotEmpty(endTime)) {
+        } else if (StringUtils.isNotEmpty(endTime)) {
             String endDate = parseDate(endTime) + " 23:59:59";
-            queryWrapper.le("pay.create_time", endDate);  // create_time <= endDate
-        }
-        // 3. 只有开始时间：查询开始时间之后的所有记录
-        else if (StringUtils.isNotEmpty(beginTime)) {
+            queryWrapper.le("pay.create_time", endDate);
+        } else if (StringUtils.isNotEmpty(beginTime)) {
             String startDate = parseDate(beginTime) + " 00:00:00";
-            queryWrapper.ge("pay.create_time", startDate);  // create_time >= startDate
+            queryWrapper.ge("pay.create_time", startDate);
         }
-        // 4. 都没传：不加时间条件，查全部
     }
 
     /**
-     * 解析日期字符串，统一格式为yyyy-MM-dd，并自动补零
-     * 支持格式：
-     * 1. yyyy-MM-dd (2024-01-05)
-     * 2. yyyy/MM/dd (2024/1/5)
-     * 3. yyyy年MM月dd日 (2024年1月5日)
-     * 4. yyyyMMdd (20240105)
+     * 日期格式解析
      */
     private String parseDate(String dateStr) {
         if (StringUtils.isEmpty(dateStr)) {
@@ -121,49 +106,36 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         }
 
         try {
-            // 清理所有非数字字符
             String cleanDate = dateStr.replaceAll("[^0-9]", "");
 
             if (cleanDate.length() >= 8) {
-                // 格式化为 yyyy-MM-dd，自动补零
                 String year = cleanDate.substring(0, 4);
-
-                // 处理月份（可能需要补零）
                 String month = cleanDate.substring(4, 6);
                 if (month.length() == 1) {
                     month = "0" + month;
                 } else if (month.startsWith("0")) {
-                    // 如果已经是两位数，但第一个是0，确保格式正确
                     month = String.format("%02d", Integer.parseInt(month));
                 }
 
-                // 处理日期（可能需要补零）
                 String day = cleanDate.substring(6, 8);
                 if (day.length() == 1) {
                     day = "0" + day;
                 } else if (day.startsWith("0")) {
-                    // 如果已经是两位数，但第一个是0，确保格式正确
                     day = String.format("%02d", Integer.parseInt(day));
                 }
 
                 return year + "-" + month + "-" + day;
             } else if (cleanDate.length() == 7) {
-                // 处理类似 2024015 这种格式（2024年1月5日去掉非数字后）
                 String year = cleanDate.substring(0, 4);
-
-                // 处理月份和日期（单个数字）
                 String monthPart = cleanDate.substring(4, 5);
                 String dayPart = cleanDate.substring(5);
 
-                // 自动补零
                 String month = String.format("%02d", Integer.parseInt(monthPart));
                 String day = String.format("%02d", Integer.parseInt(dayPart));
 
                 return year + "-" + month + "-" + day;
             } else if (cleanDate.length() == 6) {
-                // 处理类似 240105 这种短格式
                 if (cleanDate.startsWith("2")) {
-                    // 假设是 20240105 缺少了两位
                     String year = "20" + cleanDate.substring(0, 2);
                     String month = String.format("%02d", Integer.parseInt(cleanDate.substring(2, 4)));
                     String day = String.format("%02d", Integer.parseInt(cleanDate.substring(4)));
@@ -171,22 +143,19 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
                 }
             }
         } catch (Exception e) {
-            log.error("日期解析错误: {}");
-            // 如果解析失败，尝试其他方式
+            System.out.println("日期解析错误: " + e.getMessage());
             return tryOtherDateFormat(dateStr);
         }
 
-        return dateStr; // 如果都不匹配，返回原字符串
+        return dateStr;
     }
 
     /**
-     * 尝试其他日期格式解析
+     * 兼容其他日期格式
      */
     private String tryOtherDateFormat(String dateStr) {
         try {
-            // 尝试解析常见格式
             if (dateStr.contains("年") && dateStr.contains("月") && dateStr.contains("日")) {
-                // 处理中文格式：2024年1月5日
                 Pattern pattern = Pattern.compile("(\\d{4})年(\\d{1,2})月(\\d{1,2})日");
                 Matcher matcher = pattern.matcher(dateStr);
                 if (matcher.find()) {
@@ -196,7 +165,6 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
                     return year + "-" + month + "-" + day;
                 }
             } else if (dateStr.contains("-")) {
-                // 处理 2024-1-5 这种格式
                 String[] parts = dateStr.split("-");
                 if (parts.length == 3) {
                     String year = parts[0];
@@ -205,7 +173,6 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
                     return year + "-" + month + "-" + day;
                 }
             } else if (dateStr.contains("/")) {
-                // 处理 2024/1/5 这种格式
                 String[] parts = dateStr.split("/");
                 if (parts.length == 3) {
                     String year = parts[0];
@@ -215,63 +182,69 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
                 }
             }
         } catch (Exception e) {
-            log.error("其他日期格式解析错误: {}");
+            System.out.println("其他日期格式解析错误: " + e.getMessage());
         }
 
-        // 如果所有解析都失败，返回原字符串，但记录警告
-        log.warn("无法解析的日期格式: {}");
+        System.out.println("无法解析的日期格式: " + dateStr);
         return dateStr;
     }
-    //年报表
+
+    // 年度财务汇总（核心方法：仅返回单个实体类）
     @Override
     public DrivingBillYearMessageVo queryAll(String year) {
         String yearNumber = year.replaceAll("[^0-9]", "");
         QueryWrapper<DrivingBillRecord> queryWrapper = new QueryWrapper<>();
         int time =Integer.parseInt(yearNumber);
-//        开始时间
-        LocalDateTime startDate = LocalDateTime.of(time, 1, 1, 0, 0, 0);
-//        结束时间
-        LocalDateTime endDate = LocalDateTime.of((time + 1), 1, 1, 0, 0, 0);
 
-//        String startDate = yearNumber + "-01-01 00:00:00";
-//        String endDate = yearNumber + "-12-31 23:59:59";
-        queryWrapper.between("b.create_time", startDate, endDate);
+        // 年收入查询
+        queryWrapper.apply("YEAR(b.create_time) = {0}",time);
         queryWrapper.eq("b.role_id", 102);
         DrivingBillYearMessageVo AnnualTotalIncome = drivingBillRecordMapper.queryAnnualTotalIncome(queryWrapper);
         if (AnnualTotalIncome == null) {
-            throw new RuntimeException("不存在此年份的收入信息");
+            AnnualTotalIncome = new DrivingBillYearMessageVo();
+            AnnualTotalIncome.setAnnualTotalIncome("0");
         }
 
+        // 年支出查询
         QueryWrapper<DrivingBillRecord> wrapper = new QueryWrapper<>();
-        wrapper.between("b.create_time", startDate, endDate);
+        wrapper.apply("YEAR(b.create_time) = {0}",time);
         wrapper.eq("b.role_id", 101);
         DrivingBillYearMessageVo AnnualTotalExpenditure = drivingBillRecordMapper.queryAnnualTotalExpenditure(wrapper);
-        System.out.println(AnnualTotalExpenditure);
         if (AnnualTotalExpenditure == null) {
-            throw new RuntimeException("不存在此年份的支出信息");
+            AnnualTotalExpenditure = new DrivingBillYearMessageVo();
+            AnnualTotalExpenditure.setAnnualTotalExpenditure("0");
         }
+
+        // 学生总数查询
         QueryWrapper<DrivingBillRecord> wrappered = new QueryWrapper<>();
-        wrappered.between("s.create_time", startDate, endDate);
+        wrappered.apply("YEAR(s.create_time) = {0}",time);
         DrivingBillYearMessageVo allStudentCount = drivingBillRecordMapper.queryAllStudentCount(wrappered);
+        if (allStudentCount == null) {
+            allStudentCount = new DrivingBillYearMessageVo();
+            allStudentCount.setTotalStudents("0");
+        }
+
         DrivingBillYearMessageVo YearMessageVo = new DrivingBillYearMessageVo();
 
         String Expenditure = AnnualTotalExpenditure.getAnnualTotalExpenditure();
-//        System.out.println("今年支出"+Expenditure);
         String TotalIncome = AnnualTotalIncome.getAnnualTotalIncome();
 
         BigDecimal bd1 = new BigDecimal(Expenditure);
         BigDecimal bd2 = new BigDecimal(TotalIncome);
-
         BigDecimal NetProfit = bd2.subtract(bd1);
 
         String totalStudents = allStudentCount.getTotalStudents();
         System.out.println("今年一共存在的学生数量" + totalStudents);
-        BigDecimal TotalIncomed = new BigDecimal(TotalIncome);
-        BigDecimal divide = NetProfit.divide(TotalIncomed, 3, RoundingMode.HALF_UP);
-        BigDecimal profitMarginPercent = divide.multiply(new BigDecimal("100"));
-        BigDecimal formattedPercent = profitMarginPercent.setScale(1, RoundingMode.HALF_UP);
-        String yearNetProfit = formattedPercent + "%";
 
+        // 利润率计算
+        BigDecimal profitMarginPercent = BigDecimal.ZERO;
+        if (bd2.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal divide = NetProfit.divide(bd2, 3, RoundingMode.HALF_UP);
+            profitMarginPercent = divide.multiply(new BigDecimal("100")).setScale(1, RoundingMode.HALF_UP);
+        }
+        String yearNetProfit = profitMarginPercent + "%";
+
+        // 去年收入查询
         int lastYear = Integer.parseInt(yearNumber) - 1;
         String start = lastYear + "-01-01 00:00:00";
         String end = lastYear + "-12-31 23:59:59";
@@ -280,63 +253,91 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         w.eq("b.role_id", 102);
         DrivingBillYearMessageVo lastAnnualTotalIncome = drivingBillRecordMapper.queryAnnualTotalIncome(w);
         if (lastAnnualTotalIncome == null) {
-            throw new RuntimeException("不存在前年份收入的信息");
+            lastAnnualTotalIncome = new DrivingBillYearMessageVo();
+            lastAnnualTotalIncome.setAnnualTotalIncome("0");
         }
 
+        // 收入同比计算
         BigDecimal lastAnnual = new BigDecimal(lastAnnualTotalIncome.getAnnualTotalIncome());
-        BigDecimal subtract = bd2.subtract(lastAnnual);
-        BigDecimal a = subtract.divide(lastAnnual, 3, RoundingMode.HALF_UP);
-        BigDecimal multiply = a.multiply(new BigDecimal("100"));
-        BigDecimal lastAnnualTotalIncomegrowthRate = multiply.setScale(1, RoundingMode.HALF_UP);
-        String string = lastAnnualTotalIncomegrowthRate + "%";
+        String string = "0%";
+        if (lastAnnual.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal subtract = bd2.subtract(lastAnnual);
+            BigDecimal a = subtract.divide(lastAnnual, 3, RoundingMode.HALF_UP);
+            BigDecimal multiply = a.multiply(new BigDecimal("100")).setScale(1, RoundingMode.HALF_UP);
+            string = multiply + "%";
+        }
 
+        // 去年支出查询
         QueryWrapper<DrivingBillRecord> r = new QueryWrapper<>();
         r.between("b.create_time", start, end);
         r.eq("b.role_id", 101);
         DrivingBillYearMessageVo e = drivingBillRecordMapper.queryAnnualTotalExpenditure(r);
-        System.out.println("去年支出" + AnnualTotalExpenditure.getAnnualTotalExpenditure());
         if (e == null) {
-            throw new RuntimeException("不存在前年份的支出信息");
+            e = new DrivingBillYearMessageVo();
+            e.setAnnualTotalExpenditure("0");
         }
+        System.out.println("去年支出" + e.getAnnualTotalExpenditure());
+
+        // 支出同比计算
         BigDecimal t = new BigDecimal(e.getAnnualTotalExpenditure());
-        BigDecimal i = bd1.subtract(t);
-        BigDecimal p = i.divide(t, 3, RoundingMode.HALF_UP);
-        BigDecimal l = p.multiply(new BigDecimal("100"));
-        BigDecimal m = l.setScale(1, RoundingMode.HALF_UP);
-        String n = m + "%";
+        String n = "0%";
+        if (t.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal i = bd1.subtract(t);
+            BigDecimal p = i.divide(t, 3, RoundingMode.HALF_UP);
+            BigDecimal l = p.multiply(new BigDecimal("100")).setScale(1, RoundingMode.HALF_UP);
+            n = l + "%";
+        }
 
+        // 净利润同比计算
         BigDecimal lastyear = lastAnnual.subtract(t);
-        BigDecimal divide1 = NetProfit.subtract(lastyear).divide(lastyear, 3, RoundingMode.HALF_UP);
-        BigDecimal scale1 = divide1.multiply(new BigDecimal(100)).setScale(1, RoundingMode.HALF_UP);
-        String s1 = scale1 + "%";
+        String s1 = "0%";
+        if (lastyear.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal divide1 = NetProfit.subtract(lastyear).divide(lastyear, 3, RoundingMode.HALF_UP);
+            BigDecimal scale1 = divide1.multiply(new BigDecimal(100)).setScale(1, RoundingMode.HALF_UP);
+            s1 = scale1 + "%";
+        }
 
+        // 去年学生数查询
         QueryWrapper<DrivingBillRecord> student = new QueryWrapper<>();
         student.between("s.create_time", start, end);
         DrivingBillYearMessageVo studentTop = drivingBillRecordMapper.queryAllStudentCount(student);
+        if (studentTop == null) {
+            studentTop = new DrivingBillYearMessageVo();
+            studentTop.setTotalStudents("0");
+        }
+
+        // 学生数同比计算
         BigDecimal studentBigDecimal = new BigDecimal(totalStudents);
         BigDecimal lastStudentBigDecimal = new BigDecimal(studentTop.getTotalStudents());
-        BigDecimal decimal = studentBigDecimal.subtract(lastStudentBigDecimal).divide(lastStudentBigDecimal,
-                3, RoundingMode.HALF_UP);
-        BigDecimal multiply1 = decimal.multiply(new BigDecimal("100"));
-        BigDecimal scale = multiply1.setScale(1, RoundingMode.HALF_UP);
-        String s = scale + "%";
+        String s = "0%";
+        if (lastStudentBigDecimal.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal decimal = studentBigDecimal.subtract(lastStudentBigDecimal)
+                    .divide(lastStudentBigDecimal, 3, RoundingMode.HALF_UP);
+            BigDecimal multiply1 = decimal.multiply(new BigDecimal("100")).setScale(1, RoundingMode.HALF_UP);
+            s = multiply1 + "%";
+        }
 
         String subtract1 = NetProfit.subtract(lastyear) + "%";
 
-        //完成培训学生数量
+        // 完成培训学生数量查询
         QueryWrapper<DrivingBillRecord> finishedStudent = new QueryWrapper<>();
-        finishedStudent.between("s.create_time", startDate, endDate);
+        finishedStudent.apply("YEAR(s.create_time) = {0}",time);
         finishedStudent.eq("s.status", "1");
         Long finisheded = drivingBillRecordMapper.finishedStudent(finishedStudent);
+        if (finisheded == null) {
+            finisheded = 0L;
+        }
         System.out.println("完成培训学生数量" + finisheded);
 
+        // 培训完成率计算
         BigDecimal bigDecimal = new BigDecimal(finisheded);
+        String setScale = "0%";
+        if (studentBigDecimal.compareTo(BigDecimal.ZERO) > 0) {
+            setScale = bigDecimal.divide(studentBigDecimal, 3, RoundingMode.HALF_UP)
+                    .multiply(new BigDecimal("100")).setScale(1, RoundingMode.HALF_UP) + "%";
+        }
 
-        //通过培训率
-        String setScale = bigDecimal.divide(studentBigDecimal, 3, RoundingMode.HALF_UP).multiply(new BigDecimal("100"))
-                .setScale(1, RoundingMode.HALF_UP) + "%";
-
-
+        // 结果赋值
         YearMessageVo.setAnnualTotalExpenditure(Expenditure);
         YearMessageVo.setAnnualTotalIncomelastYear(string);
         YearMessageVo.setAnnualTotalIncome(TotalIncome);
@@ -350,188 +351,76 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         YearMessageVo.setProfitMargin(yearNetProfit);
         YearMessageVo.setProfitMarginlastYear(subtract1);
         YearMessageVo.setCompletedTraining(bigDecimal.toString());
-        YearMessageVo.setCompletedTrainingFinsh((setScale));
+        YearMessageVo.setCompletedTrainingFinsh(setScale);
+
+        // 直接返回单个实体类（无集合）
         return YearMessageVo;
     }
 
-    @Override
-    public List<DrivingBillYearMessageVo> DrivingBillYearMessageVo(String year) {
-        String yearNumber = year.replaceAll("[^0-9]", "");
-        QueryWrapper<DrivingBillRecord> queryWrapper = new QueryWrapper<>();
-        String startDate = yearNumber + "-01-01 00:00:00";
-        String endDate = yearNumber + "-12-31 23:59:59";
-        queryWrapper.between("b.create_time", startDate, endDate);
-        queryWrapper.eq("b.role_id", 102);
-        DrivingBillYearMessageVo AnnualTotalIncome = drivingBillRecordMapper.queryAnnualTotalIncome(queryWrapper);
-        if (AnnualTotalIncome == null) {
-            throw new RuntimeException("不存在此年份的收入信息");
-        }
+    // 移除多余的集合版方法，保留核心年度汇总方法
 
-        QueryWrapper<DrivingBillRecord> wrapper = new QueryWrapper<>();
-        wrapper.between("b.create_time", startDate, endDate);
-        wrapper.eq("b.role_id", 101);
-        DrivingBillYearMessageVo AnnualTotalExpenditure = drivingBillRecordMapper.queryAnnualTotalExpenditure(wrapper);
-        System.out.println(AnnualTotalExpenditure);
-        if (AnnualTotalExpenditure == null) {
-            throw new RuntimeException("不存在此年份的支出信息");
-        }
-        QueryWrapper<DrivingBillRecord> wrappered = new QueryWrapper<>();
-        wrappered.between("s.create_time", startDate, endDate);
-        DrivingBillYearMessageVo allStudentCount = drivingBillRecordMapper.queryAllStudentCount(wrappered);
-        DrivingBillYearMessageVo YearMessageVo = new DrivingBillYearMessageVo();
-
-        String Expenditure = AnnualTotalExpenditure.getAnnualTotalExpenditure();
-//        System.out.println("今年支出"+Expenditure);
-        String TotalIncome = AnnualTotalIncome.getAnnualTotalIncome();
-
-        BigDecimal bd1 = new BigDecimal(Expenditure);
-        BigDecimal bd2 = new BigDecimal(TotalIncome);
-
-        BigDecimal NetProfit = bd2.subtract(bd1);
-
-        String totalStudents = allStudentCount.getTotalStudents();
-        System.out.println("今年一共存在的学生数量" + totalStudents);
-        BigDecimal TotalIncomed = new BigDecimal(TotalIncome);
-        BigDecimal divide = NetProfit.divide(TotalIncomed, 3, RoundingMode.HALF_UP);
-        BigDecimal profitMarginPercent = divide.multiply(new BigDecimal("100"));
-        BigDecimal formattedPercent = profitMarginPercent.setScale(1, RoundingMode.HALF_UP);
-        String yearNetProfit = formattedPercent + "%";
-
-        int lastYear = Integer.parseInt(yearNumber) - 1;
-        String start = lastYear + "-01-01 00:00:00";
-        String end = lastYear + "-12-31 23:59:59";
-        QueryWrapper<DrivingBillRecord> w = new QueryWrapper<>();
-        w.between("b.create_time", start, end);
-        w.eq("b.role_id", 102);
-        DrivingBillYearMessageVo lastAnnualTotalIncome = drivingBillRecordMapper.queryAnnualTotalIncome(w);
-        if (lastAnnualTotalIncome == null) {
-            throw new RuntimeException("不存在前年份收入的信息");
-        }
-
-        BigDecimal lastAnnual = new BigDecimal(lastAnnualTotalIncome.getAnnualTotalIncome());
-        BigDecimal subtract = bd2.subtract(lastAnnual);
-        BigDecimal a = subtract.divide(lastAnnual, 3, RoundingMode.HALF_UP);
-        BigDecimal multiply = a.multiply(new BigDecimal("100"));
-        BigDecimal lastAnnualTotalIncomegrowthRate = multiply.setScale(1, RoundingMode.HALF_UP);
-        String string = lastAnnualTotalIncomegrowthRate + "%";
-
-        QueryWrapper<DrivingBillRecord> r = new QueryWrapper<>();
-        r.between("b.create_time", start, end);
-        r.eq("b.role_id", 101);
-        DrivingBillYearMessageVo e = drivingBillRecordMapper.queryAnnualTotalExpenditure(r);
-        System.out.println("去年支出" + AnnualTotalExpenditure.getAnnualTotalExpenditure());
-        if (e == null) {
-            throw new RuntimeException("不存在前年份的支出信息");
-        }
-        BigDecimal t = new BigDecimal(e.getAnnualTotalExpenditure());
-        BigDecimal i = bd1.subtract(t);
-        BigDecimal p = i.divide(t, 3, RoundingMode.HALF_UP);
-        BigDecimal l = p.multiply(new BigDecimal("100"));
-        BigDecimal m = l.setScale(1, RoundingMode.HALF_UP);
-        String n = m + "%";
-
-        BigDecimal lastyear = lastAnnual.subtract(t);
-        BigDecimal divide1 = NetProfit.subtract(lastyear).divide(lastyear, 3, RoundingMode.HALF_UP);
-        BigDecimal scale1 = divide1.multiply(new BigDecimal(100)).setScale(1, RoundingMode.HALF_UP);
-        String s1 = scale1 + "%";
-
-        QueryWrapper<DrivingBillRecord> student = new QueryWrapper<>();
-        student.between("s.create_time", start, end);
-        DrivingBillYearMessageVo studentTop = drivingBillRecordMapper.queryAllStudentCount(student);
-        BigDecimal studentBigDecimal = new BigDecimal(totalStudents);
-        BigDecimal lastStudentBigDecimal = new BigDecimal(studentTop.getTotalStudents());
-        BigDecimal decimal = studentBigDecimal.subtract(lastStudentBigDecimal).divide(lastStudentBigDecimal,
-                3, RoundingMode.HALF_UP);
-        BigDecimal multiply1 = decimal.multiply(new BigDecimal("100"));
-        BigDecimal scale = multiply1.setScale(1, RoundingMode.HALF_UP);
-        String s = scale + "%";
-
-        String subtract1 = NetProfit.subtract(lastyear) + "%";
-
-        //完成培训学生数量
-        QueryWrapper<DrivingBillRecord> finishedStudent = new QueryWrapper<>();
-        finishedStudent.between("s.create_time", startDate, endDate);
-        finishedStudent.eq("s.status", "1");
-        Long finisheded = drivingBillRecordMapper.finishedStudent(finishedStudent);
-        System.out.println("完成培训学生数量" + finisheded);
-
-        BigDecimal bigDecimal = new BigDecimal(finisheded);
-
-        //通过培训率
-        String setScale = bigDecimal.divide(studentBigDecimal, 3, RoundingMode.HALF_UP).multiply(new BigDecimal("100"))
-                .setScale(1, RoundingMode.HALF_UP) + "%";
-
-
-        YearMessageVo.setAnnualTotalExpenditure(Expenditure);
-        YearMessageVo.setAnnualTotalIncomelastYear(string);
-        YearMessageVo.setAnnualTotalIncome(TotalIncome);
-        YearMessageVo.setAnnualTotalExpenditurelastYear(n);
-
-        YearMessageVo.setAnnualNetProfit(String.valueOf(NetProfit));
-        YearMessageVo.setAnnualNetProfitlastYear(s1);
-
-        YearMessageVo.setTotalStudents(totalStudents);
-        YearMessageVo.setTotalStudentslastYear(s);
-        YearMessageVo.setProfitMargin(yearNetProfit);
-        YearMessageVo.setProfitMarginlastYear(subtract1);
-        YearMessageVo.setCompletedTraining(bigDecimal.toString());
-        YearMessageVo.setCompletedTrainingFinsh((setScale));
-        return (List<DrivingBillYearMessageVo>) YearMessageVo;
-    }
-
+    // 月度财务汇总
     @Override
     public DrivingBillMonthMessageVo queryMonthAll(String yearAndMonth) {
-        String yearStr = yearAndMonth.substring(0, 4);
-        String monthStr = yearAndMonth.substring(5, yearAndMonth.length() - 1);
+//        String yearStr = yearAndMonth.substring(0, 4);
+//        String monthStr = yearAndMonth.substring(5, yearAndMonth.length() - 1);
 
-        int month = Integer.parseInt(monthStr);
-        String formattedMonth = String.format("%02d", month);
-        String standardYearMonth = yearStr + "-" + formattedMonth;
+//        int month = Integer.parseInt(monthStr);
+//        String formattedMonth = String.format("%02d", month);
+//        String standardYearMonth = yearStr + "-" + formattedMonth;
+//
+//        String startDate = standardYearMonth + "-01 00:00:00";
+//        LocalDate firstDay = LocalDate.parse(standardYearMonth + "-01");
+//        LocalDate lastDay = firstDay.plusMonths(1).minusDays(1);
+//        String endDate = lastDay + " 23:59:59";
 
-        String startDate = standardYearMonth + "-01 00:00:00";
-        LocalDate firstDay = LocalDate.parse(standardYearMonth + "-01");
-        LocalDate lastDay = firstDay.plusMonths(1).minusDays(1);
-        String endDate = lastDay + " 23:59:59";
 
+        //        直接定义固定格式的格式化器
+        final DateTimeFormatter FORMATTER_YMD_HMS = DateTimeFormatter.ofPattern("yyyy-MM");
+        YearMonth yearMonth;
+        try {
+            yearMonth = YearMonth.parse(yearAndMonth, FORMATTER_YMD_HMS);
+        } catch (Exception e) {
+            throw new RuntimeException("输入时间格式应为yyyy-MM");
+        }
+        int year = yearMonth.getYear();
+        int monthValue = yearMonth.getMonthValue();
         // 1. 查询本月收入
         QueryWrapper<DrivingBillRecord> queryWrapper = new QueryWrapper<>();
-        queryWrapper.between("b.create_time", startDate, endDate);
+//        queryWrapper.between("b.create_time", startDate, endDate);
+        queryWrapper.apply("YEAR(b.create_time)={0} AND MONTH(b.create_time)={1}", year, monthValue);
         queryWrapper.eq("b.role_id", 102);
         DrivingBillMonthMessageVo drivingBillMonthMessageVo = drivingBillRecordMapper.queryMonthTotalIncome(queryWrapper);
-
-        // 防止NPE
         if (drivingBillMonthMessageVo == null) {
             drivingBillMonthMessageVo = new DrivingBillMonthMessageVo();
             drivingBillMonthMessageVo.setTotalIncome("0");
         } else if (StringUtils.isEmpty(drivingBillMonthMessageVo.getTotalIncome())) {
             drivingBillMonthMessageVo.setTotalIncome("0");
         }
-
         BigDecimal MonthTotalIncome = new BigDecimal(drivingBillMonthMessageVo.getTotalIncome());
 
         // 2. 查询本月支出
         QueryWrapper<DrivingBillRecord> wrapper = new QueryWrapper<>();
-        wrapper.between("b.create_time", startDate, endDate);
+//        wrapper.between("b.create_time", startDate, endDate);
+        wrapper.apply("YEAR(b.create_time)={0} AND MONTH(b.create_time)={1}", year, monthValue);
         wrapper.eq("b.role_id", 101);
         DrivingBillMonthMessageVo queried = drivingBillRecordMapper.queryMonthTotalExpenditure(wrapper);
-
         if (queried == null) {
             queried = new DrivingBillMonthMessageVo();
             queried.setTotalExpense("0");
         } else if (StringUtils.isEmpty(queried.getTotalExpense())) {
             queried.setTotalExpense("0");
         }
-
         BigDecimal MonthTotalExpenditure = new BigDecimal(queried.getTotalExpense());
         BigDecimal subtract = MonthTotalIncome.subtract(MonthTotalExpenditure);
 
         // 3. 查询本月学员缴费
         QueryWrapper<DrivingBillRecord> qw = new QueryWrapper<>();
-        qw.between("b.create_time", startDate, endDate);
+//        qw.between("b.create_time", startDate, endDate);
+        qw.apply("YEAR(b.create_time)={0} AND MONTH(b.create_time)={1}", year, monthValue);
         qw.eq("b.role_id", 102);
         qw.eq("b.charge_ltem_id", 1);
         DrivingBillMonthMessageVo vo = drivingBillRecordMapper.queryStudentTotalIncome(qw);
-
         if (vo == null || StringUtils.isEmpty(vo.getStudentPayment())) {
             vo = new DrivingBillMonthMessageVo();
             vo.setStudentPayment("0");
@@ -540,11 +429,11 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
 
         // 4. 查询本月其他收入
         QueryWrapper<DrivingBillRecord> qwr = new QueryWrapper<>();
-        qwr.between("b.create_time", startDate, endDate);
+//        qwr.between("b.create_time", startDate, endDate);
+        qwr.apply("YEAR(b.create_time)={0} AND MONTH(b.create_time)={1}", year, monthValue);
         qwr.eq("b.role_id", 102);
         qwr.ne("b.charge_ltem_id", 1);
         DrivingBillMonthMessageVo vos = drivingBillRecordMapper.queryNotStudentTotalIncome(qwr);
-
         if (vos == null || StringUtils.isEmpty(vos.getOtherIncome())) {
             vos = new DrivingBillMonthMessageVo();
             vos.setOtherIncome("0");
@@ -553,154 +442,157 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
 
         // 5. 查询本月学生数量
         QueryWrapper<DrivingBillRecord> wrappered = new QueryWrapper<>();
-        wrappered.between("s.create_time", startDate, endDate);
+//        wrappered.between("s.create_time", startDate, endDate);
+        wrappered.apply("YEAR(s.create_time)={0} AND MONTH(s.create_time)={1}", year, monthValue);
         DrivingBillYearMessageVo allStudentCount = drivingBillRecordMapper.queryAllStudentCount(wrappered);
-
-        if (allStudentCount == null || StringUtils.isEmpty(allStudentCount.getTotalStudents())) {
+        if (allStudentCount == null) {
             allStudentCount = new DrivingBillYearMessageVo();
             allStudentCount.setTotalStudents("0");
         }
         BigDecimal student = new BigDecimal(allStudentCount.getTotalStudents());
 
-        // 6. 计算客单价（防止除零）
+        // 6. 计算客单价
         BigDecimal scale = BigDecimal.ZERO;
         if (student.compareTo(BigDecimal.ZERO) > 0) {
             scale = StudentTotalIncome.divide(student, 1, RoundingMode.HALF_UP);
         }
 
         // 7. 查询上个月数据
-        LocalDate lastMonthFirstDay = firstDay.minusMonths(1);
-        String lastYearStr = String.valueOf(lastMonthFirstDay.getYear());
-        String lastMonthFormatted = String.format("%02d", lastMonthFirstDay.getMonthValue());
-        String lastYearMonth = lastYearStr + "-" + lastMonthFormatted;
-        String lm = lastYearMonth + "-01 00:00:00";
-        LocalDate lastFirstDay = LocalDate.parse(lastYearMonth + "-01");
-        LocalDate lastmonthDay = lastFirstDay.plusMonths(1).minusDays(1);
-        String end = lastmonthDay + " 23:59:59";
+
+//            String lastYearStr = String.valueOf(localDateTime.getYear());
+//            String lastMonthFormatted = String.format("%02d", localDateTime.getMonthValue());
+//            String lastYearMonth = lastYearStr + "-" + lastMonthFormatted;
+//            String lm = lastYearMonth + "-01 00:00:00";
+//            LocalDate lastFirstDay = LocalDate.parse(lastYearMonth + "-01");
+//            LocalDate lastmonthDay = lastFirstDay.plusMonths(1).minusDays(1);
+//            String end = lastmonthDay + " 23:59:59";
+
+        YearMonth lastYearMonth = yearMonth.minusMonths(1);
 
         // 7.1 查询上月收入
         QueryWrapper<DrivingBillRecord> lastmonth = new QueryWrapper<>();
-        lastmonth.between("b.create_time", lm, end);
+//            lastmonth.between("b.create_time", lm, end);
+        lastmonth.apply("YEAR(b.create_time)={0} AND MONTH(b.create_time)={1}", lastYearMonth.getYear(),
+                lastYearMonth.getMonthValue());
         lastmonth.eq("b.role_id", 102);
         DrivingBillMonthMessageVo drivingBillMonthMessageVo3 = drivingBillRecordMapper.queryMonthTotalIncome(lastmonth);
-
         if (drivingBillMonthMessageVo3 == null || StringUtils.isEmpty(drivingBillMonthMessageVo3.getTotalIncome())) {
-            // 上个月没有数据，抛出自定义异常
-            throw new RuntimeException("不存在上个月的收入信息");
+            drivingBillMonthMessageVo3 = new DrivingBillMonthMessageVo();
+            drivingBillMonthMessageVo3.setTotalIncome("0");
         }
         BigDecimal lastMonthTotalIncome = new BigDecimal(drivingBillMonthMessageVo3.getTotalIncome());
 
         // 7.2 查询上月支出
         QueryWrapper<DrivingBillRecord> qqq = new QueryWrapper<>();
-        qqq.between("b.create_time", lm, end);
+//            qqq.between("b.create_time", lm, end);
+        qqq.apply("YEAR(b.create_time)={0} AND MONTH(b.create_time)={1}", lastYearMonth.getYear(),
+                lastYearMonth.getMonthValue());
         qqq.eq("b.role_id", 101);
         DrivingBillMonthMessageVo lastMonthExpenditure = drivingBillRecordMapper.queryMonthTotalExpenditure(qqq);
-
         if (lastMonthExpenditure == null || StringUtils.isEmpty(lastMonthExpenditure.getTotalExpense())) {
-            // 上个月没有支出数据
-            throw new RuntimeException("不存在上个月的支出信息");
+            lastMonthExpenditure = new DrivingBillMonthMessageVo();
+            lastMonthExpenditure.setTotalExpense("0");
         }
         BigDecimal lastTotalExpense = new BigDecimal(lastMonthExpenditure.getTotalExpense());
 
-        // 8. 计算增长率（防止除零）
+        // 8. 收入增长率
         String divide = "0%";
         if (lastMonthTotalIncome.compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal growth = MonthTotalIncome.subtract(lastMonthTotalIncome)
                     .divide(lastMonthTotalIncome, 3, RoundingMode.HALF_UP)
-                    .multiply(new BigDecimal("100"))
-                    .setScale(1, RoundingMode.HALF_UP);
+                    .multiply(new BigDecimal("100")).setScale(1, RoundingMode.HALF_UP);
             divide = growth + "%";
         }
 
-        // 9. 计算支出增长率
+        // 9. 支出增长率
         String string = "0%";
         if (lastTotalExpense.compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal expenseGrowth = MonthTotalExpenditure.subtract(lastTotalExpense)
                     .divide(lastTotalExpense, 3, RoundingMode.HALF_UP)
-                    .multiply(new BigDecimal("100"))
-                    .setScale(1, RoundingMode.HALF_UP);
+                    .multiply(new BigDecimal("100")).setScale(1, RoundingMode.HALF_UP);
             string = expenseGrowth + "%";
         }
 
+        // 10. 净利润增长率
         BigDecimal lastMonthNetProfit = lastMonthTotalIncome.subtract(lastTotalExpense);
-
-        // 10. 计算净利润增长率
         String s = "0%";
         if (lastMonthNetProfit.compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal profitGrowth = subtract.subtract(lastMonthNetProfit)
                     .divide(lastMonthNetProfit, 3, RoundingMode.HALF_UP)
-                    .multiply(new BigDecimal("100"))
-                    .setScale(1, RoundingMode.HALF_UP);
+                    .multiply(new BigDecimal("100")).setScale(1, RoundingMode.HALF_UP);
             s = profitGrowth + "%";
         }
 
         // 11. 查询上月学员缴费
         QueryWrapper<DrivingBillRecord> stupay = new QueryWrapper<>();
-        stupay.between("b.create_time", lm, end);
+//            stupay.between("b.create_time", lm, end);
+        stupay.apply("YEAR(b.create_time)={0} AND MONTH(b.create_time)={1}", lastYearMonth.getYear(),
+                lastYearMonth.getMonthValue());
         stupay.eq("b.role_id", 102);
         stupay.eq("b.charge_ltem_id", 1);
         DrivingBillMonthMessageVo stupayVo = drivingBillRecordMapper.queryStudentTotalIncome(stupay);
-
         if (stupayVo == null || StringUtils.isEmpty(stupayVo.getStudentPayment())) {
-            throw new RuntimeException("不存在上月学员缴费");
+            stupayVo = new DrivingBillMonthMessageVo();
+            stupayVo.setStudentPayment("0");
         }
         BigDecimal lastMonthStudentPay = new BigDecimal(stupayVo.getStudentPayment());
 
-        // 12. 计算学员缴费增长率
+        // 12. 学员缴费增长率
         String string1 = "0%";
         if (lastMonthStudentPay.compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal studentPaymentGrowth = StudentTotalIncome.subtract(lastMonthStudentPay)
                     .divide(lastMonthStudentPay, 3, RoundingMode.HALF_UP)
-                    .multiply(new BigDecimal("100"))
-                    .setScale(1, RoundingMode.HALF_UP);
+                    .multiply(new BigDecimal("100")).setScale(1, RoundingMode.HALF_UP);
             string1 = studentPaymentGrowth + "%";
         }
 
         // 13. 查询上月其他收入
         QueryWrapper<DrivingBillRecord> other = new QueryWrapper<>();
-        other.between("b.create_time", lm, end);
+//            other.between("b.create_time", lm, end);
+        other.apply("YEAR(b.create_time)={0} AND MONTH(b.create_time)={1}", lastYearMonth.getYear(),
+                lastYearMonth.getMonthValue());
         other.eq("b.role_id", 102);
         other.ne("b.charge_ltem_id", 1);
         DrivingBillMonthMessageVo studentPay = drivingBillRecordMapper.queryNotStudentTotalIncome(other);
-
         if (studentPay == null || StringUtils.isEmpty(studentPay.getOtherIncome())) {
-            throw new RuntimeException("不存在上月其他收入");
+            studentPay = new DrivingBillMonthMessageVo();
+            studentPay.setOtherIncome("0");
         }
         BigDecimal notStudentTotalIncome = new BigDecimal(studentPay.getOtherIncome());
 
-        // 14. 计算其他收入增长率
+        // 14. 其他收入增长率
         String string2 = "0%";
         if (notStudentTotalIncome.compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal otherIncomeGrowth = noStudentTotalIncome.subtract(notStudentTotalIncome)
                     .divide(notStudentTotalIncome, 3, RoundingMode.HALF_UP)
-                    .multiply(new BigDecimal("100"))
-                    .setScale(1, RoundingMode.HALF_UP);
+                    .multiply(new BigDecimal("100")).setScale(1, RoundingMode.HALF_UP);
             string2 = otherIncomeGrowth + "%";
         }
 
         // 15. 查询上月学生数量
         QueryWrapper<DrivingBillRecord> count = new QueryWrapper<>();
-        count.between("s.create_time", lm, end);
+//            count.between("s.create_time", lm, end);
+        count.apply("YEAR(s.create_time)={0} AND MONTH(s.create_time)={1}", lastYearMonth.getYear(),
+                lastYearMonth.getMonthValue());
         DrivingBillYearMessageVo lastStudentCount = drivingBillRecordMapper.queryAllStudentCount(count);
-
-        if (lastStudentCount == null || StringUtils.isEmpty(lastStudentCount.getTotalStudents())) {
-            throw new RuntimeException("上月无学生");
+        if (lastStudentCount == null) {
+            lastStudentCount = new DrivingBillYearMessageVo();
+            lastStudentCount.setTotalStudents("0");
         }
         BigDecimal lastCount = new BigDecimal(lastStudentCount.getTotalStudents());
 
-        // 16. 计算上月客单价
+        // 16. 上月客单价
         BigDecimal lastScale = BigDecimal.ZERO;
         if (lastCount.compareTo(BigDecimal.ZERO) > 0) {
             lastScale = lastMonthStudentPay.divide(lastCount, 1, RoundingMode.HALF_UP);
         }
 
-        // 17. 计算客单价增长率
+        // 17. 客单价增长率
         String string3 = "0%";
-        if (lastScale.compareTo(BigDecimal.ZERO) > 0 && scale.compareTo(BigDecimal.ZERO) > 0) {
+        if (lastScale.compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal priceGrowth = scale.subtract(lastScale)
                     .divide(lastScale, 3, RoundingMode.HALF_UP)
-                    .multiply(new BigDecimal("100"))
-                    .setScale(1, RoundingMode.HALF_UP);
+                    .multiply(new BigDecimal("100")).setScale(1, RoundingMode.HALF_UP);
             string3 = priceGrowth + "%";
         }
 
@@ -720,37 +612,36 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         drivingBillMonthMessageVo1.setPriceGrowth(string3);
 
         return drivingBillMonthMessageVo1;
+
+
     }
+
+
     @Override
     public List<DrivingGroupMonthVo> queryIncomeTrendByYear(String year) {
         String yearNumber = year.replaceAll("[^0-9]", "");
-        // 构造该年的时间范围（如2025-01-01 ~ 2026-01-01）
-
         int time= Integer.parseInt(yearNumber);
-//        开始时间
         LocalDateTime startDate = LocalDateTime.of(time, 1, 1, 0, 0, 0);
-//        结束时间
         LocalDateTime endDate = LocalDateTime.of((time + 1), 1, 1, 0, 0, 0);
-//        String startDate = yearNumber + "-01-01 00:00:00";
-//        String endDate = yearNumber + "-12-31 23:59:59";
 
         QueryWrapper<DrivingBillRecord> queryWrapper = new QueryWrapper<>();
-        queryWrapper.between("b.create_time", startDate, endDate); // 限定年份
-        queryWrapper.eq("b.role_id", 102); // 限定收入（role_id=102对应收入）
+        queryWrapper.between("b.create_time", startDate, endDate);
+        queryWrapper.eq("b.role_id", 102);
 
-        // 调用新增的Mapper方法，按年月分组查询
+        // 调用Mapper查询
         List<DrivingGroupMonthVo> incomeTrendList = drivingBillRecordMapper.queryIncomeByYearGroupByMonth(queryWrapper);
+        if (incomeTrendList == null) {
+            incomeTrendList = new ArrayList<>();
+        }
 
-        // 补全“无数据的月份”（避免前端图表断档）
+        // 补全无数据的月份
         List<DrivingGroupMonthVo> fullMonthList = new ArrayList<>();
         for (int i = 1; i <= 12; i++) {
-            String currentMonth = yearNumber + "-" + String.format("%02d", i); // 格式化为2025-01
-            // 查找该月是否有数据
+            String currentMonth = yearNumber + "-" + String.format("%02d", i);
             DrivingGroupMonthVo existVo = incomeTrendList.stream()
                     .filter(vo -> currentMonth.equals(vo.getMonth()))
                     .findFirst()
                     .orElse(new DrivingGroupMonthVo());
-            // 无数据则收入设为0
             if (existVo.getMonthIncome() == null) {
                 existVo.setMonth(currentMonth);
                 existVo.setMonthIncome("0");
@@ -763,20 +654,28 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
 
     @Override
     public Long selectRoleId(Long userId) {
-        return drivingBillRecordMapper.selectRoleId(userId);
+        Long roleId = drivingBillRecordMapper.selectRoleId(userId);
+        return roleId == null ? 0L : roleId;
     }
-
 
     @Transactional(rollbackFor =Exception.class )
     @Override
     public int saveDrivingBillRecord(Long payId) {
         //查询支付表
         DrivingPay pay = payMapper.selectById(payId);
+        if (pay == null) {
+            throw new RuntimeException("支付记录不存在：" + payId);
+        }
         Long payPayId = pay.getPayId();
         Long userId = pay.getUserId();
         Long chargeLtemId = pay.getChargeLtemId();
+
         //查询roleid
         Long roleId = drivingBillRecordMapper.selectRoleId(userId);
+        if (roleId == null) {
+            throw new RuntimeException("用户" + userId + "无角色信息");
+        }
+
         //构建新的账单记录
         DrivingBillRecord drivingBillRecord = new DrivingBillRecord();
         drivingBillRecord.setUserId(userId);
@@ -790,17 +689,19 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         lambdaQueryWrapper.eq(DrivingBillRecord::getPayId, payId);
         DrivingBillRecord one = drivingBillRecordMapper.selectOne(lambdaQueryWrapper);
         if (one != null) {
-           throw  new RuntimeException("支付记录为" + payId + "已经加入账单记录");
+            throw  new RuntimeException("支付记录为" + payId + "已经加入账单记录");
         }
+
         int save = drivingBillRecordMapper.insert(drivingBillRecord);
-        int b;
-        if (save<0) {
-            throw new RuntimeException("新增失败");
-        } else {
-            pay.setBillStatus("1");
-            b = payMapper.updateById(pay);
+        if (save <= 0) {
+            throw new RuntimeException("新增账单记录失败");
+        }
+
+        pay.setBillStatus("1");
+        int b = payMapper.updateById(pay);
+        if (b <= 0) {
+            throw new RuntimeException("更新支付状态失败");
         }
         return b;
     }
-
 }

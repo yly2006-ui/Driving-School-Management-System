@@ -21,7 +21,7 @@ public interface IDrivingBillRecordService extends IService<DrivingBillRecord> {
     DrivingBillYearMessageVo queryAll(String year);
 
     //年度财务汇总
-    List<DrivingBillYearMessageVo> DrivingBillYearMessageVo(String year);
+//    List<DrivingBillYearMessageVo> DrivingBillYearMessageVo(String year);
 
     //月财务汇总
     DrivingBillMonthMessageVo queryMonthAll(String yearAndMonth);
