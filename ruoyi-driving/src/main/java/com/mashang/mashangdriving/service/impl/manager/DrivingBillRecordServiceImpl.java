@@ -45,8 +45,7 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         QueryWrapper<DrivingBillRecord> queryWrapper = new QueryWrapper<>();
 
         // 基础查询条件
-        queryWrapper.like(StringUtils.isNotEmpty(query.getUserName()),
-                "driving_student.student_name", query.getUserName());
+
         String roleId = query.getRoleId();
         if ("5".equals(roleId)) {
             queryWrapper.notIn("role.role_id",100,101,102,103);
@@ -56,7 +55,14 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         queryWrapper.eq(StringUtils.isNotNull(query.getPaymentMethod()), "pay.pay_type", query.getPaymentMethod());
         queryWrapper.orderByDesc("r.create_time");
         queryWrapper.eq("r.del_flag", 0);
-
+        // userName不为空拼接这个嵌套条件
+        if (StringUtils.isNotEmpty(query.getUserName())) {
+            queryWrapper.nested(wrapper -> wrapper
+                    .like("driving_student.student_name", query.getUserName())
+                    .or()
+                    .like("driving_instructor.instructor_name", query.getUserName())
+            );
+        }
         // 时间条件处理
         handleTimeCondition(query, queryWrapper);
 
@@ -66,8 +72,9 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         // 金额格式处理
         if (queried != null && CollectionUtils.isNotEmpty(queried.getRecords())) {
             for (DrivingBillRecordListVo record : queried.getRecords()) {
+                String roleName  = record.getRoleName();
                 Long amount = record.getAmount();
-                if (amount > 0) {
+                if (roleName.equals("学员")) {
                     record.setFinalAmount("+" + amount);
                 } else {
                     record.setFinalAmount("-" + amount);
@@ -189,7 +196,7 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         return dateStr;
     }
 
-    // 年度财务汇总（核心方法：仅返回单个实体类）
+    // 年度财务汇总
     @Override
     public DrivingBillYearMessageVo queryAll(String year) {
         String yearNumber = year.replaceAll("[^0-9]", "");
@@ -353,30 +360,19 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         YearMessageVo.setCompletedTraining(bigDecimal.toString());
         YearMessageVo.setCompletedTrainingFinsh(setScale);
 
-        // 直接返回单个实体类（无集合）
+        // 直接返回单个实体类
         return YearMessageVo;
     }
 
-    // 移除多余的集合版方法，保留核心年度汇总方法
 
     // 月度财务汇总
     @Override
     public DrivingBillMonthMessageVo queryMonthAll(String yearAndMonth) {
-//        String yearStr = yearAndMonth.substring(0, 4);
-//        String monthStr = yearAndMonth.substring(5, yearAndMonth.length() - 1);
-
-//        int month = Integer.parseInt(monthStr);
-//        String formattedMonth = String.format("%02d", month);
-//        String standardYearMonth = yearStr + "-" + formattedMonth;
-//
-//        String startDate = standardYearMonth + "-01 00:00:00";
-//        LocalDate firstDay = LocalDate.parse(standardYearMonth + "-01");
-//        LocalDate lastDay = firstDay.plusMonths(1).minusDays(1);
-//        String endDate = lastDay + " 23:59:59";
 
 
-        //        直接定义固定格式的格式化器
+        // 直接定义固定格式的格式化器
         final DateTimeFormatter FORMATTER_YMD_HMS = DateTimeFormatter.ofPattern("yyyy-MM");
+
         YearMonth yearMonth;
         try {
             yearMonth = YearMonth.parse(yearAndMonth, FORMATTER_YMD_HMS);
@@ -458,14 +454,6 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         }
 
         // 7. 查询上个月数据
-
-//            String lastYearStr = String.valueOf(localDateTime.getYear());
-//            String lastMonthFormatted = String.format("%02d", localDateTime.getMonthValue());
-//            String lastYearMonth = lastYearStr + "-" + lastMonthFormatted;
-//            String lm = lastYearMonth + "-01 00:00:00";
-//            LocalDate lastFirstDay = LocalDate.parse(lastYearMonth + "-01");
-//            LocalDate lastmonthDay = lastFirstDay.plusMonths(1).minusDays(1);
-//            String end = lastmonthDay + " 23:59:59";
 
         YearMonth lastYearMonth = yearMonth.minusMonths(1);
 
@@ -673,7 +661,7 @@ public class DrivingBillRecordServiceImpl extends ServiceImpl<DrivingBillRecordM
         //查询roleid
         Long roleId = drivingBillRecordMapper.selectRoleId(userId);
         if (roleId == null) {
-            throw new RuntimeException("用户" + userId + "无角色信息");
+            throw new RuntimeException("用户" + userId + "无角色id信息");
         }
 
         //构建新的账单记录

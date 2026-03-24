@@ -51,6 +51,7 @@ public class DrivingBillRecordController extends BaseController {
     @GetMapping("/list")
     public TableDataInfo<List<DrivingBillRecordListVo>> select(@Validated PageQuery pageQuery,
                                                                @Validated DrivingBillRecordQuery drivingBillRecordQuery) {
+
         Page<DrivingBillRecordListVo> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
         Page<DrivingBillRecordListVo> query = drivingBillRecordService.queryBillRecord(page, drivingBillRecordQuery);
         return getDataTable(query.getRecords(), query.getTotal());
@@ -58,7 +59,8 @@ public class DrivingBillRecordController extends BaseController {
 
     @ApiOperation("年度财务汇总")
     @GetMapping("/year/queryAll")
-    public R<DrivingBillYearMessageVo> queryAll(@ApiParam("查询年度财务的时间") @RequestParam String year) {
+    public R<DrivingBillYearMessageVo> queryAll(@ApiParam(value = "查询年度财务时间")@RequestParam
+                                                    String year) {
 
         DrivingBillYearMessageVo drivingBillYearMessageVo = drivingBillRecordService.queryAll(year);
         if (drivingBillYearMessageVo != null) {
@@ -82,7 +84,8 @@ public class DrivingBillRecordController extends BaseController {
 
     @ApiOperation("月度财务报表")
     @GetMapping("/month/query")
-    public R<DrivingBillMonthMessageVo> query(@RequestParam String yearAndMonth) {
+    public R<DrivingBillMonthMessageVo> query(@ApiParam(value = "查询月度财务的时间")
+                                                  @RequestParam String yearAndMonth) {
 
         DrivingBillMonthMessageVo drivingBillMonthMessageVo = drivingBillRecordService.queryMonthAll(yearAndMonth);
         if (drivingBillMonthMessageVo != null) {

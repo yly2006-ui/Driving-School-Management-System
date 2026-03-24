@@ -28,7 +28,7 @@ public class DrivingBillRecordQuery {
     private String endTime;
 
     @NotNull(message = "用户角色id不能为空")
-    @ApiModelProperty(value = "用户角色id", required = true,example = "102")
+    @ApiModelProperty(value = "用户角色id，0是全部角色5是除已知角色之外的角色其余按照roleid进行传递", required = true,example = "102")
     private String roleId;
 
     @ApiModelProperty(value = "支付方式", example = "0")

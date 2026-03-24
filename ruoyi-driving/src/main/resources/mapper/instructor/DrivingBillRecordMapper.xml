@@ -4,7 +4,7 @@
 <mapper namespace="com.mashang.mashangdriving.mapper.manager.DrivingBillRecordMapper">
     <resultMap id="DrivingBillRecordListVo" type="com.mashang.mashangdriving.domain.vo.manager.DrivingBillRecordListVo">
         <id property="recordId" column="record_id"/>
-        <result property="userName" column="student_name"/>
+        <result property="userName" column="user_name"/>
         <result property="chargeItem" column="charge_ltem_name"/>
         <result property="amount" column="amount"/>
         <result property="roleName" column="role_name"/>
@@ -14,7 +14,11 @@
 
     <select id="queryBillRecord" resultMap="DrivingBillRecordListVo">
         SELECT  r.record_id,
-                driving_student.student_name,
+                CASE
+                    WHEN r.role_id=101 THEN
+                        driving_instructor.instructor_name
+                    WHEN r.role_id=102 THEN  driving_student.student_name
+                    END  AS user_name,
                 l.charge_ltem_name,
                 role.role_name,
                 l.amount ,
@@ -25,6 +29,7 @@
                  LEFT JOIN sys_role role ON r.role_id=role.role_id
                  LEFT JOIN driving_pay pay ON pay.pay_id=r.pay_id
                  LEFT JOIN driving_student ON r.user_id=driving_student.user_id
+                 LEFT JOIN driving_instructor ON r.user_id=driving_instructor.user_id
             ${ew.customSqlSegment}
     </select>
 
@@ -101,9 +106,8 @@
     </select>
 
     <select id="selectRoleId" resultType="java.lang.Long">
-        SELECT DISTINCT sys_role.role_id
-        FROM sys_role
-                 JOIN driving_bill_record r ON r.role_id=sys_role.role_id
-        WHERE r.user_id=1001
+        SELECT DISTINCT sys_user_role.role_id
+        FROM sys_user_role
+        WHERE sys_user_role.user_id=#{userId}
     </select>
 </mapper>
