@@ -27,13 +27,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
-
+@Validated
 @Slf4j
 @Api(tags = "管理端--财务管理")
 @RestController
@@ -59,7 +60,7 @@ public class DrivingBillRecordController extends BaseController {
 
     @ApiOperation("年度财务汇总")
     @GetMapping("/year/queryAll")
-    public R<DrivingBillYearMessageVo> queryAll(@ApiParam(value = "查询年度财务时间")@RequestParam
+    public R<DrivingBillYearMessageVo> queryAll(@ApiParam(value = "查询年度财务时间")@RequestParam @NotBlank(message = "时间不可为空")
                                                     String year) {
 
         DrivingBillYearMessageVo drivingBillYearMessageVo = drivingBillRecordService.queryAll(year);
@@ -85,7 +86,7 @@ public class DrivingBillRecordController extends BaseController {
     @ApiOperation("月度财务报表")
     @GetMapping("/month/query")
     public R<DrivingBillMonthMessageVo> query(@ApiParam(value = "查询月度财务的时间")
-                                                  @RequestParam String yearAndMonth) {
+                                                  @RequestParam @NotBlank String yearAndMonth) {
 
         DrivingBillMonthMessageVo drivingBillMonthMessageVo = drivingBillRecordService.queryMonthAll(yearAndMonth);
         if (drivingBillMonthMessageVo != null) {
@@ -123,7 +124,7 @@ public class DrivingBillRecordController extends BaseController {
 
     @ApiOperation("每月的收入查询")
     @GetMapping("/income/trend")
-    public TableDataInfo<List<DrivingGroupMonthVo>> queryIncomeTrend(@RequestParam String year) {
+    public TableDataInfo<List<DrivingGroupMonthVo>> queryIncomeTrend(@RequestParam @NotBlank(message = "时间不可为空") String year) {
         List<DrivingGroupMonthVo> trendList = drivingBillRecordService.queryIncomeTrendByYear(year);
         return getDataTable(trendList);
     }
