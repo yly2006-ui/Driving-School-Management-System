@@ -60,7 +60,8 @@ public class DrivingBillRecordController extends BaseController {
 
     @ApiOperation("年度财务汇总")
     @GetMapping("/year/queryAll")
-    public R<DrivingBillYearMessageVo> queryAll(@ApiParam(value = "查询年度财务时间")@RequestParam @NotBlank(message = "时间不可为空")
+    public R<DrivingBillYearMessageVo> queryAll(@ApiParam(value = "查询年度财务时间")@RequestParam
+                                                    @NotBlank(message = "时间不可为空")
                                                     String year) {
 
         DrivingBillYearMessageVo drivingBillYearMessageVo = drivingBillRecordService.queryAll(year);
