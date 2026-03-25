@@ -104,7 +104,7 @@ spring:
     # 端口，默认为6379
     port: 6379
     # 数据库索引
-    database: 11
+    database: 2
     # 密码
     password:
     # 连接超时时间
