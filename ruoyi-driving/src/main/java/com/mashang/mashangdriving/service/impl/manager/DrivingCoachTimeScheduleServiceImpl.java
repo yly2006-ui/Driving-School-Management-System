@@ -28,6 +28,7 @@ public class DrivingCoachTimeScheduleServiceImpl extends ServiceImpl<DrivingCoac
         LambdaQueryWrapper<DrivingInstructor>lambdaQueryWrapper=new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(DrivingInstructor::getUserId, SecurityUtils.getUserId());
         DrivingInstructor drivingInstructor = drivingInstructorMapper.selectOne(lambdaQueryWrapper);
+        if (drivingInstructor==null){throw new RuntimeException("userId为："+SecurityUtils.getUserId()+"的用户并非教练");}
         return coachTimeScheduleMapper.selectCoachTimeByYearAndMonth(year, month,drivingInstructor.getInstructorId());
     }
 

@@ -125,7 +125,8 @@ public class DrivingBillRecordController extends BaseController {
 
     @ApiOperation("每月的收入查询")
     @GetMapping("/income/trend")
-    public TableDataInfo<List<DrivingGroupMonthVo>> queryIncomeTrend(@RequestParam @NotBlank(message = "时间不可为空") String year) {
+    public TableDataInfo<List<DrivingGroupMonthVo>> queryIncomeTrend(@RequestParam
+                                       @NotBlank(message = "时间不可为空") String year) {
         List<DrivingGroupMonthVo> trendList = drivingBillRecordService.queryIncomeTrendByYear(year);
         return getDataTable(trendList);
     }

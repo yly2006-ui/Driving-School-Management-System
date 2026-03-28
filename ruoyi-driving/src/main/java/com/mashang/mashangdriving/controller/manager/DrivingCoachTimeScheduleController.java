@@ -228,7 +228,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
             return R.fail(400, "年月参数不能为空，请传入如2026-1或2026-01的格式");
         }
 
-        // 2. 正则匹配：必须先判断matches()为true，才能取分组（核心修复点）
+        // 2. 先判断matches()为true才能取分组
         Matcher matcher = YEAR_MONTH.matcher(yearAndMonth.trim());
 
         if (!matcher.matches()) {

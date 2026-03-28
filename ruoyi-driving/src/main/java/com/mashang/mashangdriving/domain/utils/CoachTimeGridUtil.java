@@ -45,6 +45,7 @@ public class CoachTimeGridUtil {
             grid.setDay(current.getDayOfMonth());
             grid.setHour(hour);
             grid.setStatus(0); // 默认未预约
+            grid.setPerson("0");
             gridList.add(grid);
 
             current = current.plusHours(1);
