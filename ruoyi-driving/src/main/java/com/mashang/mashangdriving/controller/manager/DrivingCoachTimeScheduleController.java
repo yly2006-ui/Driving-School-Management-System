@@ -1,6 +1,7 @@
 package com.mashang.mashangdriving.controller.manager;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.injector.methods.Delete;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.mashang.mashangdriving.domain.entity.DrivingCoachTimeSchedule;
 import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
@@ -25,6 +26,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +40,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Validated
 @Api(tags = "管理端-个人中心")
@@ -162,30 +165,61 @@ public class DrivingCoachTimeScheduleController extends BaseController {
             return R.fail("待取消的时间安排列表不能为空");
         }
         for (DrivingCoachTimeScheduleDelete delete : deleteList) {
-            LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getStartTime, delete.getStartTime());
-            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getEndTime, delete.getEndTime());
-            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId, SecurityUtils.getUserId());
-            DrivingCoachTimeSchedule one = drivingCoachTimeScheduleService.getOne(lambdaQueryWrapper);
-            if (one == null) {
-                return R.fail("不存在该教练的时间安排");
+            if (delete.getStartTime() == null || delete.getEndTime() == null) {
+                throw new RuntimeException("时间不能为空");
             }
         }
+
+        List<LocalDateTime> endTime = deleteList.stream()
+                .map(DrivingCoachTimeScheduleDelete::getEndTime).toList();
+        List<LocalDateTime> startTime = deleteList.stream().map(DrivingCoachTimeScheduleDelete::getStartTime).toList();
+        LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.in(DrivingCoachTimeSchedule::getStartTime, startTime);
+        lambdaQueryWrapper.in(DrivingCoachTimeSchedule::getEndTime,endTime);
+        lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId, SecurityUtils.getUserId());
+        List<DrivingCoachTimeSchedule> list = drivingCoachTimeScheduleService.list(lambdaQueryWrapper);
+//        数据库中的数据集合转map
+        Map<String, DrivingCoachTimeSchedule> scheduleMap=list.stream()
+                .filter(schedule -> schedule.getStartTime() != null&&schedule.getEndTime()!=null)
+                .collect(Collectors.toMap(
+                        schedule->schedule.getStartTime().format(DATE_TIME_FORMATTER)+schedule.getEndTime()
+                                .format(DATE_TIME_FORMATTER),
+                        schedule->schedule));
+//        前端传的转换为集合对比数据库中的数据
+        deleteList.forEach(one->{
+            DrivingCoachTimeSchedule drivingCoachTimeSchedule = scheduleMap.get(one.getStartTime().format(DATE_TIME_FORMATTER) + one.getEndTime()
+                    .format(DATE_TIME_FORMATTER));
+            if (drivingCoachTimeSchedule==null){
+                throw new RuntimeException("不存在userid为"+SecurityUtils.getUserId()+"的"+one.getStartTime()
+                        .format(DATE_TIME_FORMATTER)+"到" +one.getEndTime().format(DATE_TIME_FORMATTER)+"时间安排");
+            }
+        });
+
+
         List<DrivingCoachTimeSchedule> delete = DrivingCoachTimeScheduleMapping.INSTANCE.toDelete(deleteList);
-        int succeful = 0;
-        for (DrivingCoachTimeSchedule drivingCoachTimeSchedule : delete) {
-            drivingCoachTimeSchedule.setUserId(SecurityUtils.getUserId());
-            LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId, SecurityUtils.getUserId());
-            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getStartTime, drivingCoachTimeSchedule.getStartTime());
-            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getEndTime, drivingCoachTimeSchedule.getEndTime());
-            boolean remove = drivingCoachTimeScheduleService.remove(lambdaQueryWrapper);
-            if (remove) {
-                succeful = succeful + 1;
-            }
-        }
-        int size = delete.size();
-        return succeful == size?R.ok():R.fail();
+        // 1. 先拿到当前用户 ID
+        Long userId = SecurityUtils.getUserId();
+
+        // 2. 用 Stream 把所有 startTime 抽出来
+        List<LocalDateTime> startTimes = delete.stream()
+                .map(DrivingCoachTimeSchedule::getStartTime)
+                .collect(Collectors.toList());
+
+        // 3. 用 Stream 把所有 endTime 抽出来
+        List<LocalDateTime> endTimes = delete.stream()
+                .map(DrivingCoachTimeSchedule::getEndTime)
+                .collect(Collectors.toList());
+
+        // 4. 构建批量删除条件（一次构造，一次删除）
+        LambdaQueryWrapper<DrivingCoachTimeSchedule> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DrivingCoachTimeSchedule::getUserId, userId);  // 固定用户
+        wrapper.in(DrivingCoachTimeSchedule::getStartTime, startTimes); // 所有开始时间
+        wrapper.in(DrivingCoachTimeSchedule::getEndTime, endTimes);     // 所有结束时间
+
+        // 5. 一次性批量删除！！！
+        boolean success = drivingCoachTimeScheduleService.remove(wrapper);
+
+        return success?R.ok():R.fail();
     }
 
     @GetMapping("/selectByUserId")
