@@ -1,5 +1,6 @@
 package com.mashang.mashangdriving.domain.vo.manager; // 和Entity同模块的vo包
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 /**
@@ -8,7 +9,7 @@ import lombok.Data;
  */
 @Data
 public class TimeGridVO {
-    /** 唯一匹配键：年-月-日 时（如2026-02-01 04），后端匹配用 */
+    /** 唯一匹配键：年-月-日 时-分-秒，后端匹配用 */
     private String timeKey;
     /** 年（前端渲染列：日期分组） */
     private Integer year;

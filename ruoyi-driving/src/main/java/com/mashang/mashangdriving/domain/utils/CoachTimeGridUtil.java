@@ -13,7 +13,7 @@ import java.util.Map;
 public class CoachTimeGridUtil {
 
     // 改用LocalDateTime专用的格式化器
-    private static final DateTimeFormatter timeKeyFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH");
+    private static final DateTimeFormatter timeKeyFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**
      * 生成指定年月的【4-20点】空白模板
@@ -38,7 +38,7 @@ public class CoachTimeGridUtil {
 
             TimeGridVO grid = new TimeGridVO();
             // 生成timeKey
-            grid.setTimeKey(current.format(timeKeyFormatter));
+            grid.setTimeKey((current.format(timeKeyFormatter)));
             // 拆分字段
             grid.setYear(current.getYear());
             grid.setMonth(current.getMonthValue());

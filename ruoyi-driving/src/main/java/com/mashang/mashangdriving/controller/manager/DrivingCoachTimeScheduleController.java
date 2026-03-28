@@ -34,8 +34,11 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 @Validated
 @Api(tags = "管理端-个人中心")
 @RestController
@@ -254,23 +257,34 @@ public class DrivingCoachTimeScheduleController extends BaseController {
         List<TimeGridVO> template = CoachTimeGridUtil.generateCoachTemplate(year, month);
         // 2. 查你的数据库数据
         List<DrivingCoachTimeSchedule> scheduleList = drivingCoachTimeScheduleService.selectCoachTimeByYearAndMonth(year, month);
-//        // 3. 填充数据（自动转换status，匹配timeKey）
-//        List<TimeGridVO> finalData = CoachTimeGridUtil.fillCoachData(template, scheduleList);
-//        // 4. 若依标准返回
-//        return R.ok(finalData);
 
-        //3.1直接转
-        for (TimeGridVO timeGridVO : template) {
-            for (DrivingCoachTimeSchedule drivingCoachTimeSchedule : scheduleList) {
-                LocalDateTime startTime = drivingCoachTimeSchedule.getStartTime();
-                String timeKey = timeGridVO.getTimeKey();
-                String format = startTime.format(timeKeyFormatter);
-                if (timeKey.equals(format)){
-                    timeGridVO.setStatus(1);
-                    timeGridVO.setPerson(drivingCoachTimeSchedule.getPerson());
-                }
+        /*
+         最终优化版用stream流
+         */
+        // 1. 把数据库时间 → 转成【字符串】做 key
+        Map<String, DrivingCoachTimeSchedule> scheduleMap = scheduleList.stream()
+                // 必须过滤判空！
+                .filter(schedule -> schedule.getStartTime() != null)
+                .collect(Collectors.toMap(
+                        schedule -> schedule.getStartTime().format(DATE_TIME_FORMATTER),
+                        schedule -> schedule,
+                        (oldVal, newVal) -> oldVal
+                ));
+
+        // 2. 对比模板数据
+        template.forEach(grid -> {
+
+            DrivingCoachTimeSchedule schedule = scheduleMap.get(grid.getTimeKey());
+
+            if (schedule != null) {
+                grid.setStatus(1);
+                grid.setPerson(schedule.getPerson());
             }
-        }
+        });
+
+
+
+
 
         return R.ok(template);
     }
