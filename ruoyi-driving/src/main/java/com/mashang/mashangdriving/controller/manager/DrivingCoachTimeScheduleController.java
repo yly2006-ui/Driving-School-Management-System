@@ -1,15 +1,12 @@
 package com.mashang.mashangdriving.controller.manager;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.injector.methods.Delete;
-import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.mashang.mashangdriving.domain.entity.DrivingCoachTimeSchedule;
 import com.mashang.mashangdriving.domain.entity.DrivingInstructor;
 import com.mashang.mashangdriving.domain.param.manager.delete.DrivingCoachTimeScheduleDelete;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingCoachTimeScheduleCreate;
 import com.mashang.mashangdriving.domain.param.manager.query.DrivingCoachTimeScheduleCreateAndInstructQuery;
 import com.mashang.mashangdriving.domain.utils.CoachTimeGridUtil;
-import com.mashang.mashangdriving.domain.vo.manager.DrivingCoachTimeScheduleVo;
 import com.mashang.mashangdriving.domain.vo.manager.DrivingCoahTimeAndInstructorDtlVo;
 import com.mashang.mashangdriving.domain.vo.manager.ProfileInfoVO;
 import com.mashang.mashangdriving.domain.vo.manager.TimeGridVO;
@@ -25,22 +22,16 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Validated
 @Api(tags = "管理端-个人中心")
@@ -130,30 +121,69 @@ public class DrivingCoachTimeScheduleController extends BaseController {
         DrivingInstructor instructor = drivingInstructorService.getOne(lqw);
         Long instructorId = instructor.getInstructorId();
 
-        for (DrivingCoachTimeScheduleCreate drivingCoachTimeScheduleCreate : scheduleList) {
-            LocalDateTime startTime = drivingCoachTimeScheduleCreate.getStartTime();
-            LocalDateTime endTime = drivingCoachTimeScheduleCreate.getEndTime();
-
-            LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper =
+//        for (DrivingCoachTimeScheduleCreate drivingCoachTimeScheduleCreate : scheduleList) {
+//            LocalDateTime startTime = drivingCoachTimeScheduleCreate.getStartTime();
+//            LocalDateTime endTime = drivingCoachTimeScheduleCreate.getEndTime();
+//
+//            LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper =
+//                    new LambdaQueryWrapper<>();
+//            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getStartTime, startTime);
+//            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getEndTime, endTime);
+//            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId, userId);
+//            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getDelFlag,0);
+//            DrivingCoachTimeSchedule one = drivingCoachTimeScheduleService.getOne(lambdaQueryWrapper);
+//            if (one != null) {
+//                return R.fail("教练Id为：" + one.getInstructorId() + "的教练已设置"
+//                        + DATE_TIME_FORMATTER.format(one.getStartTime()) + "开始至"
+//                        + DATE_TIME_FORMATTER.format(one.getEndTime()) + "为可预约时段");
+//            }
+//        }
+        List<LocalDateTime> startTime = scheduleList.stream().map(DrivingCoachTimeScheduleCreate::getStartTime)
+                .toList();
+        List<LocalDateTime> endTime = scheduleList.stream().map(DrivingCoachTimeScheduleCreate::getEndTime)
+                .toList();
+        LambdaQueryWrapper<DrivingCoachTimeSchedule> lambdaQueryWrapper =
                     new LambdaQueryWrapper<>();
-            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getStartTime, startTime);
-            lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getEndTime, endTime);
+            lambdaQueryWrapper.in(DrivingCoachTimeSchedule::getStartTime, startTime);
+            lambdaQueryWrapper.in(DrivingCoachTimeSchedule::getEndTime, endTime);
             lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getUserId, userId);
             lambdaQueryWrapper.eq(DrivingCoachTimeSchedule::getDelFlag,0);
-            DrivingCoachTimeSchedule one = drivingCoachTimeScheduleService.getOne(lambdaQueryWrapper);
-            if (one != null) {
-                return R.fail("教练Id为：" + one.getInstructorId() + "的教练已设置"
-                        + DATE_TIME_FORMATTER.format(one.getStartTime()) + "开始至"
-                        + DATE_TIME_FORMATTER.format(one.getEndTime()) + "为可预约时段");
+//            数据库中的信息
+        List<DrivingCoachTimeSchedule> list = drivingCoachTimeScheduleService.list(lambdaQueryWrapper);
+//        转map
+        Map<String, DrivingCoachTimeSchedule> collect = list.stream()
+                .collect(Collectors.toMap(e -> e.getStartTime().
+                                format(DATE_TIME_FORMATTER) + e.getEndTime().format(DATE_TIME_FORMATTER),
+                                        e -> e
+                ));
+//        对比一下
+        List<String> E=new ArrayList<>();
+        scheduleList.forEach(e->{
+            DrivingCoachTimeSchedule drivingCoachTimeSchedule = collect.get(e.getStartTime().format(DATE_TIME_FORMATTER)
+                    +e.getEndTime().format(DATE_TIME_FORMATTER));
+            if (drivingCoachTimeSchedule!=null){
+            E.add(e.getStartTime().format(DATE_TIME_FORMATTER)+"开始到"
+                  +e.getEndTime().format(DATE_TIME_FORMATTER));
             }
+        });
+        if (!E.isEmpty()) {
+            throw new RuntimeException("你的时间"+E+"已预约");
         }
+        ;
+
         List<DrivingCoachTimeSchedule> create = DrivingCoachTimeScheduleMapping.INSTANCE.toCreate(scheduleList);
-        for (DrivingCoachTimeSchedule drivingCoachTimeSchedule : create) {
-            drivingCoachTimeSchedule.setInstructorId(String.valueOf(instructorId));
-            drivingCoachTimeSchedule.setUserId(userId);
-            drivingCoachTimeSchedule.setPerson("0");
-            drivingCoachTimeSchedule.setStatus("1");
-        }
+//        for (DrivingCoachTimeSchedule drivingCoachTimeSchedule : create) {
+//            drivingCoachTimeSchedule.setInstructorId(String.valueOf(instructorId));
+//            drivingCoachTimeSchedule.setUserId(userId);
+//            drivingCoachTimeSchedule.setPerson("0");
+//            drivingCoachTimeSchedule.setStatus("1");
+//        }
+
+        //stream流方法
+        create.forEach(c->{c.setInstructorId(String.valueOf(instructorId));
+            c.setUserId(userId);
+            c.setPerson("0");
+            c.setStatus("1");});
         boolean success = drivingCoachTimeScheduleService.saveBatch(create);
         return success ? R.ok("批量新增成功") : R.fail("批量新增失败");
     }
