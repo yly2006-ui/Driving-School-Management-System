@@ -169,7 +169,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
         if (!E.isEmpty()) {
             throw new RuntimeException("你的时间"+E+"已预约");
         }
-        ;
+
 
         List<DrivingCoachTimeSchedule> create = DrivingCoachTimeScheduleMapping.INSTANCE.toCreate(scheduleList);
 
