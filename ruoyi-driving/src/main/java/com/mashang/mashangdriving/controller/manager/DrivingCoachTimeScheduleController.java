@@ -172,12 +172,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
         ;
 
         List<DrivingCoachTimeSchedule> create = DrivingCoachTimeScheduleMapping.INSTANCE.toCreate(scheduleList);
-//        for (DrivingCoachTimeSchedule drivingCoachTimeSchedule : create) {
-//            drivingCoachTimeSchedule.setInstructorId(String.valueOf(instructorId));
-//            drivingCoachTimeSchedule.setUserId(userId);
-//            drivingCoachTimeSchedule.setPerson("0");
-//            drivingCoachTimeSchedule.setStatus("1");
-//        }
+
 
         //stream流方法
         create.forEach(c->{c.setInstructorId(String.valueOf(instructorId));
