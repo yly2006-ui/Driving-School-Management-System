@@ -48,6 +48,7 @@ public class DrivingCoachTimeScheduleController extends BaseController {
 
     @Autowired
     private IDrivingCoachTimeScheduleService drivingCoachTimeScheduleService;
+
     @Autowired
     private IDrivingInstructorService drivingInstructorService;
 
