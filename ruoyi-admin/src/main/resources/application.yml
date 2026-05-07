@@ -64,7 +64,7 @@ spring:
     host: smtp.qq.com
     port: 465  # 465端口必须配SSL，587端口需改配置
     username: 3154563562@qq.com  # 比如 123456@qq.com
-    password: pbaokaxrkvogddcj     # 不是QQ密码！
+    password: huhuhuhuhu     # 不是QQ密码！
     default-encoding: UTF-8
     properties:
       mail:
